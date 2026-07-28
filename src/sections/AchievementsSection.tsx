@@ -7,43 +7,43 @@ const toppersList = [
     name: "Siddhant Tiwari",
     class: "Class X",
     score: "99.4%",
-    photo: "https://www.dpsindirapuram.com/images/Class%20X-XII%20Toppers%20(2024-25)/SIDDHANT%20TIWARI.jpg"
+    photo: "/images/dps/topper_siddhant.webp"
   },
   {
     name: "Ansh Pathak",
     class: "Class X",
     score: "99.4%",
-    photo: "https://www.dpsindirapuram.com/images/Class%20X-XII%20Toppers%20(2024-25)/ANSH%20PATHAK.jpg"
+    photo: "/images/dps/topper_ansh.webp"
   },
   {
     name: "Aayush Jha",
     class: "Class X",
     score: "99.2%",
-    photo: "https://www.dpsindirapuram.com/images/Class%20X-XII%20Toppers%20(2024-25)/AAYUSH%20JHA.jpg"
+    photo: "/images/dps/topper_aayush.webp"
   },
   {
     name: "Arnav Jha",
     class: "Class X",
     score: "99.2%",
-    photo: "https://www.dpsindirapuram.com/images/Class%20X-XII%20Toppers%20(2024-25)/ARNAV%20JHA.jpg"
+    photo: "/images/dps/topper_arnav.webp"
   },
   {
     name: "Jia Manchanda",
     class: "Class XII (Commerce)",
     score: "98.2%",
-    photo: "https://www.dpsindirapuram.com/images/Class%20X-XII%20Toppers%20(2024-25)/Jia%20Manchanda.jpg"
+    photo: "/images/dps/topper_jia.webp"
   },
   {
     name: "Snigdha Shukla",
     class: "Class XII (Humanities)",
     score: "97.6%",
-    photo: "https://www.dpsindirapuram.com/images/Class%20X-XII%20Toppers%20(2024-25)/SNIGDHA%20SHUKLA.jpg"
+    photo: "/images/dps/topper_snigdha.webp"
   },
   {
     name: "Pawni Srivastava",
     class: "Class XII (Science)",
     score: "97.2%",
-    photo: "https://www.dpsindirapuram.com/images/Class%20X-XII%20Toppers%20(2024-25)/PAWNI%20SRIVASTAVA.jpg"
+    photo: "/images/dps/topper_pawni.webp"
   }
 ];
 
