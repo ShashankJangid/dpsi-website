@@ -86,15 +86,19 @@ export default function AchievementsSection() {
               <Card className="bg-slate-900/80 backdrop-blur-md border border-emerald-500/20 hover:border-emerald-400/50 hover:shadow-2xl hover:shadow-emerald-950/60 transition-all duration-300 overflow-hidden group">
                 <CardContent className="p-5 text-center flex flex-col items-center">
                   <div className="relative mb-4">
-                    <div className="w-28 h-28 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-emerald-500 to-amber-500 shadow-xl group-hover:scale-105 transition-transform duration-300">
-                      <img
-                        src={t.photo}
-                        alt={t.name}
-                        className="w-full h-full object-cover rounded-full bg-slate-800"
-                      />
+                    <div className="w-28 h-28 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-rose-500 to-amber-500 shadow-xl shadow-rose-950/40 group-hover:scale-105 transition-transform duration-300">
+                      <div className="w-full h-full rounded-full overflow-hidden relative bg-gradient-to-br from-[#881337] via-[#9f1239] to-[#d97706] p-0.5">
+                        {/* Grid mesh texture overlay behind student */}
+                        <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:10px_10px]" />
+                        <img
+                          src={t.photo}
+                          alt={t.name}
+                          className="relative w-full h-full object-cover rounded-full mix-blend-normal z-10"
+                        />
+                      </div>
                     </div>
-                    <div className="absolute -bottom-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black px-3 py-0.5 rounded-full shadow-lg flex items-center gap-1">
-                      <Award className="w-3 h-3 fill-slate-950" />
+                    <div className="absolute -bottom-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 text-xs font-black px-3.5 py-0.5 rounded-full shadow-xl flex items-center gap-1 border border-amber-300/40 z-20">
+                      <Award className="w-3.5 h-3.5 fill-slate-950" />
                       <span>{t.score}</span>
                     </div>
                   </div>
