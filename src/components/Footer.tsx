@@ -22,6 +22,7 @@ const quickLinks = [
 ];
 
 const resources = [
+  { label: "SchoolsOS Portal Login 🔒", href: "https://dpsindp.schoolforschools.ai/login", external: true },
   { label: "Event Calendar", href: "/news-events" },
   { label: "Mandatory Public Disclosure", href: "#" },
   { label: "Careers", href: "#" },
@@ -53,34 +54,38 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/DPSIndirapuramGhaziabad"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-slate-800 hover:bg-emerald-700 transition-colors"
+                className="p-2 rounded-full bg-slate-800 hover:bg-[#1877F2] transition-colors"
+                title="Facebook"
               >
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://youtube.com"
+                href="https://www.youtube.com/channel/UC-jQAVRh4pBXEktpml3yeIQ/videos"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-slate-800 hover:bg-emerald-700 transition-colors"
+                className="p-2 rounded-full bg-slate-800 hover:bg-[#FF0000] transition-colors"
+                title="YouTube"
               >
                 <Youtube className="w-4 h-4" />
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/company/dpsindirapuram/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-slate-800 hover:bg-emerald-700 transition-colors"
+                className="p-2 rounded-full bg-slate-800 hover:bg-[#0A66C2] transition-colors"
+                title="LinkedIn"
               >
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/dps_indirapuram/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-slate-800 hover:bg-emerald-700 transition-colors"
+                className="p-2 rounded-full bg-slate-800 hover:bg-[#dc2743] transition-colors"
+                title="Instagram"
               >
                 <Instagram className="w-4 h-4" />
               </a>
@@ -112,12 +117,23 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {resources.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-sm hover:text-emerald-400 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
+                  {link.external ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      to={link.href}
+                      className="text-sm hover:text-emerald-400 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -89,12 +89,20 @@ export default function Navbar() {
               <span>CALL US: +91-0120-4660000, 4670000 | EMAIL: INFO@DPSINDIRAPURAM.COM</span>
             </div>
           </div>
-          <div className="hidden lg:flex items-center gap-4 text-[11px] font-bold text-white shrink-0">
-            <Link to="/admissions" className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded transition-all">
+          <div className="hidden lg:flex items-center gap-3 text-[11px] font-bold text-white shrink-0">
+            <a
+              href="https://dpsindp.schoolforschools.ai/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded shadow-md transition-all font-extrabold"
+            >
+              SchoolsOS Login 🔒
+            </a>
+            <Link to="/admissions" className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-all">
               Apply Now
             </Link>
             {isAdmin && (
-              <Link to="/admin" className="px-3 py-1 bg-emerald-700 hover:bg-emerald-600 rounded transition-all">
+              <Link to="/admin" className="px-3 py-1 bg-emerald-800 hover:bg-emerald-700 rounded transition-all">
                 Admin Panel
               </Link>
             )}
