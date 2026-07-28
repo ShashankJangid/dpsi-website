@@ -41,6 +41,10 @@ export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
+    heroSlides.forEach((slide) => {
+      const img = new Image();
+      img.src = slide.image;
+    });
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
@@ -57,10 +61,18 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${slide.image})` }}
-        />
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="absolute inset-0"
+        >
+          <img
+            src={slide.image}
+            alt={slide.title}
+            className="w-full h-full object-cover"
+            fetchPriority={currentSlide === 0 ? "high" : "auto"}
+            loading="eager"
+            decoding="async"
+          />
+        </motion.div>
       </AnimatePresence>
 
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-emerald-950/75 to-slate-950/40 z-10" />
