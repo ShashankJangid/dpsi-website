@@ -18,16 +18,16 @@ export default function PrincipalMessage() {
             transition={{ duration: 0.6 }}
             className="relative"
           >
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-emerald-100 dark:bg-emerald-900/30">
+            <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 shadow-2xl border border-emerald-500/20 p-2">
               <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80"
-                alt="Principal"
-                className="w-full h-full object-cover"
+                src="https://www.dpsindirapuram.com/images/about-us.png"
+                alt="DPS Indirapuram Campus"
+                className="w-full h-full object-cover rounded-xl"
                 loading="lazy"
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 bg-emerald-700 text-white p-6 rounded-xl shadow-xl">
-              <p className="text-sm font-medium">Ms. Priya Elizabeth John</p>
+            <div className="absolute -bottom-6 -right-6 bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-6 rounded-2xl shadow-2xl border border-emerald-400/30">
+              <p className="text-sm font-bold text-amber-300">Ms. Priya Elizabeth John</p>
               <p className="text-xs text-emerald-200">Principal, DPS Indirapuram</p>
             </div>
           </motion.div>

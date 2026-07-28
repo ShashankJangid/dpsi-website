@@ -6,14 +6,27 @@ import { trpc } from "@/providers/trpc";
 
 const categories = ["All", "Labs", "Sports", "Library", "Events", "Campus"];
 
+const defaultGalleryItems = [
+  { id: 1, title: "Times Education Award", category: "Events", imageUrl: "https://www.dpsindirapuram.com/images/slider/815521734779591slider.png" },
+  { id: 2, title: "Next-Gen AI Lab", category: "Labs", imageUrl: "https://www.dpsindirapuram.com/images/slider/815621745565959slider.png" },
+  { id: 3, title: "Science & Innovation Lab", category: "Labs", imageUrl: "https://www.dpsindirapuram.com/images/slider/825591745565931slider.png" },
+  { id: 4, title: "School Campus Building", category: "Campus", imageUrl: "https://www.dpsindirapuram.com/images/about-us.png" },
+  { icon: "", id: 5, title: "Annual Cultural Fest", category: "Events", imageUrl: "https://www.dpsindirapuram.com/upload/event/541891784563976.jpg" },
+  { id: 6, title: "Sports Meet & Athletics", category: "Sports", imageUrl: "https://www.dpsindirapuram.com/images/slider/591381671801351.png" },
+  { id: 7, title: "NEET & JEE Achievers", category: "Events", imageUrl: "https://www.dpsindirapuram.com/upload/event/683291780490495.jpg" },
+  { id: 8, title: "School Main Block", category: "Campus", imageUrl: "https://www.dpsindirapuram.com/images/slider/112631671546115slider.jpg" },
+];
+
 export default function Gallery() {
   const { data: gallery } = trpc.gallery.list.useQuery();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const displayItems = gallery?.length ? gallery : defaultGalleryItems;
+
   const filtered = selectedCategory === "All"
-    ? gallery
-    : gallery?.filter((g) => g.category === selectedCategory);
+    ? displayItems
+    : displayItems.filter((g) => g.category === selectedCategory);
 
   return (
     <Layout>

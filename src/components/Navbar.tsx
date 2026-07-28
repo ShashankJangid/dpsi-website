@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
   X,
-  GraduationCap,
   Sun,
   Moon,
   ChevronDown,
@@ -103,15 +102,17 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-emerald-700 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 leading-tight">
+              <img
+                src="https://www.dpsindirapuram.com/images/DPS-Indirapuram-logo.png"
+                alt="DPS Indirapuram Logo"
+                className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="hidden sm:block border-l border-emerald-800/20 dark:border-emerald-400/20 pl-3">
+                <h1 className="text-lg font-extrabold text-emerald-900 dark:text-emerald-300 leading-tight">
                   DPS Indirapuram
                 </h1>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  Excellence in Education
+                <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-widest">
+                  Soaring High...
                 </p>
               </div>
             </Link>

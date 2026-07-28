@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import {
-  GraduationCap,
   MapPin,
   Phone,
   Mail,
@@ -41,13 +40,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-700 rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
+              <img
+                src="https://www.dpsindirapuram.com/images/DPS-Indirapuram-logo.png"
+                alt="DPS Indirapuram Logo"
+                className="h-12 w-auto object-contain"
+              />
               <div>
                 <h3 className="text-lg font-bold text-white">DPS Indirapuram</h3>
-                <p className="text-[10px] uppercase tracking-wider text-emerald-400">
-                  Soaring High...
+                <p className="text-[10px] uppercase font-semibold tracking-wider text-amber-400">
+                  Soaring High... We reach for the sky!
                 </p>
               </div>
             </div>
