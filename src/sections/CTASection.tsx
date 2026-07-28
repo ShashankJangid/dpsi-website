@@ -33,8 +33,7 @@ export default function CTASection() {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10"
+                className="border border-white/80 bg-white/15 backdrop-blur-md text-white hover:bg-white hover:text-emerald-950 px-8 rounded-xl font-bold transition-all duration-300 shadow-md"
                 asChild
               >
                 <Link to="/contact">Contact Us</Link>
