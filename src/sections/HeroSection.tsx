@@ -97,8 +97,7 @@ export default function HeroSection() {
             </Button>
             <Button
               size="lg"
-              variant="outline"
-              className="border-white/30 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 px-8 rounded-xl font-semibold transition-all duration-300"
+              className="border border-white/80 bg-white/15 backdrop-blur-md text-white hover:bg-white hover:text-slate-950 px-8 rounded-xl font-bold transition-all duration-300 shadow-md"
               asChild
             >
               <Link to="/about">Explore Campus</Link>
