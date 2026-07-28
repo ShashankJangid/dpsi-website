@@ -84,6 +84,19 @@ export default function HeroSection() {
 
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/40 z-10" />
 
+      {/* Top Right Floating British Council International Award Badge */}
+      <div className="absolute top-6 right-6 z-30 hidden md:flex items-center gap-3 p-2.5 rounded-2xl bg-slate-900/85 backdrop-blur-xl border border-emerald-500/30 shadow-2xl">
+        <img
+          src="/images/dps/international_logo.webp"
+          alt="British Council International Dimension in Schools 2020-23"
+          className="h-12 w-auto object-contain rounded-lg shadow-md"
+        />
+        <div className="text-left text-white pr-2">
+          <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">British Council</p>
+          <p className="text-xs font-bold text-slate-100">International Dimension Award</p>
+        </div>
+      </div>
+
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 w-full">
         <motion.div
           key={slide.title}
