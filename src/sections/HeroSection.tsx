@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router";
-import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const heroSlides = [
@@ -73,8 +73,7 @@ export default function HeroSection() {
           transition={{ duration: 0.7 }}
           className="max-w-2xl text-white"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-sm font-semibold mb-6">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+          <div className="inline-block px-4 py-2 rounded-md bg-emerald-600/30 backdrop-blur-md border border-emerald-400/40 text-emerald-300 text-sm font-bold tracking-wide mb-6 uppercase">
             <span>{slide.badge}</span>
           </div>
 
