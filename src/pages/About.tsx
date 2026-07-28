@@ -34,17 +34,17 @@ const leadership = [
   {
     name: "Mr. V.K. Shunglu",
     role: "Chairman, DPS Society",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
+    image: "/images/leadership/vk_shunglu.webp",
   },
   {
     name: "Ms. Santosh Bansal",
     role: "Pro-Vice Chairperson",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80",
+    image: "/images/leadership/santosh_bansal.webp",
   },
   {
     name: "Ms. Priya Elizabeth John",
     role: "Principal",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80",
+    image: "/images/leadership/priya_john.webp",
   },
 ];
 

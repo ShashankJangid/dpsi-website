@@ -69,19 +69,32 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="bg-emerald-800 text-white text-xs py-2 px-4 hidden md:block">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <span>CBSE Affiliation: 2130647</span>
-            <span>|</span>
-            <span>Call: +91-0120-4660000</span>
+      <div className="bg-emerald-900 text-white text-xs py-2 overflow-hidden border-b border-emerald-700/50">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4">
+          <div className="flex-1 overflow-hidden relative">
+            <div className="animate-marquee whitespace-nowrap flex items-center gap-8 font-semibold text-emerald-200">
+              <span className="inline-flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                ADMISSIONS OPEN FOR SESSION 2026-27 (PRE-NURSERY TO CLASS IX & XI)
+              </span>
+              <span>•</span>
+              <span className="text-amber-300 font-bold">
+                CBSE CLASS XII & X BOARD RESULTS DECLARED — TOP SCORE 99.4%
+              </span>
+              <span>•</span>
+              <span>TIMES EDUCATION ICONS 2024 AWARD WINNER</span>
+              <span>•</span>
+              <span>CBSE AFFILIATION NO: 2130647 | SCHOOL CODE: 60287</span>
+              <span>•</span>
+              <span>CALL US: +91-0120-4660000, 4670000 | EMAIL: INFO@DPSINDIRAPURAM.COM</span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/admissions" className="hover:text-emerald-200 transition">
+          <div className="hidden lg:flex items-center gap-4 text-[11px] font-bold text-white shrink-0">
+            <Link to="/admissions" className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded transition-all">
               Apply Now
             </Link>
             {isAdmin && (
-              <Link to="/admin" className="hover:text-emerald-200 transition">
+              <Link to="/admin" className="px-3 py-1 bg-emerald-700 hover:bg-emerald-600 rounded transition-all">
                 Admin Panel
               </Link>
             )}
@@ -92,7 +105,7 @@ export default function Navbar() {
       <motion.header
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           isScrolled
-            ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-md"
+            ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg shadow-md border-b border-slate-200/50 dark:border-slate-800/50"
             : "bg-white dark:bg-slate-900"
         }`}
         initial={{ y: -100 }}
@@ -101,20 +114,12 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center group">
               <img
                 src="/images/dps/logo.webp"
                 alt="DPS Indirapuram Logo"
-                className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                className="h-12 sm:h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
               />
-              <div className="hidden sm:block border-l border-emerald-800/20 dark:border-emerald-400/20 pl-3">
-                <h1 className="text-lg font-extrabold text-emerald-900 dark:text-emerald-300 leading-tight">
-                  DPS Indirapuram
-                </h1>
-                <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-widest">
-                  Soaring High...
-                </p>
-              </div>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1">
