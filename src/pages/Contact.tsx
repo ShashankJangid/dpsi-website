@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
+import LazyMap from "@/components/LazyMap";
 import { trpc } from "@/providers/trpc";
 
 export default function Contact() {
@@ -79,20 +79,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <Card className="overflow-hidden">
-                <CardContent className="p-0">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.216472324927!2d77.355!3d28.6408!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM4JzI2LjkiTiA3N8KwMjEnMTguMCJF!5e0!3m2!1sen!2sin!4v1600000000000!5m2!1sen!2sin"
-                    width="100%"
-                    height="300"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="DPS Indirapuram Location"
-                  />
-                </CardContent>
-              </Card>
+              <LazyMap />
             </motion.div>
 
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
