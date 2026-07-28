@@ -1,43 +1,89 @@
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Hero3D from "@/components/3d/Hero3D";
+
+const heroSlides = [
+  {
+    image: "https://www.dpsindirapuram.com/images/slider/61381764763629slider.jpg",
+    title: "Welcome to DPS Indirapuram",
+    subtitle: "Soaring High... We reach for the sky!",
+    badge: "Admissions Open 2026-27"
+  },
+  {
+    image: "https://www.dpsindirapuram.com/images/slider/815521734779591slider.png",
+    title: "Times Education Icons 2024",
+    subtitle: "Recognized as the premier CBSE school in Ghaziabad",
+    badge: "Excellence in Education"
+  },
+  {
+    image: "https://www.dpsindirapuram.com/images/slider/815621745565959slider.png",
+    title: "State-of-the-Art AI & Robotics Lab",
+    subtitle: "Fostering technological innovation and futuristic learning",
+    badge: "Next-Gen Infrastructure"
+  },
+  {
+    image: "https://www.dpsindirapuram.com/images/slider/591381671801351.png",
+    title: "Holistic Student Development",
+    subtitle: "Nurturing sports, arts, academics and leadership skills",
+    badge: "Empowering Future Leaders"
+  }
+];
 
 export default function HeroSection() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slide = heroSlides[currentSlide];
+
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-      <Hero3D />
-
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/70 to-transparent z-10" />
-
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-slate-950">
+      <AnimatePresence mode="wait">
         <motion.div
+          key={slide.image}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${slide.image})` }}
+        />
+      </AnimatePresence>
+
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-emerald-950/75 to-slate-950/40 z-10" />
+
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full">
+        <motion.div
+          key={slide.title}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-2xl"
+          transition={{ duration: 0.7 }}
+          className="max-w-2xl text-white"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-sm mb-6">
-            <Sparkles className="w-4 h-4" />
-            <span>Admissions Open for 2026-27</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-sm font-semibold mb-6">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>{slide.badge}</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
-            Welcome to{" "}
-            <span className="text-emerald-400">DPS Indirapuram</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white leading-tight mb-6 tracking-tight">
+            {slide.title}
           </h1>
 
-          <p className="text-lg sm:text-xl text-slate-300 mb-8 leading-relaxed">
-            Soaring High... We reach for the sky! Experience world-class education
-            with state-of-the-art facilities, expert faculty, and a nurturing
-            environment for holistic development.
+          <p className="text-lg sm:text-2xl text-slate-200 mb-8 font-medium leading-relaxed">
+            {slide.subtitle}
           </p>
 
           <div className="flex flex-wrap gap-4">
             <Button
               size="lg"
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-8"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 shadow-xl shadow-emerald-950/40 rounded-xl transition-all duration-300 hover:scale-105"
               asChild
             >
               <Link to="/admissions">
@@ -47,13 +93,28 @@ export default function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 px-8"
+              className="border-white/30 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 px-8 rounded-xl font-semibold transition-all duration-300"
               asChild
             >
-              <Link to="/about">Explore More</Link>
+              <Link to="/about">Explore Campus</Link>
             </Button>
           </div>
         </motion.div>
+      </div>
+
+      <div className="absolute bottom-8 right-8 z-30 flex items-center gap-3">
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)}
+          className="p-3 rounded-full bg-black/40 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev + 1) % heroSlides.length)}
+          className="p-3 rounded-full bg-black/40 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
     </section>
   );
