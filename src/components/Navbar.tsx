@@ -179,7 +179,16 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:flex items-center pl-2 border-l border-slate-200 dark:border-slate-800">
+                <img
+                  src="/images/dps/international_logo.webp"
+                  alt="British Council International Dimension in Schools 2020-23"
+                  className="h-9 sm:h-11 w-auto object-contain rounded shadow-sm hover:scale-105 transition-transform"
+                  title="British Council International Dimension in Schools 2020-23"
+                />
+              </div>
+
               <button
                 onClick={() => setIsDark(!isDark)}
                 className="p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"

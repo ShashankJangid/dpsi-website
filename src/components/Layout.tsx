@@ -2,6 +2,7 @@ import { Suspense, lazy } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import FloatingSocials from "./FloatingSocials";
+import AIChatWidget from "./AIChatWidget";
 
 const ScrollProgress = lazy(() => import("./ScrollProgress"));
 
@@ -19,6 +20,7 @@ export default function Layout({ children }: LayoutProps) {
       <main className="flex-1">{children}</main>
       <Footer />
       <FloatingSocials />
+      <AIChatWidget />
     </div>
   );
 }
