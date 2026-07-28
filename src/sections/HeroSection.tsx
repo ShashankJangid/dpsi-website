@@ -6,25 +6,31 @@ import { Button } from "@/components/ui/button";
 
 const heroSlides = [
   {
-    image: "https://www.dpsindirapuram.com/images/slider/61381764763629slider.jpg",
+    image: "/images/dps/slider_1.webp",
     title: "Welcome to DPS Indirapuram",
     subtitle: "Soaring High... We reach for the sky!",
     badge: "Admissions Open 2026-27"
   },
   {
-    image: "https://www.dpsindirapuram.com/images/slider/815521734779591slider.png",
+    image: "/images/dps/slider_2.webp",
     title: "Times Education Icons 2024",
     subtitle: "Recognized as the premier CBSE school in Ghaziabad",
     badge: "Excellence in Education"
   },
   {
-    image: "https://www.dpsindirapuram.com/images/slider/815621745565959slider.png",
+    image: "/images/dps/slider_3.webp",
     title: "State-of-the-Art AI & Robotics Lab",
     subtitle: "Fostering technological innovation and futuristic learning",
     badge: "Next-Gen Infrastructure"
   },
   {
-    image: "https://www.dpsindirapuram.com/images/slider/591381671801351.png",
+    image: "/images/dps/slider_4.webp",
+    title: "Quantum Science & Physics Lab",
+    subtitle: "Advanced research apparatus for young innovators",
+    badge: "Innovation Hub"
+  },
+  {
+    image: "/images/dps/slider_5.webp",
     title: "Holistic Student Development",
     subtitle: "Nurturing sports, arts, academics and leadership skills",
     badge: "Empowering Future Leaders"

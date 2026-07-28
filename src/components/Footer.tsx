@@ -41,7 +41,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <img
-                src="https://www.dpsindirapuram.com/images/DPS-Indirapuram-logo.png"
+                src="/images/dps/logo.webp"
                 alt="DPS Indirapuram Logo"
                 className="h-12 w-auto object-contain"
               />

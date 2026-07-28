@@ -103,7 +103,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link to="/" className="flex items-center gap-3 group">
               <img
-                src="https://www.dpsindirapuram.com/images/DPS-Indirapuram-logo.png"
+                src="/images/dps/logo.webp"
                 alt="DPS Indirapuram Logo"
                 className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
               />

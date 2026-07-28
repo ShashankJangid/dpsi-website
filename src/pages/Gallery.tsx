@@ -7,14 +7,14 @@ import { trpc } from "@/providers/trpc";
 const categories = ["All", "Labs", "Sports", "Library", "Events", "Campus"];
 
 const defaultGalleryItems = [
-  { id: 1, title: "Times Education Award", category: "Events", imageUrl: "https://www.dpsindirapuram.com/images/slider/815521734779591slider.png" },
-  { id: 2, title: "Next-Gen AI Lab", category: "Labs", imageUrl: "https://www.dpsindirapuram.com/images/slider/815621745565959slider.png" },
-  { id: 3, title: "Science & Innovation Lab", category: "Labs", imageUrl: "https://www.dpsindirapuram.com/images/slider/825591745565931slider.png" },
-  { id: 4, title: "School Campus Building", category: "Campus", imageUrl: "https://www.dpsindirapuram.com/images/about-us.png" },
-  { icon: "", id: 5, title: "Annual Cultural Fest", category: "Events", imageUrl: "https://www.dpsindirapuram.com/upload/event/541891784563976.jpg" },
-  { id: 6, title: "Sports Meet & Athletics", category: "Sports", imageUrl: "https://www.dpsindirapuram.com/images/slider/591381671801351.png" },
-  { id: 7, title: "NEET & JEE Achievers", category: "Events", imageUrl: "https://www.dpsindirapuram.com/upload/event/683291780490495.jpg" },
-  { id: 8, title: "School Main Block", category: "Campus", imageUrl: "https://www.dpsindirapuram.com/images/slider/112631671546115slider.jpg" },
+  { id: 1, title: "Futuristic AI & Robotics Lab", category: "Labs", imageUrl: "/images/facilities/ai_robotics_lab.webp" },
+  { id: 2, title: "Quantum Science Laboratory", category: "Labs", imageUrl: "/images/facilities/quantum_science_lab.webp" },
+  { id: 3, title: "Interactive Smart Classroom", category: "Campus", imageUrl: "/images/facilities/smart_classroom.webp" },
+  { id: 4, title: "Times Education Award 2024", category: "Events", imageUrl: "/images/dps/slider_2.webp" },
+  { id: 5, title: "School Main Campus Building", category: "Campus", imageUrl: "/images/dps/about_us.webp" },
+  { id: 6, title: "Annual Cultural & Sports Meet", category: "Sports", imageUrl: "/images/dps/slider_5.webp" },
+  { id: 7, title: "NEET & JEE Top Achievers", category: "Events", imageUrl: "/images/dps/event_jeea.webp" },
+  { id: 8, title: "DPS Indirapuram Block", category: "Campus", imageUrl: "/images/dps/slider_6.webp" },
 ];
 
 export default function Gallery() {
