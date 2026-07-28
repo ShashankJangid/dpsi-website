@@ -78,7 +78,7 @@ export default function AIChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-3 left-3 sm:bottom-6 sm:left-6 z-50 pointer-events-auto">
+    <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 pointer-events-auto">
       <AnimatePresence>
         {isOpen && (
           <motion.div
