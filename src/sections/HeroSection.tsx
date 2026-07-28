@@ -54,27 +54,27 @@ export default function HeroSection() {
   const slide = heroSlides[currentSlide];
 
   return (
-    <section className="relative min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden bg-slate-950">
+    <section className="relative min-h-[65vh] sm:min-h-[80vh] lg:min-h-[85vh] flex items-center overflow-hidden bg-slate-950">
       <AnimatePresence mode="wait">
         <motion.div
           key={slide.image}
-          initial={{ opacity: 0, scale: 1.06 }}
+          initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
           className="absolute inset-0 flex items-center justify-center bg-slate-950 overflow-hidden"
         >
-          {/* Blurred backdrop matching image for aspect-fit padding */}
+          {/* Ambient blurred backdrop for seamless filling */}
           <img
             src={slide.image}
             alt=""
             className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none"
           />
-          {/* Main banner image - fitted properly so graphics and text never spill out */}
+          {/* Main banner image - aligned centered for mobile & desktop */}
           <img
             src={slide.image}
             alt={slide.title}
-            className="relative w-full h-full object-contain md:object-cover object-center z-0"
+            className="relative w-full h-full object-cover object-center z-0"
             fetchPriority={currentSlide === 0 ? "high" : "auto"}
             loading="eager"
             decoding="async"
@@ -82,9 +82,9 @@ export default function HeroSection() {
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-emerald-950/75 to-slate-950/40 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/40 z-10" />
 
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 w-full">
         <motion.div
           key={slide.title}
           initial={{ opacity: 0, y: 30 }}
@@ -92,22 +92,22 @@ export default function HeroSection() {
           transition={{ duration: 0.7 }}
           className="max-w-2xl text-white"
         >
-          <div className="inline-block px-4 py-2 rounded-md bg-emerald-600/30 backdrop-blur-md border border-emerald-400/40 text-emerald-300 text-sm font-bold tracking-wide mb-6 uppercase">
+          <div className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 rounded-md bg-emerald-600/40 backdrop-blur-md border border-emerald-400/50 text-emerald-300 text-xs sm:text-sm font-bold tracking-wide mb-4 sm:mb-6 uppercase">
             <span>{slide.badge}</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white leading-tight mb-6 tracking-tight">
+          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-white leading-tight mb-4 sm:mb-6 tracking-tight">
             {slide.title}
           </h1>
 
-          <p className="text-lg sm:text-2xl text-slate-200 mb-8 font-medium leading-relaxed">
+          <p className="text-base sm:text-2xl text-slate-200 mb-6 sm:mb-8 font-medium leading-relaxed">
             {slide.subtitle}
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3 sm:gap-4">
             <Button
               size="lg"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 shadow-xl shadow-emerald-950/40 rounded-xl transition-all duration-300 hover:scale-105"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 sm:px-8 shadow-xl shadow-emerald-950/40 rounded-xl transition-all duration-300 hover:scale-105 text-sm sm:text-base"
               asChild
             >
               <Link to="/admissions">
@@ -116,7 +116,7 @@ export default function HeroSection() {
             </Button>
             <Button
               size="lg"
-              className="border border-white/80 bg-white/15 backdrop-blur-md text-white hover:bg-white hover:text-slate-950 px-8 rounded-xl font-bold transition-all duration-300 shadow-md"
+              className="border border-white/80 bg-white/15 backdrop-blur-md text-white hover:bg-white hover:text-slate-950 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 shadow-md text-sm sm:text-base"
               asChild
             >
               <Link to="/about">Explore Campus</Link>
@@ -125,18 +125,18 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-8 right-8 z-30 flex items-center gap-3">
+      <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 z-30 flex items-center gap-2 sm:gap-3">
         <button
           onClick={() => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)}
-          className="p-3 rounded-full bg-black/40 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
+          className="p-2 sm:p-3 rounded-full bg-black/50 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
         <button
           onClick={() => setCurrentSlide((prev) => (prev + 1) % heroSlides.length)}
-          className="p-3 rounded-full bg-black/40 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
+          className="p-2 sm:p-3 rounded-full bg-black/50 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
     </section>
