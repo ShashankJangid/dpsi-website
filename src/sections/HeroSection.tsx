@@ -54,20 +54,27 @@ export default function HeroSection() {
   const slide = heroSlides[currentSlide];
 
   return (
-    <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-slate-950">
+    <section className="relative min-h-[75vh] md:min-h-[85vh] flex items-center overflow-hidden bg-slate-950">
       <AnimatePresence mode="wait">
         <motion.div
           key={slide.image}
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.06 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-          className="absolute inset-0"
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
+          className="absolute inset-0 flex items-center justify-center bg-slate-950 overflow-hidden"
         >
+          {/* Blurred backdrop matching image for aspect-fit padding */}
+          <img
+            src={slide.image}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none"
+          />
+          {/* Main banner image - fitted properly so graphics and text never spill out */}
           <img
             src={slide.image}
             alt={slide.title}
-            className="w-full h-full object-cover"
+            className="relative w-full h-full object-contain md:object-cover object-center z-0"
             fetchPriority={currentSlide === 0 ? "high" : "auto"}
             loading="eager"
             decoding="async"
