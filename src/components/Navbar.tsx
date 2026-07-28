@@ -8,7 +8,7 @@ import {
   Moon,
   ChevronDown,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -200,15 +200,6 @@ export default function Navbar() {
                   <Moon className="w-5 h-5 text-slate-500" />
                 )}
               </button>
-
-              <Button
-                variant="default"
-                size="sm"
-                className="hidden md:flex bg-emerald-700 hover:bg-emerald-800 text-white"
-                asChild
-              >
-                <Link to="/admin">Admin Panel</Link>
-              </Button>
 
               <button
                 onClick={() => setIsMobileOpen(!isMobileOpen)}
