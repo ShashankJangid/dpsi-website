@@ -125,16 +125,33 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 z-30 flex items-center gap-2 sm:gap-3">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 sm:bottom-8 z-30 flex items-center gap-3">
         <button
           onClick={() => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)}
-          className="p-2 sm:p-3 rounded-full bg-black/50 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
+          className="p-2.5 sm:p-3 rounded-full bg-slate-900/70 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl hover:scale-110 active:scale-95"
+          title="Previous Slide"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
+
+        {/* Slide Indicator Dots */}
+        <div className="flex items-center gap-1.5 px-2">
+          {heroSlides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`h-2 rounded-full transition-all ${
+                currentSlide === idx ? "w-6 bg-emerald-400" : "w-2 bg-white/40 hover:bg-white/70"
+              }`}
+              title={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+
         <button
           onClick={() => setCurrentSlide((prev) => (prev + 1) % heroSlides.length)}
-          className="p-2 sm:p-3 rounded-full bg-black/50 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all"
+          className="p-2.5 sm:p-3 rounded-full bg-slate-900/70 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl hover:scale-110 active:scale-95"
+          title="Next Slide"
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>

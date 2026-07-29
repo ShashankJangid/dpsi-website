@@ -44,7 +44,7 @@ export default function FloatingSocials() {
   }, []);
 
   return (
-    <div className="fixed bottom-16 right-3 sm:bottom-20 sm:right-6 z-50 flex flex-col items-end gap-2 pointer-events-auto">
+    <div className="fixed bottom-[84px] right-3 sm:bottom-[96px] sm:right-6 z-50 flex flex-col items-end gap-2 pointer-events-auto">
       <AnimatePresence>
         {isOpen && (
           <motion.div
