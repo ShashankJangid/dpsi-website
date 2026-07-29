@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles, MessageSquare, MapPin, Phone, GraduationCap } from "lucide-react";
+import { X, Send, Sparkles, MessageSquare, GraduationCap, Award } from "lucide-react";
 
 interface Message {
   role: "assistant" | "user";
@@ -108,7 +108,7 @@ export default function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Welcome to DPS Indirapuram! I am DPSI AI. How can I help you with Admissions, Facilities, or Academics today?",
+      text: "Hello! Welcome to DPS Indirapuram. I am DPSI AI, your 24/7 smart school guide. How can I assist you with Admissions, Facilities, or Academics today?",
       timestamp: "Just now"
     }
   ]);
@@ -181,28 +181,29 @@ export default function AIChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 25, scale: 0.94 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[330px] sm:w-[380px] h-[510px] max-h-[84vh] bg-[#18181b] border border-white/10 rounded-[28px] shadow-2xl flex flex-col overflow-hidden mb-3 text-white relative"
+            className="w-[340px] sm:w-[385px] h-[520px] max-h-[85vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-[28px] shadow-2xl shadow-slate-900/20 flex flex-col overflow-hidden mb-3 text-slate-900 dark:text-slate-100 relative max-w-[94vw]"
           >
-            {/* Ambient Electric Glow Effect */}
-            <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full bg-[#0072ff]/20 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-16 w-52 h-52 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
+            {/* Ethereal Smooth Ambient Aura Gradient Orbs (Image 2 Inspiration) */}
+            <div className="absolute -top-14 -right-14 w-56 h-56 rounded-full bg-cyan-400/25 blur-3xl pointer-events-none animate-pulse" />
+            <div className="absolute top-1/3 -left-16 w-56 h-56 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-12 right-1/4 w-48 h-48 rounded-full bg-rose-400/20 blur-3xl pointer-events-none" />
 
-            {/* HEADER - Sleek Nilkamal AI Style Header */}
-            <div className="sticky top-0 z-30 shrink-0 p-4 bg-[#18181b]/95 backdrop-blur-md flex items-center justify-between border-b border-white/10">
+            {/* STICKY TOP HEADER - White Clean Glass Header */}
+            <div className="sticky top-0 z-30 shrink-0 p-3.5 bg-slate-900/95 text-white flex items-center justify-between shadow-md border-b border-slate-800 overflow-hidden">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
                   <Sparkles className="w-4.5 h-4.5 fill-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-white leading-tight">DPSI AI</h3>
-                  <p className="text-[11px] text-slate-400 font-normal leading-none mt-0.5">Official School Assistant</p>
+                  <h3 className="font-bold text-sm text-white leading-tight">DPSI AI</h3>
+                  <p className="text-[11px] text-slate-300 font-normal leading-none mt-0.5">Official School Assistant</p>
                 </div>
               </div>
 
               {/* Close Button - High Contrast X */}
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition cursor-pointer shrink-0"
+                className="p-1.5 rounded-full hover:bg-white/20 text-slate-200 hover:text-white transition cursor-pointer shrink-0"
                 title="Close Chat Window"
                 aria-label="Close Chat"
               >
@@ -210,18 +211,18 @@ export default function AIChatWidget() {
               </button>
             </div>
 
-            {/* MESSAGES BODY */}
-            <div className="relative z-10 flex-1 p-4 overflow-y-auto space-y-4 text-xs leading-relaxed">
+            {/* MESSAGES BODY - Clean White Glass Background */}
+            <div className="relative z-10 flex-1 p-3.5 overflow-y-auto space-y-3.5 text-xs leading-relaxed overflow-x-hidden">
               {messages.map((m, i) => (
                 <div
                   key={i}
                   className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-normal shadow-sm ${
+                    className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-normal shadow-xs ${
                       m.role === "user"
-                        ? "bg-[#27272a] text-white rounded-tr-xs border border-white/10"
-                        : "bg-[#27272a]/80 text-slate-100 rounded-tl-xs border border-white/10 backdrop-blur-sm"
+                        ? "bg-slate-900 text-white rounded-tr-xs shadow-md"
+                        : "bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 rounded-tl-xs border border-slate-200/80 dark:border-slate-700/80 backdrop-blur-md"
                     }`}
                   >
                     {m.text}
@@ -239,7 +240,7 @@ export default function AIChatWidget() {
 
               {isTyping && messages[messages.length - 1]?.role !== "assistant" && (
                 <div className="flex flex-col items-start text-slate-400">
-                  <div className="p-3 rounded-2xl bg-[#27272a]/80 border border-white/10 rounded-tl-xs flex items-center gap-1.5">
+                  <div className="p-3 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-tl-xs flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0072ff] animate-bounce" />
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0072ff] animate-bounce" style={{ animationDelay: "0.15s" }} />
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0072ff] animate-bounce" style={{ animationDelay: "0.3s" }} />
@@ -249,42 +250,43 @@ export default function AIChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* DOWNSIDE QUICK SUGGESTION CHIPS */}
-            <div className="relative z-10 px-3 py-2 bg-[#18181b] border-t border-b border-white/10 flex gap-1.5 overflow-x-auto text-[11px] no-scrollbar shrink-0">
-              {[
-                { label: "Admissions 2026", icon: <GraduationCap className="w-3 h-3 text-sky-400" /> },
-                { label: "Class 11 Streams", icon: <MessageSquare className="w-3 h-3 text-indigo-400" /> },
-                { label: "AI Robotics Lab", icon: <Sparkles className="w-3 h-3 text-amber-400" /> },
-                { label: "Bus Routes", icon: <MapPin className="w-3 h-3 text-rose-400" /> },
-                { label: "Contact Info", icon: <Phone className="w-3 h-3 text-emerald-400" /> },
-              ].map((chip) => (
-                <button
-                  key={chip.label}
-                  onClick={() => handleSend(chip.label)}
-                  disabled={isTyping}
-                  className="px-3 py-1.5 rounded-full bg-[#27272a] hover:bg-[#3f3f46] border border-white/10 text-slate-200 font-medium whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 shadow-sm disabled:opacity-50"
-                >
-                  {chip.icon}
-                  <span>{chip.label}</span>
-                </button>
-              ))}
+            {/* DOWNSIDE QUICK SUGGESTION CHIPS - Clean 2-Row Grid Layout (Image 4 Fix + Bug 3 Fix) */}
+            <div className="relative z-10 px-3 py-2 bg-slate-50/90 dark:bg-slate-950/80 border-t border-b border-slate-200/70 dark:border-slate-800 shrink-0 overflow-hidden">
+              <div className="grid grid-cols-2 gap-1.5 w-full">
+                {[
+                  { label: "Admissions 2026", icon: <GraduationCap className="w-3 h-3 text-sky-600 dark:text-sky-400" /> },
+                  { label: "Class 11 Streams", icon: <MessageSquare className="w-3 h-3 text-indigo-600 dark:text-indigo-400" /> },
+                  { label: "AI Robotics Lab", icon: <Sparkles className="w-3 h-3 text-amber-500" /> },
+                  { label: "CBSE Results", icon: <Award className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> },
+                ].map((chip) => (
+                  <button
+                    key={chip.label}
+                    onClick={() => handleSend(chip.label)}
+                    disabled={isTyping}
+                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700/60 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] truncate shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:border-sky-400 disabled:opacity-50"
+                  >
+                    {chip.icon}
+                    <span className="truncate">{chip.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* INPUT FORM - Fully rounded Nilkamal AI style input pill */}
+            {/* INPUT FORM - Fully Rounded Pill Input */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSend(input);
               }}
-              className="relative z-10 p-3 bg-[#18181b] flex items-center gap-2 shrink-0"
+              className="relative z-10 p-3 bg-white/95 dark:bg-slate-950 flex items-center gap-2 shrink-0 overflow-hidden"
             >
-              <div className="flex-1 relative flex items-center">
+              <div className="flex-1 relative flex items-center min-w-0">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Message DPSI AI..."
-                  className="w-full px-4 py-2.5 rounded-full bg-[#27272a] border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072ff]"
+                  className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072ff]"
                 />
               </div>
               <button
@@ -308,14 +310,14 @@ export default function AIChatWidget() {
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
-          className="flex items-center gap-3 px-4 py-3 rounded-full bg-[#18181b] hover:bg-[#27272a] text-white font-bold text-xs shadow-2xl shadow-black/60 border border-white/15 backdrop-blur-xl group"
+          className="flex items-center gap-3 px-4 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-2xl shadow-slate-950/50 border border-white/20 backdrop-blur-xl group"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 group-hover:scale-105 transition-transform">
             <Sparkles className="w-4 h-4 fill-white" />
           </div>
           <div className="text-left pr-1">
             <p className="font-extrabold text-white text-xs leading-none">DPSI AI</p>
-            <p className="text-[10px] text-slate-400 font-medium leading-none mt-1">Ask Anything</p>
+            <p className="text-[10px] text-slate-300 font-medium leading-none mt-1">Ask Anything</p>
           </div>
         </motion.button>
       )}
