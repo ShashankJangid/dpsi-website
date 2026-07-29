@@ -52,11 +52,11 @@ const timeline = [
   { year: "2003", title: "Foundation", desc: "DPS Indirapuram established under the DPS Society." },
   { year: "2008", title: "CBSE Affiliation", desc: "Granted permanent CBSE affiliation with exemplary inspection results." },
   { year: "2012", title: "First Batch Success", desc: "100% CBSE results with multiple students scoring above 95%." },
-  { year: "2015", title: "Sports Excellence", desc: "National-level sports facilities inaugurated." },
-  { year: "2018", title: "STEM Center", desc: "Advanced robotics and AI lab established for future-ready education." },
-  { year: "2021", title: "Digital Transformation", desc: "Complete digital infrastructure upgrade for hybrid learning." },
+  { year: "2015", title: "Sports Complex", desc: "National-level sports complex and aquatic center inaugurated." },
+  { year: "2021", title: "Digital Transformation", desc: "Complete digital infrastructure upgrade for modern learning." },
   { year: "2023", title: "20th Anniversary", desc: "Celebrated 20 years of academic excellence and holistic development." },
-  { year: "2025", title: "Global Recognition", desc: "Ranked among top 10 CBSE schools in India by Education Today." },
+  { year: "2024", title: "AI & Robotics Lab", desc: "State-of-the-art AI & Robotics innovation center inaugurated with 3D printers and humanoid kits." },
+  { year: "2025", title: "Global Recognition", desc: "Ranked among top CBSE schools in India with British Council International Dimension Award." },
 ];
 
 export default function About() {

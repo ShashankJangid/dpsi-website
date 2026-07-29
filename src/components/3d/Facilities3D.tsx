@@ -17,8 +17,8 @@ const facilityData = [
   },
   {
     id: "science",
-    label: "Quantum Science Labs",
-    description: "State-of-the-art physics & chemistry research facilities with optical laser instrumentation.",
+    label: "Quantum Science (Upcoming)",
+    description: "Upcoming next-generation research facilities with optical laser instrumentation.",
     color: "#059669",
     accent: "#6ee7b7",
     image: "/images/facilities/quantum_science_lab.webp",
