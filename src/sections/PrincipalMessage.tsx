@@ -26,9 +26,9 @@ export default function PrincipalMessage() {
                 loading="lazy"
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-6 rounded-2xl shadow-2xl border border-emerald-400/30">
-              <p className="text-sm font-bold text-amber-300">Ms. Priya Elizabeth John</p>
-              <p className="text-xs text-emerald-200">Principal, DPS Indirapuram</p>
+            <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-slate-900/88 dark:bg-slate-950/88 backdrop-blur-2xl text-white p-5 rounded-2xl shadow-2xl border border-emerald-400/40 shadow-emerald-950/40">
+              <p className="text-base font-extrabold text-amber-300 tracking-tight drop-shadow-xs">Ms. Priya Elizabeth John</p>
+              <p className="text-xs font-semibold text-slate-100 mt-0.5">Principal, DPS Indirapuram</p>
             </div>
           </motion.div>
 
