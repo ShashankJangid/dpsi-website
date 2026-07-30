@@ -181,14 +181,14 @@ export default function AIChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 25, scale: 0.94 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[340px] sm:w-[385px] h-[500px] max-h-[82vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-[28px] shadow-2xl shadow-slate-900/25 flex flex-col overflow-hidden mb-3 text-slate-900 dark:text-slate-100 relative max-w-[94vw]"
+            className="w-[340px] sm:w-[385px] h-[500px] max-h-[82vh] bg-gradient-to-br from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-slate-900/25 flex flex-col overflow-hidden mb-3 text-slate-900 relative max-w-[94vw]"
           >
-            {/* Ethereal Smooth Ambient Aura Gradient Orbs */}
-            <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none animate-pulse" />
-            <div className="absolute top-1/3 left-0 w-48 h-48 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full bg-rose-400/15 blur-3xl pointer-events-none" />
+            {/* Peach Ash Grey Silk Ambient Wavy Mesh Orbs (Matching Screenshot Design) */}
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#fed7aa]/35 blur-3xl pointer-events-none animate-pulse" />
+            <div className="absolute top-1/3 left-0 w-64 h-64 rounded-full bg-[#cbd5e1]/50 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#fecdd3]/35 blur-3xl pointer-events-none" />
 
-            {/* STICKY TOP HEADER - Solid Dark Glass Header (Zero Bleed/Overlap) */}
+            {/* STICKY TOP HEADER - Solid Dark Glass Header */}
             <div className="sticky top-0 z-40 shrink-0 p-3.5 bg-slate-900 text-white flex items-center justify-between shadow-sm border-b border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
@@ -221,8 +221,8 @@ export default function AIChatWidget() {
                   <div
                     className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-normal shadow-xs ${
                       m.role === "user"
-                        ? "bg-slate-900 text-white rounded-tr-xs shadow-md"
-                        : "bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 rounded-tl-xs border border-slate-200/80 dark:border-slate-700/80 backdrop-blur-md"
+                        ? "bg-slate-900 text-white rounded-tr-xs shadow-md font-medium"
+                        : "bg-white/95 text-slate-800 rounded-tl-xs border border-white/80 shadow-xs backdrop-blur-md font-medium"
                     }`}
                   >
                     {m.text}
@@ -231,7 +231,7 @@ export default function AIChatWidget() {
                     )}
                   </div>
                   {m.timestamp && !m.isStreaming && (
-                    <span className="text-[9px] font-medium text-slate-400 mt-1 px-1">
+                    <span className="text-[9px] font-medium text-slate-500 mt-1 px-1">
                       {m.timestamp}
                     </span>
                   )}
@@ -240,7 +240,7 @@ export default function AIChatWidget() {
 
               {isTyping && messages[messages.length - 1]?.role !== "assistant" && (
                 <div className="flex flex-col items-start text-slate-400">
-                  <div className="p-3 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-tl-xs flex items-center gap-1.5">
+                  <div className="p-3 rounded-2xl bg-white/95 border border-white/80 rounded-tl-xs flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0072ff] animate-bounce" />
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0072ff] animate-bounce" style={{ animationDelay: "0.15s" }} />
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0072ff] animate-bounce" style={{ animationDelay: "0.3s" }} />
@@ -251,19 +251,19 @@ export default function AIChatWidget() {
             </div>
 
             {/* DOWNSIDE QUICK SUGGESTION CHIPS - Clean 2-Row Grid */}
-            <div className="relative z-20 px-3 py-2 bg-slate-50/95 dark:bg-slate-950/95 border-t border-b border-slate-200/80 dark:border-slate-800 shrink-0">
+            <div className="relative z-20 px-3 py-2 bg-white/60 backdrop-blur-md border-t border-b border-white/80 shrink-0">
               <div className="grid grid-cols-2 gap-1.5 w-full">
                 {[
-                  { label: "Admissions 2026", icon: <GraduationCap className="w-3 h-3 text-sky-600 dark:text-sky-400" /> },
-                  { label: "Class 11 Streams", icon: <MessageSquare className="w-3 h-3 text-indigo-600 dark:text-indigo-400" /> },
+                  { label: "Admissions 2026", icon: <GraduationCap className="w-3 h-3 text-sky-600" /> },
+                  { label: "Class 11 Streams", icon: <MessageSquare className="w-3 h-3 text-indigo-600" /> },
                   { label: "AI Robotics Lab", icon: <Sparkles className="w-3 h-3 text-amber-500" /> },
-                  { label: "CBSE Results", icon: <Award className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> },
+                  { label: "CBSE Results", icon: <Award className="w-3 h-3 text-emerald-600" /> },
                 ].map((chip) => (
                   <button
                     key={chip.label}
                     onClick={() => handleSend(chip.label)}
                     disabled={isTyping}
-                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700/60 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] truncate shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:border-sky-400 disabled:opacity-50"
+                    className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-white border border-white/80 text-slate-800 font-bold text-[11px] truncate shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:border-sky-400 disabled:opacity-50"
                   >
                     {chip.icon}
                     <span className="truncate">{chip.label}</span>
@@ -278,7 +278,7 @@ export default function AIChatWidget() {
                 e.preventDefault();
                 handleSend(input);
               }}
-              className="relative z-20 p-3 bg-[#18181b] text-white flex items-center gap-2 shrink-0 border-t border-slate-800"
+              className="relative z-20 p-3 bg-slate-900 text-white flex items-center gap-2 shrink-0 border-t border-slate-800"
             >
               <div className="flex-1 relative flex items-center min-w-0">
                 <input
@@ -302,7 +302,7 @@ export default function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Floating Trigger Button - Electric Blue Sparkle AI Badge */}
+      {/* Floating Trigger Button - Peach Ash Grey Gradient AI Badge */}
       {!isOpen && (
         <motion.button
           onClick={() => setIsOpen(true)}
@@ -310,14 +310,14 @@ export default function AIChatWidget() {
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
-          className="flex items-center gap-3 px-4 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-2xl shadow-slate-950/50 border border-white/20 backdrop-blur-xl group"
+          className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/25 border border-white/90 backdrop-blur-2xl group"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 group-hover:scale-105 transition-transform">
             <Sparkles className="w-4 h-4 fill-white" />
           </div>
           <div className="text-left pr-1">
-            <p className="font-extrabold text-white text-xs leading-none">DPSI AI</p>
-            <p className="text-[10px] text-slate-300 font-medium leading-none mt-1">Ask Anything</p>
+            <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
+            <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
           </div>
         </motion.button>
       )}
