@@ -72,7 +72,7 @@ export default function FloatingSocials() {
         )}
       </AnimatePresence>
 
-      {/* Glassmorphism floating tab button */}
+      {/* High-Contrast Glassmorphism Floating Socials Button */}
       <motion.button
         onClick={() => setIsOpen((prev) => !prev)}
         animate={{ y: isOpen ? 0 : [0, -10, 0, -5, 0] }}
@@ -84,11 +84,11 @@ export default function FloatingSocials() {
         }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.94 }}
-        className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-slate-900/88 dark:bg-slate-950/88 backdrop-blur-2xl text-white font-extrabold text-xs shadow-2xl shadow-emerald-950/50 border border-emerald-400/40 hover:border-emerald-300 transition-all cursor-pointer"
+        className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#0a1913]/95 text-white font-extrabold text-xs shadow-2xl shadow-black/80 border border-emerald-500/50 backdrop-blur-2xl hover:border-emerald-400 transition-all cursor-pointer"
         title="Social Media Links"
       >
-        <div className="w-6 h-6 rounded-full bg-emerald-500/25 border border-emerald-400/50 backdrop-blur-md flex items-center justify-center text-emerald-300 shadow-inner shrink-0">
-          {isOpen ? <X className="w-3.5 h-3.5 text-emerald-300" /> : <Globe className="w-3.5 h-3.5 text-emerald-300" />}
+        <div className="w-6 h-6 rounded-full bg-emerald-500/25 border border-emerald-400/60 backdrop-blur-md flex items-center justify-center text-emerald-400 shadow-inner shrink-0">
+          {isOpen ? <X className="w-3.5 h-3.5 text-emerald-400" /> : <Globe className="w-3.5 h-3.5 text-emerald-400" />}
         </div>
         <span className="hidden sm:inline font-extrabold tracking-wide text-white">Socials</span>
       </motion.button>
