@@ -235,15 +235,14 @@ export default function AIChatWidget() {
             <div className="absolute top-1/3 left-0 w-64 h-64 rounded-full bg-[#cbd5e1]/50 blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#fecdd3]/35 blur-3xl pointer-events-none" />
 
-            {/* STICKY TOP HEADER */}
-            <div className="sticky top-0 z-40 shrink-0 p-3.5 bg-slate-900 text-white flex items-center justify-between shadow-sm border-b border-slate-800">
+            {/* STICKY TOP HEADER - Cosmic Indigo to Neon Mint Teal Gradient */}
+            <div className="sticky top-0 z-40 shrink-0 p-3.5 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white flex items-center justify-between shadow-sm border-b border-emerald-500/30">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
                   <Sparkles className="w-4 h-4 fill-white" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-white leading-tight">DPSI AI</h3>
-                  <p className="text-[10px] text-emerald-400 font-medium leading-none mt-0.5">● Online | Instant Answers</p>
                 </div>
               </div>
 
@@ -350,13 +349,13 @@ export default function AIChatWidget() {
               </div>
             </div>
 
-            {/* INPUT FORM - Sits perfectly flush at the bottom of the modal */}
+            {/* INPUT FORM - Cosmic Indigo to Neon Mint Teal Gradient */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSend(input);
               }}
-              className="relative z-20 p-3 bg-slate-900 text-white flex items-center gap-2 shrink-0 border-t border-slate-800"
+              className="relative z-20 p-3 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white flex items-center gap-2 shrink-0 border-t border-emerald-500/30"
             >
               <div className="flex-1 relative flex items-center min-w-0">
                 <input
@@ -364,13 +363,13 @@ export default function AIChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Message DPSI AI..."
-                  className="w-full px-4 py-2.5 rounded-full bg-[#27272a] border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072ff]"
+                  className="w-full px-4 py-2.5 rounded-full bg-white/15 border border-white/20 text-xs text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 />
               </div>
               <button
                 type="submit"
                 disabled={!input.trim() || isTyping}
-                className="w-9 h-9 rounded-full bg-[#0072ff] hover:bg-[#005bb5] text-white flex items-center justify-center transition-all shadow-md shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#10b981] to-[#00c6ff] hover:brightness-110 text-white flex items-center justify-center transition-all shadow-md shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title="Send Message"
               >
                 <Send className="w-4 h-4" />
