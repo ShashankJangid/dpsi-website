@@ -32,9 +32,9 @@ const values = [
 
 const leadership = [
   {
-    name: "Mr. V.K. Shunglu",
-    role: "Chairman, DPS Society",
-    image: "/images/leadership/vk_shunglu.webp",
+    name: "Ms. Priya Elizabeth John",
+    role: "Principal, DPS Indirapuram",
+    image: "/images/leadership/priya_john.webp",
   },
   {
     name: "Ms. Santosh Bansal",
@@ -42,9 +42,9 @@ const leadership = [
     image: "/images/leadership/santosh_bansal.webp",
   },
   {
-    name: "Ms. Priya Elizabeth John",
-    role: "Principal",
-    image: "/images/leadership/priya_john.webp",
+    name: "Mr. V.K. Shunglu",
+    role: "Chairman, DPS Society & Chairman, Managing Committee, DPS Indirapuram",
+    image: "/images/leadership/vk_shunglu.webp",
   },
 ];
 
@@ -172,17 +172,17 @@ export default function About() {
             {leadership.map((l, i) => (
               <motion.div
                 key={l.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="text-center"
+                transition={{ delay: i * 0.15, duration: 0.5 }}
+                className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 shadow-lg hover:shadow-xl transition-all text-center flex flex-col items-center group"
               >
-                <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4 border-4 border-emerald-100 dark:border-emerald-900">
-                  <img src={l.image} alt={l.name} className="w-full h-full object-cover" loading="lazy" />
+                <div className="w-48 h-48 sm:w-52 sm:h-52 rounded-2xl overflow-hidden mb-5 border-2 border-emerald-500/30 shadow-md group-hover:scale-105 transition-transform duration-500 bg-slate-900">
+                  <img src={l.image} alt={l.name} className="w-full h-full object-cover object-top" loading="lazy" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{l.name}</h3>
-                <p className="text-emerald-600 dark:text-emerald-400 font-medium">{l.role}</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1.5">{l.name}</h3>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold leading-relaxed px-2">{l.role}</p>
               </motion.div>
             ))}
           </div>
