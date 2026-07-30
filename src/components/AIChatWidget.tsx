@@ -181,15 +181,15 @@ export default function AIChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 25, scale: 0.94 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[340px] sm:w-[385px] h-[520px] max-h-[85vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-[28px] shadow-2xl shadow-slate-900/20 flex flex-col overflow-hidden mb-3 text-slate-900 dark:text-slate-100 relative max-w-[94vw]"
+            className="w-[340px] sm:w-[385px] h-[500px] max-h-[82vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-[28px] shadow-2xl shadow-slate-900/25 flex flex-col overflow-hidden mb-3 text-slate-900 dark:text-slate-100 relative max-w-[94vw]"
           >
-            {/* Ethereal Smooth Ambient Aura Gradient Orbs (Image 2 Inspiration) */}
-            <div className="absolute -top-14 -right-14 w-56 h-56 rounded-full bg-cyan-400/25 blur-3xl pointer-events-none animate-pulse" />
-            <div className="absolute top-1/3 -left-16 w-56 h-56 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 right-1/4 w-48 h-48 rounded-full bg-rose-400/20 blur-3xl pointer-events-none" />
+            {/* Ethereal Smooth Ambient Aura Gradient Orbs */}
+            <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none animate-pulse" />
+            <div className="absolute top-1/3 left-0 w-48 h-48 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full bg-rose-400/15 blur-3xl pointer-events-none" />
 
-            {/* STICKY TOP HEADER - White Clean Glass Header */}
-            <div className="sticky top-0 z-30 shrink-0 p-3.5 bg-slate-900/95 text-white flex items-center justify-between shadow-md border-b border-slate-800 overflow-hidden">
+            {/* STICKY TOP HEADER - Solid Dark Glass Header (Zero Bleed/Overlap) */}
+            <div className="sticky top-0 z-40 shrink-0 p-3.5 bg-slate-900 text-white flex items-center justify-between shadow-sm border-b border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
                   <Sparkles className="w-4.5 h-4.5 fill-white" />
@@ -200,7 +200,7 @@ export default function AIChatWidget() {
                 </div>
               </div>
 
-              {/* Close Button - High Contrast X */}
+              {/* Close Button */}
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 rounded-full hover:bg-white/20 text-slate-200 hover:text-white transition cursor-pointer shrink-0"
@@ -211,8 +211,8 @@ export default function AIChatWidget() {
               </button>
             </div>
 
-            {/* MESSAGES BODY - Clean White Glass Background */}
-            <div className="relative z-10 flex-1 p-3.5 overflow-y-auto space-y-3.5 text-xs leading-relaxed overflow-x-hidden">
+            {/* MESSAGES BODY - Scrollable Area */}
+            <div className="relative z-10 flex-1 min-h-0 p-3.5 overflow-y-auto space-y-3.5 text-xs leading-relaxed">
               {messages.map((m, i) => (
                 <div
                   key={i}
@@ -250,8 +250,8 @@ export default function AIChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* DOWNSIDE QUICK SUGGESTION CHIPS - Clean 2-Row Grid Layout (Image 4 Fix + Bug 3 Fix) */}
-            <div className="relative z-10 px-3 py-2 bg-slate-50/90 dark:bg-slate-950/80 border-t border-b border-slate-200/70 dark:border-slate-800 shrink-0 overflow-hidden">
+            {/* DOWNSIDE QUICK SUGGESTION CHIPS - Clean 2-Row Grid */}
+            <div className="relative z-20 px-3 py-2 bg-slate-50/95 dark:bg-slate-950/95 border-t border-b border-slate-200/80 dark:border-slate-800 shrink-0">
               <div className="grid grid-cols-2 gap-1.5 w-full">
                 {[
                   { label: "Admissions 2026", icon: <GraduationCap className="w-3 h-3 text-sky-600 dark:text-sky-400" /> },
@@ -272,13 +272,13 @@ export default function AIChatWidget() {
               </div>
             </div>
 
-            {/* INPUT FORM - Fully Rounded Pill Input */}
+            {/* INPUT FORM - Sits perfectly flush at the bottom of the modal */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSend(input);
               }}
-              className="relative z-10 p-3 bg-white/95 dark:bg-slate-950 flex items-center gap-2 shrink-0 overflow-hidden"
+              className="relative z-20 p-3 bg-[#18181b] text-white flex items-center gap-2 shrink-0 border-t border-slate-800"
             >
               <div className="flex-1 relative flex items-center min-w-0">
                 <input
@@ -286,7 +286,7 @@ export default function AIChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Message DPSI AI..."
-                  className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072ff]"
+                  className="w-full px-4 py-2.5 rounded-full bg-[#27272a] border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072ff]"
                 />
               </div>
               <button
@@ -302,7 +302,7 @@ export default function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Floating Trigger Button - Electric Blue Sparkle AI Badge (Floats Continuously on Screen) */}
+      {/* Floating Trigger Button - Electric Blue Sparkle AI Badge */}
       {!isOpen && (
         <motion.button
           onClick={() => setIsOpen(true)}
