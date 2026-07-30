@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Facebook, Youtube, Linkedin, Instagram, X, Globe } from "lucide-react";
 
@@ -31,17 +31,32 @@ const socialLinks = [
 
 export default function FloatingSocials() {
   const [isOpen, setIsOpen] = useState(false);
+  const userInteractedRef = useRef(false);
 
-  // Auto popup trigger after 3.5 seconds so user notices the social tab
+  // Auto popup trigger: opens after 2.5s and automatically closes after 4.5s
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsOpen(true);
-      // Auto fold after 4 seconds if not interacted
-      setTimeout(() => setIsOpen(false), 4000);
-    }, 3500);
+    const openTimer = setTimeout(() => {
+      if (!userInteractedRef.current) {
+        setIsOpen(true);
+      }
+    }, 2500);
 
-    return () => clearTimeout(timer);
+    const closeTimer = setTimeout(() => {
+      if (!userInteractedRef.current) {
+        setIsOpen(false);
+      }
+    }, 7000);
+
+    return () => {
+      clearTimeout(openTimer);
+      clearTimeout(closeTimer);
+    };
   }, []);
+
+  const handleToggle = () => {
+    userInteractedRef.current = true;
+    setIsOpen((prev) => !prev);
+  };
 
   return (
     <div className="fixed bottom-[84px] right-3 sm:bottom-[96px] sm:right-6 z-50 flex flex-col items-end gap-2 pointer-events-auto">
@@ -74,7 +89,7 @@ export default function FloatingSocials() {
 
       {/* Peach Ash Grey Gradient Floating Socials Button (Smooth 60FPS) */}
       <motion.button
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={handleToggle}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-extrabold text-xs shadow-2xl shadow-slate-900/25 border border-white/80 backdrop-blur-2xl transform-gpu will-change-transform hover:-translate-y-0.5 hover:shadow-slate-900/40 transition-all duration-300 cursor-pointer"
