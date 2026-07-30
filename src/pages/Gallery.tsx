@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Layers } from "lucide-react";
 import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
+import VideoGallerySection from "@/sections/VideoGallerySection";
 
 const categories = ["All", "Labs", "Sports", "Library", "Events", "Campus"];
 
@@ -87,6 +88,8 @@ export default function Gallery() {
           </div>
         </div>
       </section>
+
+      <VideoGallerySection />
 
       <AnimatePresence>
         {selectedImage && (
