@@ -380,15 +380,17 @@ export default function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Floating Trigger Button - Peach Ash Grey Gradient AI Badge */}
+      {/* Floating Trigger Button - Smooth 60FPS Fade with Zero Layout Shift */}
       {!isOpen && (
         <motion.button
           onClick={() => setIsOpen(true)}
-          animate={{ y: [0, -6, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.94 }}
-          className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/25 border border-white/90 backdrop-blur-2xl group"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/25 border border-white/90 backdrop-blur-2xl group transform-gpu will-change-transform hover:-translate-y-0.5 hover:shadow-slate-900/40 transition-all duration-300 ml-auto cursor-pointer"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 group-hover:scale-105 transition-transform">
             <Sparkles className="w-4 h-4 fill-white" />
