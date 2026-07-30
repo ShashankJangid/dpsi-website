@@ -24,12 +24,6 @@ const heroSlides = [
     badge: "Next-Gen Infrastructure"
   },
   {
-    image: "/images/dps/slider_4.webp",
-    title: "Quantum Science & Physics Lab",
-    subtitle: "Advanced research apparatus for young innovators",
-    badge: "Innovation Hub"
-  },
-  {
     image: "/images/dps/slider_5.webp",
     title: "Holistic Student Development",
     subtitle: "Nurturing sports, arts, academics and leadership skills",

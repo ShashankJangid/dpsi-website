@@ -46,11 +46,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; topic: string; answer: string; actio
     keywords: ["ai", "robot", "robotics", "stem", "code", "coding", "lab", "3d printer", "humanoid"],
     answer: "Inaugurated 2024: Features humanoid robotic kits, 3D printers, Python Machine Learning, IoT sensors, and expert mentors.",
   },
-  {
-    topic: "Quantum Science Lab",
-    keywords: ["quantum", "physics lab", "upcoming lab", "laser", "optics", "science lab"],
-    answer: "Upcoming Research Facility: Equipped with laser optics, digital micro-analysis, and modern safety systems for advanced physics.",
-  },
+
   {
     topic: "Transport & Bus Fleet",
     keywords: ["bus", "transport", "route", "van", "pickup", "drop", "gps", "noida", "indirapuram", "vaishali", "vasundhara", "ghaziabad"],
