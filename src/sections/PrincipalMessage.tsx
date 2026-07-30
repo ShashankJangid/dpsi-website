@@ -20,9 +20,9 @@ export default function PrincipalMessage() {
           >
             <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 shadow-2xl border border-emerald-500/20 p-2">
               <img
-                src="/images/leadership/priya_john.webp"
-                alt="Ms. Priya Elizabeth John - Principal, DPS Indirapuram"
-                className="w-full h-full object-cover rounded-xl object-top"
+                src="/images/dps/student_astronaut.webp"
+                alt="DPS Indirapuram Student & AI Innovation"
+                className="w-full h-full object-cover rounded-xl"
                 loading="lazy"
               />
             </div>
