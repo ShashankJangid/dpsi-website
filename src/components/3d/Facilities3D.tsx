@@ -15,15 +15,7 @@ const facilityData = [
     image: "/images/facilities/ai_robotics_lab.webp",
     geometry: "torusKnot"
   },
-  {
-    id: "science",
-    label: "Quantum Science (Upcoming)",
-    description: "Upcoming next-generation research facilities with optical laser instrumentation.",
-    color: "#059669",
-    accent: "#6ee7b7",
-    image: "/images/facilities/quantum_science_lab.webp",
-    geometry: "octahedron"
-  },
+
   {
     id: "smart",
     label: "Next-Gen Smart Classrooms",
