@@ -1,82 +1,106 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles, MessageSquare, GraduationCap, Award } from "lucide-react";
+import { X, Send, Sparkles, MessageSquare, GraduationCap, Award, RotateCcw, ExternalLink, Phone, Mail } from "lucide-react";
 
 interface Message {
   role: "assistant" | "user";
   text: string;
   timestamp?: string;
   isStreaming?: boolean;
+  actionUrl?: string;
+  actionType?: "call" | "email" | "link";
 }
 
-// Advanced Knowledge Base for DPS Indirapuram
-const KNOWLEDGE_BASE: { keywords: string[]; topic: string; answer: string }[] = [
+// Expanded Ultra-Precise Knowledge Base for DPS Indirapuram (Short & Concise Responses)
+const KNOWLEDGE_BASE: { keywords: string[]; topic: string; answer: string; actionUrl?: string; actionType?: "call" | "email" | "link" }[] = [
   {
     topic: "Admissions 2026-27",
-    keywords: ["admiss", "apply", "join", "register", "nursery", "prep", "class 1", "admission date", "form", "entry"],
-    answer: "Admissions 2026-27 are open for Pre-Nursery to Class IX & XI. You can register online via the official SchoolsOS Portal (https://dpsindp.schoolforschools.ai/login). Required documents include Birth Certificate, Transfer Certificate, last report card, and passport photos. For help, call +91-0120-4660000 or email info@dpsindirapuram.com."
+    keywords: ["admiss", "apply", "join", "register", "nursery", "prep", "class 1", "admission date", "form", "entry", "eligibility"],
+    answer: "Admissions 2026-27 are OPEN for Pre-Nursery to IX & XI. Fill the online registration form on our official portal.",
+    actionUrl: "https://dpsindp.schoolforschools.ai/login",
+    actionType: "link"
   },
   {
     topic: "Fee Structure & Payment",
-    keywords: ["fee", "cost", "charge", "payment", "installment", "structure", "dues", "tuition"],
-    answer: "Detailed fee schedules for Pre-Nursery to Class XII are available on the official portal (https://dpsindp.schoolforschools.ai/login). Fees can be paid quarterly online. For fee desk queries, email info@dpsindirapuram.com or call +91-0120-4660000."
+    keywords: ["fee", "cost", "charge", "payment", "installment", "structure", "dues", "tuition", "pay"],
+    answer: "Quarterly school fees can be paid online via the SchoolsOS portal. For detailed fee desk queries, contact info@dpsindirapuram.com.",
+    actionUrl: "https://dpsindp.schoolforschools.ai/login",
+    actionType: "link"
   },
   {
     topic: "Class XI Streams",
     keywords: ["stream", "class 11", "class 10", "class 12", "subject", "science", "commerce", "humanities", "arts", "pcm", "pcb", "biotech"],
-    answer: "DPS Indirapuram offers 3 senior secondary streams: Science (PCM/PCB with AI, Biotech, CS, Applied Math), Commerce (Accounts, Business Studies, Economics, Math), and Humanities (Psychology, Legal Studies, Political Science, History, Economics)."
+    answer: "3 Streams Offered: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).",
+    actionUrl: "mailto:info@dpsindirapuram.com",
+    actionType: "email"
   },
   {
     topic: "CBSE Board Results & Toppers",
     keywords: ["result", "score", "topper", "rank", "cbse", "percent", "percentage", "academic", "siddhant", "ansh"],
-    answer: "Benchmark Pass Record: DPS Indirapuram achieved a 100% pass result in CBSE X & XII exams. School toppers Siddhant Tiwari & Ansh Pathak scored 99.4%, with Commerce top score 98.2% and Humanities 97.6%."
+    answer: "100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%, with Commerce 98.2% and Humanities 97.6%.",
+    actionUrl: "https://dpsindp.schoolforschools.ai/login",
+    actionType: "link"
   },
   {
     topic: "AI & Robotics Innovation Lab",
     keywords: ["ai", "robot", "robotics", "stem", "code", "coding", "lab", "3d printer", "humanoid"],
-    answer: "Inaugurated in 2024, our futuristic 8K AI & Robotics Lab features humanoid robotic kits, 3D printing, IoT sensors, Python machine learning modules, and expert mentors preparing students for tech careers."
+    answer: "Inaugurated 2024: Features humanoid robotic kits, 3D printers, Python Machine Learning, IoT sensors, and expert mentors.",
   },
   {
     topic: "Quantum Science Lab",
     keywords: ["quantum", "physics lab", "upcoming lab", "laser", "optics", "science lab"],
-    answer: "Quantum Science Lab (Upcoming): An advanced research laboratory planned with laser optics, digital micro-analysis, and modern safety systems for advanced physics research."
+    answer: "Upcoming Research Facility: Equipped with laser optics, digital micro-analysis, and modern safety systems for advanced physics.",
   },
   {
-    topic: "Facilities & Campus",
-    keywords: ["facility", "campus", "smart classroom", "pool", "swimming", "library", "sport", "auditorium", "infrastructure"],
-    answer: "Key Infrastructure: AR/VR Smart Classrooms, 50,000+ Book Digital Knowledge Library, Olympic-size Swimming Pool, 8K AI Robotics Lab, Multi-sports Complex, Professional Performing Arts Center, and AC Transport."
+    topic: "Transport & Bus Fleet",
+    keywords: ["bus", "transport", "route", "van", "pickup", "drop", "gps", "noida", "indirapuram", "vaishali", "vasundhara", "ghaziabad"],
+    answer: "50+ GPS-enabled AC buses with live app tracking, CCTV surveillance, and trained female attendants covering Noida, Ghaziabad & NCR.",
+    actionUrl: "tel:+9101204660000",
+    actionType: "call"
   },
   {
-    topic: "Transport & Bus Service",
-    keywords: ["bus", "transport", "route", "van", "pickup", "drop", "gps", "noida", "indirapuram", "vaishali", "vasundhara"],
-    answer: "School Transport: Fleet of 50+ GPS-enabled AC buses with real-time app tracking, CCTV surveillance, and trained female attendants covering Indirapuram, Vaishali, Vasundhara, Noida, and Ghaziabad."
-  },
-  {
-    topic: "School Timings & Office Hours",
+    topic: "School Timings",
     keywords: ["timing", "time", "hour", "open", "schedule", "working", "visiting"],
-    answer: "School Hours: Mon-Sat 8:00 AM - 4:00 PM. Parent visiting hours: 9:00 AM - 11:30 AM (by prior appointment). Administrative office functions on all working days."
+    answer: "Junior Wing: 8:00 AM - 1:30 PM. Senior Wing: 8:00 AM - 2:10 PM (Mon-Sat). Parent visiting hours: 9:00 AM - 11:30 AM by appointment.",
   },
   {
-    topic: "Principal & Leadership",
-    keywords: ["principal", "chairman", "management", "director", "priya", "shunglu", "dps society"],
-    answer: "Leadership: Principal Ms. Priya Elizabeth John, Chairman Mr. V.K. Shunglu, Pro-Vice Chairperson Ms. Santosh Bansal. Established in 2003 under the aegis of The DPS Society, East of Kailash, New Delhi."
+    topic: "Sports & Swimming Pool",
+    keywords: ["sport", "swimming", "pool", "cricket", "football", "basketball", "tennis", "skating", "taekwondo"],
+    answer: "Facilities include an Olympic-size swimming pool, cricket academy, basketball courts, lawn tennis, and indoor sports hall.",
   },
   {
-    topic: "Contact & Location",
+    topic: "Leadership & Principal",
+    keywords: ["principal", "chairman", "management", "director", "priya", "shunglu", "bansal", "dps society"],
+    answer: "Principal: Ms. Priya Elizabeth John | Pro-Vice Chairperson: Ms. Santosh Bansal | Chairman: Mr. V.K. Shunglu.",
+  },
+  {
+    topic: "Location & Contact",
     keywords: ["contact", "phone", "email", "address", "location", "map", "where", "reach", "number"],
-    answer: "Address: 526/1, Ahinsa Khand-II, Indirapuram, Ghaziabad, UP 201014 (Near CISF Camp). Phone: +91-0120-4660000 | Email: info@dpsindirapuram.com."
+    answer: "Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014. Call +91-0120-4660000 | Email info@dpsindirapuram.com.",
+    actionUrl: "tel:+9101204660000",
+    actionType: "call"
   },
   {
-    topic: "Awards & Recognitions",
-    keywords: ["award", "rank", "recognition", "british council", "times", "best school"],
-    answer: "Prestigious Honors: Recipient of the British Council International Dimension Award (2020-23) and Times Education Icon Award. Consistently ranked among Top CBSE Schools in India."
+    topic: "School Uniform",
+    keywords: ["uniform", "dress", "code", "blazer", "tie", "shirt", "winter uniform", "summer uniform"],
+    answer: "Summer: White shirt with green collar & trousers/skirt. Winter: Green blazer with school crest, grey trousers, and school tie.",
+  },
+  {
+    topic: "Houses & Clubs",
+    keywords: ["house", "club", "ganga", "yamuna", "jhelum", "chenab", "ravi", "beas", "mun", "astronomy", "music"],
+    answer: "6 Houses: Ganga, Yamuna, Jhelum, Chenab, Ravi, Beas. Active Clubs: Astronomy, Robotics, MUN, Eco Club, Coding, & Dramatics.",
+  },
+  {
+    topic: "Safety & Medical",
+    keywords: ["safety", "security", "cctv", "nurse", "medical", "infirmary", "doctor", "guard"],
+    answer: "24/7 CCTV surveillance, biometric security, trained guards, and full-time infirmary with resident medical nurse.",
   }
 ];
 
 // Precision AI Response Engine
-function getAIAnswer(query: string): string {
+function getAIResponse(query: string) {
   const q = query.toLowerCase().trim();
-  if (!q) return "How can I assist you with DPS Indirapuram today?";
+  if (!q) return { answer: "How can I assist you with DPS Indirapuram today?" };
 
   let bestMatch = KNOWLEDGE_BASE[0];
   let maxScore = 0;
@@ -95,10 +119,14 @@ function getAIAnswer(query: string): string {
   }
 
   if (maxScore > 0) {
-    return bestMatch.answer;
+    return { answer: bestMatch.answer, actionUrl: bestMatch.actionUrl, actionType: bestMatch.actionType };
   }
 
-  return "DPS Indirapuram (Est. 2003) is a premier CBSE institution offering world-class academics, AI & Robotics Lab, 100% CBSE pass results (Top 99.4%), and 50+ AC GPS buses. For admissions or direct queries, please call +91-0120-4660000 or email info@dpsindirapuram.com.";
+  return {
+    answer: "DPS Indirapuram (Est. 2003) offers top CBSE academics, AI & Robotics Lab, 100% CBSE results, and 50+ AC GPS buses. Call +91-0120-4660000.",
+    actionUrl: "tel:+9101204660000",
+    actionType: "call" as const
+  };
 }
 
 export default function AIChatWidget() {
@@ -108,7 +136,7 @@ export default function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Hello! Welcome to DPS Indirapuram. I am DPSI AI, your 24/7 smart school guide. How can I assist you with Admissions, Facilities, or Academics today?",
+      text: "Hello! I am DPSI AI, your smart school guide. Ask me about Admissions, Fees, Streams, Timings, or Facilities!",
       timestamp: "Just now"
     }
   ]);
@@ -125,6 +153,18 @@ export default function AIChatWidget() {
     };
   }, []);
 
+  const handleResetChat = () => {
+    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+    setIsTyping(false);
+    setMessages([
+      {
+        role: "assistant",
+        text: "Chat reset! How can I help you with DPS Indirapuram today?",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      }
+    ]);
+  };
+
   const handleSend = (userQuery: string) => {
     if (!userQuery.trim() || isTyping) return;
 
@@ -136,13 +176,20 @@ export default function AIChatWidget() {
     setIsTyping(true);
 
     setTimeout(() => {
-      const fullAnswer = getAIAnswer(textToSend);
-      const words = fullAnswer.split(" ");
+      const response = getAIResponse(textToSend);
+      const words = response.answer.split(" ");
       let currentWordIndex = 0;
 
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "", timestamp: timeStr, isStreaming: true }
+        {
+          role: "assistant",
+          text: "",
+          timestamp: timeStr,
+          isStreaming: true,
+          actionUrl: response.actionUrl,
+          actionType: response.actionType
+        }
       ]);
 
       if (typingTimerRef.current) clearInterval(typingTimerRef.current);
@@ -168,8 +215,8 @@ export default function AIChatWidget() {
           if (typingTimerRef.current) clearInterval(typingTimerRef.current);
           setIsTyping(false);
         }
-      }, 25);
-    }, 280);
+      }, 15);
+    }, 200);
   };
 
   return (
@@ -183,51 +230,82 @@ export default function AIChatWidget() {
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             className="w-[340px] sm:w-[385px] h-[500px] max-h-[82vh] bg-gradient-to-br from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-slate-900/25 flex flex-col overflow-hidden mb-3 text-slate-900 relative max-w-[94vw]"
           >
-            {/* Peach Ash Grey Silk Ambient Wavy Mesh Orbs (Matching Screenshot Design) */}
+            {/* Peach Ash Grey Silk Ambient Wavy Mesh Orbs */}
             <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#fed7aa]/35 blur-3xl pointer-events-none animate-pulse" />
             <div className="absolute top-1/3 left-0 w-64 h-64 rounded-full bg-[#cbd5e1]/50 blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#fecdd3]/35 blur-3xl pointer-events-none" />
 
-            {/* STICKY TOP HEADER - Solid Dark Glass Header */}
+            {/* STICKY TOP HEADER */}
             <div className="sticky top-0 z-40 shrink-0 p-3.5 bg-slate-900 text-white flex items-center justify-between shadow-sm border-b border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
-                  <Sparkles className="w-4.5 h-4.5 fill-white" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
+                  <Sparkles className="w-4 h-4 fill-white" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-white leading-tight">DPSI AI</h3>
-                  <p className="text-[11px] text-slate-300 font-normal leading-none mt-0.5">Official School Assistant</p>
+                  <p className="text-[10px] text-emerald-400 font-medium leading-none mt-0.5">● Online | Instant Answers</p>
                 </div>
               </div>
 
-              {/* Close Button */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-full hover:bg-white/20 text-slate-200 hover:text-white transition cursor-pointer shrink-0"
-                title="Close Chat Window"
-                aria-label="Close Chat"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {/* Action Buttons: Reset Chat & Close */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleResetChat}
+                  className="p-1.5 rounded-full hover:bg-white/20 text-slate-300 hover:text-white transition cursor-pointer"
+                  title="Clear Chat History"
+                  aria-label="Reset Chat"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1.5 rounded-full hover:bg-white/20 text-slate-300 hover:text-white transition cursor-pointer"
+                  title="Close Chat Window"
+                  aria-label="Close Chat"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* MESSAGES BODY - Scrollable Area */}
-            <div className="relative z-10 flex-1 min-h-0 p-3.5 overflow-y-auto space-y-3.5 text-xs leading-relaxed">
+            <div className="relative z-10 flex-1 min-h-0 p-3.5 overflow-y-auto space-y-3 text-xs leading-relaxed">
               {messages.map((m, i) => (
                 <div
                   key={i}
                   className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-normal shadow-xs ${
+                    className={`p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed shadow-xs ${
                       m.role === "user"
                         ? "bg-slate-900 text-white rounded-tr-xs shadow-md font-medium"
-                        : "bg-white/95 text-slate-800 rounded-tl-xs border border-white/80 shadow-xs backdrop-blur-md font-medium"
+                        : "bg-white/95 text-slate-900 rounded-tl-xs border border-white/80 shadow-xs backdrop-blur-md font-semibold"
                     }`}
                   >
                     {m.text}
                     {m.isStreaming && (
                       <span className="inline-block w-1.5 h-3 bg-[#0072ff] ml-1 animate-pulse" />
+                    )}
+
+                    {/* Quick Action Button Attachment for AI responses */}
+                    {m.role === "assistant" && !m.isStreaming && m.actionUrl && (
+                      <div className="mt-2 pt-2 border-t border-slate-200/80">
+                        <a
+                          href={m.actionUrl}
+                          target={m.actionType === "link" ? "_blank" : "_self"}
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-[#0072ff] font-bold text-[11px] border border-sky-200 transition-all shadow-2xs"
+                        >
+                          {m.actionType === "link" && <ExternalLink className="w-3 h-3" />}
+                          {m.actionType === "call" && <Phone className="w-3 h-3" />}
+                          {m.actionType === "email" && <Mail className="w-3 h-3" />}
+                          <span>
+                            {m.actionType === "link" && "Open Admission Portal"}
+                            {m.actionType === "call" && "Call +91-0120-4660000"}
+                            {m.actionType === "email" && "Email Info Desk"}
+                          </span>
+                        </a>
+                      </div>
                     )}
                   </div>
                   {m.timestamp && !m.isStreaming && (
