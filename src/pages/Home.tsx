@@ -5,6 +5,7 @@ import QuickStats from "@/sections/QuickStats";
 import NewsHighlights from "@/sections/NewsHighlights";
 import PrincipalMessage from "@/sections/PrincipalMessage";
 import AchievementsSection from "@/sections/AchievementsSection";
+import VideoGallerySection from "@/sections/VideoGallerySection";
 import TestimonialsSection from "@/sections/TestimonialsSection";
 import CTASection from "@/sections/CTASection";
 
@@ -17,6 +18,7 @@ export default function Home() {
       <NewsHighlights />
       <PrincipalMessage />
       <AchievementsSection />
+      <VideoGallerySection />
       <TestimonialsSection />
       <CTASection />
     </Layout>
