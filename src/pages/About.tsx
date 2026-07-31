@@ -32,9 +32,9 @@ const values = [
 
 const leadership = [
   {
-    name: "Ms. Priya Elizabeth John",
-    role: "Principal, DPS Indirapuram",
-    image: "/images/leadership/priya_john.webp",
+    name: "Mr. V.K. Shunglu",
+    role: "Chairman, DPS Society & Chairman, Managing Committee, DPS Indirapuram",
+    image: "/images/leadership/vk_shunglu.webp",
   },
   {
     name: "Ms. Santosh Bansal",
@@ -42,9 +42,9 @@ const leadership = [
     image: "/images/leadership/santosh_bansal.webp",
   },
   {
-    name: "Mr. V.K. Shunglu",
-    role: "Chairman, DPS Society & Chairman, Managing Committee, DPS Indirapuram",
-    image: "/images/leadership/vk_shunglu.webp",
+    name: "Ms. Priya Elizabeth John",
+    role: "Principal, DPS Indirapuram",
+    image: "/images/leadership/priya_john.webp",
   },
 ];
 
