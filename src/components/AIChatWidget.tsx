@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles, MessageSquare, GraduationCap, Award, RotateCcw, ExternalLink, Phone, Mail } from "lucide-react";
+import { X, Send, Sparkles, MessageSquare, GraduationCap, Award, RotateCcw, ExternalLink, Phone, Mail, Mic } from "lucide-react";
+
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 interface Message {
   role: "assistant" | "user";
@@ -138,6 +145,73 @@ export default function AIChatWidget() {
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Hold-to-Talk Voice Input State & Handlers
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const transcriptRef = useRef<string>("");
+
+  const startListening = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionAPI) {
+      alert("Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (isListening) return;
+
+    try {
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+
+      transcriptRef.current = "";
+
+      recognition.onresult = (event: any) => {
+        let current = "";
+        for (let i = 0; i < event.results.length; i++) {
+          current += event.results[i][0].transcript;
+        }
+        transcriptRef.current = current;
+        setInput(current);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition error:", event.error);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+      recognitionRef.current = recognition;
+      setIsListening(true);
+    } catch (err) {
+      console.error("Speech recognition error:", err);
+    }
+  };
+
+  const stopListening = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) e.preventDefault();
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // ignore
+      }
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+
+    const finalText = transcriptRef.current.trim();
+    if (finalText) {
+      handleSend(finalText);
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -353,15 +427,59 @@ export default function AIChatWidget() {
               }}
               className="relative z-20 p-3 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white flex items-center gap-2 shrink-0 border-t border-emerald-500/30"
             >
+              {/* LISTENING FLOATING BANNER */}
+              <AnimatePresence>
+                {isListening && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute -top-9 left-1/2 -translate-x-1/2 px-3 py-1 bg-rose-600/95 backdrop-blur-md text-white text-[11px] font-semibold rounded-full shadow-lg border border-rose-400/40 flex items-center gap-1.5 whitespace-nowrap z-30 pointer-events-none"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                    <span>Listening... Hold button to speak</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <div className="flex-1 relative flex items-center min-w-0">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Message DPSI AI..."
-                  className="w-full px-4 py-2.5 rounded-full bg-white/15 border border-white/20 text-xs text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  placeholder={isListening ? "Listening... release to send" : "Message DPSI AI..."}
+                  className={`w-full px-4 py-2.5 rounded-full bg-white/15 border text-xs text-white placeholder-slate-300 focus:outline-none transition-all ${
+                    isListening
+                      ? "border-rose-400 ring-2 ring-rose-400/50 bg-rose-950/40 placeholder-rose-200"
+                      : "border-white/20 focus:ring-2 focus:ring-emerald-400"
+                  }`}
                 />
               </div>
+
+              {/* HOLD-TO-TALK VOICE BUTTON */}
+              <div className="relative shrink-0">
+                {isListening && (
+                  <span className="absolute -inset-1 rounded-full bg-rose-500 animate-ping opacity-75" />
+                )}
+                <button
+                  type="button"
+                  onMouseDown={startListening}
+                  onMouseUp={stopListening}
+                  onMouseLeave={stopListening}
+                  onTouchStart={startListening}
+                  onTouchEnd={stopListening}
+                  className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer select-none ${
+                    isListening
+                      ? "bg-rose-600 text-white scale-110 shadow-rose-500/50 shadow-lg ring-2 ring-rose-300"
+                      : "bg-white/15 hover:bg-white/25 text-white border border-white/20 active:scale-95"
+                  }`}
+                  title="Hold to speak to DPSI AI"
+                >
+                  <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} />
+                </button>
+              </div>
+
+              {/* SEND BUTTON */}
               <button
                 type="submit"
                 disabled={!input.trim() || isTyping}
