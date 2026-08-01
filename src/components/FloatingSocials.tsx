@@ -87,18 +87,17 @@ export default function FloatingSocials() {
         )}
       </AnimatePresence>
 
-      {/* Peach Ash Grey Gradient Floating Socials Button (Smooth 60FPS) */}
+      {/* Peach Ash Grey Gradient Floating Socials Button (Icon Only - Just Symbol) */}
       <motion.button
         onClick={handleToggle}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-extrabold text-xs shadow-2xl shadow-slate-900/25 border border-white/80 backdrop-blur-2xl transform-gpu will-change-transform hover:-translate-y-0.5 hover:shadow-slate-900/40 transition-all duration-300 cursor-pointer"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
+        className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 shadow-2xl shadow-slate-900/25 border border-white/80 backdrop-blur-2xl flex items-center justify-center transform-gpu will-change-transform hover:-translate-y-0.5 hover:shadow-slate-900/40 transition-all duration-300 cursor-pointer"
         title="Social Media Links"
       >
-        <div className="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-md shrink-0">
-          {isOpen ? <X className="w-3.5 h-3.5 text-white" /> : <Globe className="w-3.5 h-3.5 text-white" />}
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-md shrink-0">
+          {isOpen ? <X className="w-4 h-4 text-white" /> : <Globe className="w-4 h-4 text-white" />}
         </div>
-        <span className="hidden sm:inline font-black tracking-wide text-slate-900">Socials</span>
       </motion.button>
     </div>
   );
