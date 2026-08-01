@@ -152,8 +152,17 @@ export default function AIChatWidget() {
   const recognitionRef = useRef<any>(null);
   const transcriptRef = useRef<string>("");
 
-  // Single-speak Voice Response Helper (speaks answer only ONE time)
+  // Single-speak Voice Response Helper with Warm Indian / High-Quality Natural Voice Selection
   const spokenResponseRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }, []);
 
   const speakAnswerOnce = (text: string) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -163,9 +172,24 @@ export default function AIChatWidget() {
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.lang = "en-US";
+
+    const voices = window.speechSynthesis.getVoices();
+    if (voices && voices.length > 0) {
+      const bestVoice =
+        voices.find((v) => v.lang.includes("en-IN") || v.lang.includes("en_IN")) ||
+        voices.find((v) => v.name.includes("Google US English") || v.name.includes("Samantha") || v.name.includes("Jenny") || v.name.includes("Zira")) ||
+        voices.find((v) => v.lang.startsWith("en"));
+
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+        utterance.lang = bestVoice.lang;
+      }
+    } else {
+      utterance.lang = "en-IN";
+    }
+
+    utterance.rate = 1.02;
+    utterance.pitch = 1.05;
     window.speechSynthesis.speak(utterance);
   };
 
