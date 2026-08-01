@@ -319,8 +319,8 @@ export default function AIChatWidget() {
           setIsTyping(false);
           speakAnswerOnce(response.answer);
         }
-      }, 15);
-    }, 200);
+      }, 8);
+    }, 50);
   };
 
   return (
