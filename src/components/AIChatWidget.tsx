@@ -152,8 +152,29 @@ export default function AIChatWidget() {
   const recognitionRef = useRef<any>(null);
   const transcriptRef = useRef<string>("");
 
+  // Single-speak Voice Response Helper (speaks answer only ONE time)
+  const spokenResponseRef = useRef<string | null>(null);
+
+  const speakAnswerOnce = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    if (spokenResponseRef.current === text) return;
+
+    spokenResponseRef.current = text;
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.lang = "en-US";
+    window.speechSynthesis.speak(utterance);
+  };
+
   const startListening = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
@@ -221,10 +242,17 @@ export default function AIChatWidget() {
   useEffect(() => {
     return () => {
       if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
     };
   }, []);
 
   const handleResetChat = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    spokenResponseRef.current = null;
     if (typingTimerRef.current) clearInterval(typingTimerRef.current);
     setIsTyping(false);
     setMessages([
@@ -238,6 +266,10 @@ export default function AIChatWidget() {
 
   const handleSend = (userQuery: string) => {
     if (!userQuery.trim() || isTyping) return;
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
 
     const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const textToSend = userQuery.trim();
@@ -285,6 +317,7 @@ export default function AIChatWidget() {
         if (currentWordIndex >= words.length) {
           if (typingTimerRef.current) clearInterval(typingTimerRef.current);
           setIsTyping(false);
+          speakAnswerOnce(response.answer);
         }
       }, 15);
     }, 200);
