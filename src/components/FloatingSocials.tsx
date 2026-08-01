@@ -59,15 +59,15 @@ export default function FloatingSocials() {
   };
 
   return (
-    <div className="fixed bottom-52 sm:bottom-60 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-auto">
+    <div className="fixed top-1/2 -translate-y-1/2 left-3 sm:left-6 z-50 flex flex-col items-start gap-2 pointer-events-auto">
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            initial={{ opacity: 0, scale: 0.8, x: -10 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.8, x: -10 }}
             transition={{ duration: 0.2 }}
-            className="flex flex-row items-center gap-2.5 bg-gradient-to-br from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] backdrop-blur-2xl p-2.5 sm:p-3 rounded-2xl border border-white/60 shadow-2xl shadow-slate-900/25 mb-1"
+            className="flex flex-col gap-2 bg-gradient-to-br from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] backdrop-blur-2xl p-2.5 sm:p-3 rounded-2xl border border-white/60 shadow-2xl shadow-slate-900/25 mb-1"
           >
             {socialLinks.map((s) => (
               <motion.a
