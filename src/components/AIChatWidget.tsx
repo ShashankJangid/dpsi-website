@@ -476,21 +476,7 @@ export default function AIChatWidget() {
                 )}
               </AnimatePresence>
 
-              <div className="flex-1 relative flex items-center min-w-0">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={isListening ? "Listening... release to send" : "Message DPSI AI..."}
-                  className={`w-full px-4 py-2.5 rounded-full bg-white/15 border text-xs text-white placeholder-slate-300 focus:outline-none transition-all ${
-                    isListening
-                      ? "border-rose-400 ring-2 ring-rose-400/50 bg-rose-950/40 placeholder-rose-200"
-                      : "border-white/20 focus:ring-2 focus:ring-emerald-400"
-                  }`}
-                />
-              </div>
-
-              {/* HOLD-TO-TALK VOICE BUTTON */}
+              {/* HOLD-TO-TALK VOICE BUTTON - LEFT SIDE */}
               <div className="relative shrink-0">
                 {isListening && (
                   <span className="absolute -inset-1 rounded-full bg-rose-500 animate-ping opacity-75" />
@@ -513,7 +499,7 @@ export default function AIChatWidget() {
                 </button>
               </div>
 
-              {/* SEND BUTTON */}
+              {/* SEND BUTTON - LEFT SIDE */}
               <button
                 type="submit"
                 disabled={!input.trim() || isTyping}
@@ -522,6 +508,21 @@ export default function AIChatWidget() {
               >
                 <Send className="w-4 h-4" />
               </button>
+
+              {/* TEXT INPUT BAR - RIGHT SIDE */}
+              <div className="flex-1 relative flex items-center min-w-0">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={isListening ? "Listening... release to send" : "Message DPSI AI..."}
+                  className={`w-full px-4 py-2.5 rounded-full bg-white/15 border text-xs text-white placeholder-slate-300 focus:outline-none transition-all ${
+                    isListening
+                      ? "border-rose-400 ring-2 ring-rose-400/50 bg-rose-950/40 placeholder-rose-200"
+                      : "border-white/20 focus:ring-2 focus:ring-emerald-400"
+                  }`}
+                />
+              </div>
             </form>
           </motion.div>
         )}
