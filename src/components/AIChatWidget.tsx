@@ -324,7 +324,7 @@ export default function AIChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 pointer-events-auto font-sans">
+    <div className="fixed bottom-3 left-3 sm:bottom-6 sm:left-6 z-50 pointer-events-auto font-sans">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -527,26 +527,34 @@ export default function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Floating Trigger Button - Smooth 60FPS Fade with Zero Layout Shift */}
+      {/* Floating Trigger Button - Left Side & Smooth Draggable Across Entire Screen */}
       {!isOpen && (
-        <motion.button
-          onClick={() => setIsOpen(true)}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/25 border border-white/90 backdrop-blur-2xl group transform-gpu will-change-transform hover:-translate-y-0.5 hover:shadow-slate-900/40 transition-all duration-300 ml-auto cursor-pointer"
+        <motion.div
+          drag
+          dragMomentum={false}
+          whileDrag={{ scale: 1.05 }}
+          className="inline-block cursor-grab active:cursor-grabbing touch-none select-none"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 group-hover:scale-105 transition-transform">
-            <Sparkles className="w-4 h-4 fill-white" />
-          </div>
-          <div className="text-left pr-1">
-            <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
-            <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
-          </div>
-        </motion.button>
+          <motion.button
+            onClick={() => setIsOpen(true)}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/25 border border-white/90 backdrop-blur-2xl group transform-gpu will-change-transform hover:-translate-y-0.5 hover:shadow-slate-900/40 transition-all duration-300 cursor-grab active:cursor-grabbing"
+            title="Drag to move • Click to open DPSI AI"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 group-hover:scale-105 transition-transform">
+              <Sparkles className="w-4 h-4 fill-white" />
+            </div>
+            <div className="text-left pr-1">
+              <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
+              <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
+            </div>
+          </motion.button>
+        </motion.div>
       )}
     </div>
   );
