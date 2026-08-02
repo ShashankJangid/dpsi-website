@@ -49,16 +49,16 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-[65vh] sm:min-h-[80vh] lg:min-h-[86vh] flex items-start overflow-hidden bg-slate-950 pt-4 sm:pt-8">
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         <motion.div
           key={slide.image}
-          initial={{ opacity: 0, scale: 1.03 }}
+          initial={{ opacity: 0, scale: 1.04 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.4, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 flex items-center justify-center bg-slate-950 overflow-hidden"
         >
-          {/* Main banner image - displayed in 100% full natural color */}
+          {/* Main banner image - displayed in 100% full natural color with smooth crossfade */}
           <img
             src={slide.image}
             alt={slide.title}
