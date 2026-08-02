@@ -523,17 +523,7 @@ export default function AIChatWidget() {
                 </button>
               </div>
 
-              {/* SEND BUTTON - LEFT SIDE */}
-              <button
-                type="submit"
-                disabled={!input.trim() || isTyping}
-                className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#10b981] to-[#00c6ff] hover:brightness-110 text-white flex items-center justify-center transition-all shadow-md shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                title="Send Message"
-              >
-                <Send className="w-4 h-4" />
-              </button>
-
-              {/* TEXT INPUT BAR - RIGHT SIDE */}
+              {/* TEXT INPUT BAR - MIDDLE */}
               <div className="flex-1 relative flex items-center min-w-0">
                 <input
                   type="text"
@@ -547,6 +537,16 @@ export default function AIChatWidget() {
                   }`}
                 />
               </div>
+
+              {/* SEND BUTTON - RIGHT SIDE */}
+              <button
+                type="submit"
+                disabled={!input.trim() || isTyping}
+                className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#10b981] to-[#00c6ff] hover:brightness-110 text-white flex items-center justify-center transition-all shadow-md shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                title="Send Message"
+              >
+                <Send className="w-4 h-4" />
+              </button>
             </form>
           </motion.div>
         )}
