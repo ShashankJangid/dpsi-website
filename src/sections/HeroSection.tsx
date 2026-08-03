@@ -90,11 +90,11 @@ export default function HeroSection() {
               {slide.badge}
             </span>
 
-            <div className="text-sm sm:text-base lg:text-lg font-bold text-white tracking-tight min-h-[1.75rem] flex items-center min-w-0">
-              <span className="text-emerald-300 drop-shadow-sm truncate">
+            <div className="text-xs sm:text-base lg:text-lg font-bold text-white tracking-tight min-h-[2.5rem] sm:min-h-[1.75rem] flex items-center min-w-0">
+              <span className="text-emerald-300 drop-shadow-sm leading-tight sm:leading-snug break-words">
                 {displayText}
               </span>
-              <span className="inline-block w-2 h-5 bg-emerald-400 ml-1 animate-pulse shrink-0" />
+              <span className="inline-block w-1.5 h-4 sm:w-2 sm:h-5 bg-emerald-400 ml-1 animate-pulse shrink-0" />
             </div>
           </div>
 
