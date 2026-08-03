@@ -14,10 +14,10 @@ import NotFound from './pages/NotFound'
 
 export default function App() {
   useEffect(() => {
-    const existingScript = document.querySelector('script[src="https://graduates-pioneer-eliminate-cache.trycloudflare.com/widget.js"]')
+    const existingScript = document.querySelector('script[src="https://disturbed-suburban-filename-privileges.trycloudflare.com/widget.js"]')
     if (!existingScript) {
       const script = document.createElement('script')
-      script.src = 'https://graduates-pioneer-eliminate-cache.trycloudflare.com/widget.js'
+      script.src = 'https://disturbed-suburban-filename-privileges.trycloudflare.com/widget.js'
       script.async = true
       document.body.appendChild(script)
 
