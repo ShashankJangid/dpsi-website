@@ -558,29 +558,17 @@ export default function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Floating Trigger Button & Greeting Banner */}
+      {/* Floating Trigger Button */}
       {!isOpen && (
-        <div className="relative group">
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 1, duration: 0.4 }}
-            onClick={() => setIsOpen(true)}
-            className="absolute -top-12 left-0 bg-slate-900/95 text-white text-[11px] font-bold px-3.5 py-1.5 rounded-xl shadow-xl border border-emerald-400/40 backdrop-blur-md flex items-center gap-2 whitespace-nowrap cursor-pointer hover:bg-slate-800 transition-colors"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>👋 Need help? Ask DPSI AI!</span>
-          </motion.div>
-
-          <motion.button
-            onClick={() => setIsOpen(true)}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl transform-gpu transition-all duration-300 cursor-pointer relative"
-            title="Click to open DPSI AI Assistant"
-          >
+        <motion.button
+          onClick={() => setIsOpen(true)}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl transform-gpu transition-all duration-300 cursor-pointer relative"
+          title="Click to open DPSI AI Assistant"
+        >
             <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 animate-ping border-2 border-white" />
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 group-hover:scale-105 transition-transform">
               <Sparkles className="w-4 h-4 fill-white" />
@@ -590,7 +578,6 @@ export default function AIChatWidget() {
               <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
             </div>
           </motion.button>
-        </div>
       )}
     </div>
   );
