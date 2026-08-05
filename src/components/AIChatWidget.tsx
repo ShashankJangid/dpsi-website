@@ -23,7 +23,7 @@ interface Message {
 function getDynamicAction(query: string, text: string) {
   const combined = (query + " " + text).toLowerCase();
   if (combined.includes("admiss") || combined.includes("apply") || combined.includes("fee") || combined.includes("portal") || combined.includes("login") || combined.includes("register")) {
-    return { actionUrl: "https://dpsindp.schoolforschools.ai/login", actionType: "link" as const };
+    return { actionUrl: "https://www.dpsindirapuram.com/page/admission-procedure", actionType: "link" as const };
   }
   if (combined.includes("contact") || combined.includes("phone") || combined.includes("call") || combined.includes("bus") || combined.includes("transport")) {
     return { actionUrl: "tel:+9101204660000", actionType: "call" as const };
@@ -236,7 +236,7 @@ Detailed Knowledge Base & School Info:
 - Design & Technology (D&T) Lab: Located on the 2nd Floor of A-Block.
 - School Canteen: Located on the Ground Floor of B-Block.
 - Main Reception: Located on the Ground Floor of B-Block.
-- Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Fill out the online registration form on our official portal: https://dpsindp.schoolforschools.ai/login
+- Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Fill out the online registration form on our official portal: https://www.dpsindirapuram.com/page/admission-procedure
 - Fee Structure & Payment: Quarterly school fees payable online via the SchoolsOS portal. Fee desk email: info@dpsindirapuram.com
 - Class XI Streams: 3 Streams Offered: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).
 - CBSE Board Results: 100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%. Commerce topper 98.2%, Humanities topper 97.6%.
