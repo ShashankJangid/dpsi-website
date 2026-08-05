@@ -331,7 +331,7 @@ Key Info:
   };
 
   return (
-    <div className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-[99999] pointer-events-auto font-sans">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[99999] pointer-events-auto font-sans">
       <AnimatePresence>
         {isOpen && (
           <motion.div
