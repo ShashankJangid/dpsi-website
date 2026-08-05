@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles, MessageSquare, GraduationCap, Award, RotateCcw, ExternalLink, Phone, Mail, Mic } from "lucide-react";
+import { X, Send, Bot, MessageSquare, GraduationCap, Award, RotateCcw, ExternalLink, Phone, Mail, Mic } from "lucide-react";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
@@ -41,8 +41,8 @@ export default function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Hello! I am DPSI AI, your smart school guide. Ask me about Admissions, Fees, Streams, Timings, or Facilities!",
-      timestamp: "Just now"
+      text: "Hello! I am DPSI AI, your smart school guide. Ask me about Admissions, Fees, Streams, AI Robotics Lab, Timings, or Facilities!",
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     }
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -229,14 +229,16 @@ export default function AIChatWidget() {
       const systemPrompt = `You are DPSI AI, the official conversational AI assistant for Delhi Public School Indirapuram (DPS Indirapuram), Ghaziabad.
 Your job is to provide accurate, warm, concise, and helpful answers to students, parents, and visitors about DPS Indirapuram.
 Keep your responses friendly, professional, and under 3-4 sentences max.
-Key Info:
-- Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Online registration form on official portal.
-- Fees: Quarterly school fees payable online via SchoolsOS. Email desk: info@dpsindirapuram.com
-- Class XI Streams: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).
-- CBSE Results: 100% Pass Record. School toppers Siddhant Tiwari & Ansh Pathak scored 99.4%.
-- Facilities: AI & Robotics Innovation Lab (3D printers, humanoid kits), Olympic-size swimming pool, 50+ GPS AC buses, 24/7 CCTV & infirmary.
+
+Detailed Knowledge Base & School Info:
+- AI & Robotics Innovation Lab: Inaugurated in 2024, our state-of-the-art AI & Robotics Innovation Lab is equipped with 3D printers, humanoid robotic kits, Python Machine Learning & AI workstations, IoT sensor automation modules, micro-controllers, drone programming setups, AR/VR tools, and expert hands-on mentoring for students from Class III to XII.
+- Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Fill out the online registration form on our official portal: https://dpsindp.schoolforschools.ai/login
+- Fee Structure & Payment: Quarterly school fees payable online via the SchoolsOS portal. Fee desk email: info@dpsindirapuram.com
+- Class XI Streams: 3 Streams Offered: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).
+- CBSE Board Results: 100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%. Commerce topper 98.2%, Humanities topper 97.6%.
+- Facilities: AI & Robotics Innovation Lab, Olympic-size swimming pool, 50+ GPS AC buses, 24/7 CCTV surveillance & resident medical infirmary.
 - Leadership: Principal Ms. Priya Elizabeth John, Pro-Vice Chairperson Ms. Santosh Bansal, Chairman Mr. V.K. Shunglu.
-- Contact: Phone +91-0120-4660000 | Email info@dpsindirapuram.com | Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014.`;
+- Location & Contact: Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014. Call +91-0120-4660000 | Email info@dpsindirapuram.com.`;
 
       const formattedHistory = currentHistory
         .filter((m) => m.text)
@@ -371,14 +373,12 @@ Key Info:
               <div className="sticky top-0 z-40 shrink-0 p-3.5 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white flex items-center justify-between shadow-sm border-b border-emerald-500/30">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
-                    <Sparkles className="w-4 h-4 fill-white" />
+                    <Bot className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-sm text-white leading-tight flex items-center gap-1.5">
-                      DPSI AI Assistant
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <h3 className="font-extrabold text-sm text-white leading-tight">
+                      DPSI AI
                     </h3>
-                    <p className="text-[10px] text-emerald-200 font-medium">Always active • Instant response</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -467,7 +467,7 @@ Key Info:
                     className="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-bl-xs border border-white/80 dark:border-slate-700/80 shadow-md w-max"
                   >
                     <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-sm animate-spin-slow">
-                      <Sparkles className="w-3.5 h-3.5 fill-white" />
+                      <Bot className="w-3.5 h-3.5 text-white" />
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="w-1.5 h-4 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
@@ -482,20 +482,20 @@ Key Info:
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* QUICK SUGGESTION CHIPS */}
+              {/* QUICK SUGGESTION CHIPS - 2x2 GRID WITHOUT SIDE SCROLL */}
               <div className="px-3 pt-2 pb-1.5 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md shrink-0">
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                <div className="grid grid-cols-2 gap-1.5 py-0.5">
                   {[
                     { label: "Admissions 2026", icon: <GraduationCap className="w-3 h-3 text-sky-600" />, query: "Tell me about admissions 2026" },
                     { label: "Class 11 Streams", icon: <MessageSquare className="w-3 h-3 text-indigo-600" />, query: "What streams are offered in Class 11?" },
-                    { label: "AI Robotics Lab", icon: <Sparkles className="w-3 h-3 text-amber-500" />, query: "Tell me about your AI Robotics Lab" },
+                    { label: "AI Robotics Lab", icon: <Bot className="w-3 h-3 text-amber-500" />, query: "Tell me about your AI Robotics Lab" },
                     { label: "CBSE Results", icon: <Award className="w-3 h-3 text-emerald-600" />, query: "What are your recent CBSE results?" },
                   ].map((chip, i) => (
                     <button
                       key={i}
                       onClick={() => handleSend(chip.query)}
                       disabled={isTyping}
-                      className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-white border border-white/80 text-slate-800 font-bold text-[11px] truncate shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:border-sky-400 disabled:opacity-50"
+                      className="w-full px-2 py-1.5 rounded-xl bg-white/90 hover:bg-white border border-white/80 text-slate-800 font-bold text-[11px] truncate transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:border-sky-400 disabled:opacity-50"
                     >
                       {chip.icon}
                       <span className="truncate">{chip.label}</span>
@@ -585,7 +585,7 @@ Key Info:
             title="Drag to move, click to open DPSI AI Assistant"
           >
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 pointer-events-none">
-                <Sparkles className="w-4 h-4 fill-white" />
+                <Bot className="w-4 h-4 text-white" />
               </div>
               <div className="text-left pr-1 pointer-events-none">
                 <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
