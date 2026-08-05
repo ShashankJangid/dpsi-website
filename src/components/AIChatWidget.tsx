@@ -72,25 +72,44 @@ export default function AIChatWidget() {
     spokenResponseRef.current = text;
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Clean markdown symbols, asterisks & URLs for smooth natural spoken pronunciation
+    const cleanText = text
+      .replace(/https?:\/\/\S+/g, "")
+      .replace(/[*_#`~[\]()|]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
 
     const voices = window.speechSynthesis.getVoices();
     if (voices && voices.length > 0) {
-      const bestVoice =
+      // Prioritize soft, natural, young female voices across Chrome, Edge, Safari & Mobile
+      const softFemaleVoice =
+        voices.find((v) => v.name.includes("Jenny") && v.name.includes("Natural")) ||
+        voices.find((v) => v.name.includes("Neerja") && v.name.includes("Natural")) ||
+        voices.find((v) => v.name.includes("Aria") && v.name.includes("Natural")) ||
+        voices.find((v) => v.name.includes("Sonia") || v.name.includes("Ana")) ||
+        voices.find((v) => v.name.toLowerCase().includes("samantha")) ||
+        voices.find((v) => v.name.toLowerCase().includes("google us english")) ||
+        voices.find((v) => v.name.toLowerCase().includes("google uk english female")) ||
+        voices.find((v) => v.name.toLowerCase().includes("serena") || v.name.toLowerCase().includes("tessa")) ||
+        voices.find((v) => v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("karen")) ||
         voices.find((v) => v.lang.includes("en-IN") || v.lang.includes("en_IN")) ||
-        voices.find((v) => v.name.includes("Google US English") || v.name.includes("Samantha") || v.name.includes("Jenny") || v.name.includes("Zira")) ||
         voices.find((v) => v.lang.startsWith("en"));
 
-      if (bestVoice) {
-        utterance.voice = bestVoice;
-        utterance.lang = bestVoice.lang;
+      if (softFemaleVoice) {
+        utterance.voice = softFemaleVoice;
+        utterance.lang = softFemaleVoice.lang;
       }
     } else {
       utterance.lang = "en-IN";
     }
 
-    utterance.rate = 1.02;
-    utterance.pitch = 1.05;
+    // Soft, pleasant young female pitch & natural clear pacing
+    utterance.rate = 0.95; // Gentle, clear pronunciation pace
+    utterance.pitch = 1.12; // Soft, warm, young lady tone pitch
+    utterance.volume = 0.95; // Pleasant volume
+
     window.speechSynthesis.speak(utterance);
   };
 
