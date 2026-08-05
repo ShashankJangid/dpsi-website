@@ -72,10 +72,15 @@ export default function AIChatWidget() {
     spokenResponseRef.current = text;
     window.speechSynthesis.cancel();
 
-    // Clean markdown symbols, asterisks & URLs for smooth natural spoken pronunciation
+    // Clean markdown, URLs, and normalize acronyms for ultra-realistic human pronunciation
     const cleanText = text
       .replace(/https?:\/\/\S+/g, "")
       .replace(/[*_#`~[\]()|]/g, " ")
+      .replace(/\bDPSI\b/gi, "D P S I")
+      .replace(/\bCBSE\b/gi, "C B S E")
+      .replace(/\bAI\b/gi, "A I")
+      .replace(/\b3D\b/gi, "3 D")
+      .replace(/\bIX & XI\b/gi, "9 and 11")
       .replace(/\s+/g, " ")
       .trim();
 
@@ -83,32 +88,35 @@ export default function AIChatWidget() {
 
     const voices = window.speechSynthesis.getVoices();
     if (voices && voices.length > 0) {
-      // Prioritize soft, natural, young female voices across Chrome, Edge, Safari & Mobile
-      const softFemaleVoice =
-        voices.find((v) => v.name.includes("Jenny") && v.name.includes("Natural")) ||
-        voices.find((v) => v.name.includes("Neerja") && v.name.includes("Natural")) ||
-        voices.find((v) => v.name.includes("Aria") && v.name.includes("Natural")) ||
-        voices.find((v) => v.name.includes("Sonia") || v.name.includes("Ana")) ||
+      // Prioritize ultra-realistic, natural, neural female voices across browsers and OS
+      const realisticVoice =
+        voices.find((v) => v.name.includes("Jenny") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
+        voices.find((v) => v.name.includes("Aria") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
+        voices.find((v) => v.name.includes("Neerja") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
+        voices.find((v) => v.name.includes("Sonia") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
+        voices.find((v) => v.name.includes("Serena") && v.name.includes("Premium")) ||
+        voices.find((v) => v.name.includes("Samantha") && (v.name.includes("Premium") || v.name.includes("Enhanced"))) ||
         voices.find((v) => v.name.toLowerCase().includes("samantha")) ||
         voices.find((v) => v.name.toLowerCase().includes("google us english")) ||
         voices.find((v) => v.name.toLowerCase().includes("google uk english female")) ||
-        voices.find((v) => v.name.toLowerCase().includes("serena") || v.name.toLowerCase().includes("tessa")) ||
-        voices.find((v) => v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("karen")) ||
+        voices.find((v) => v.name.toLowerCase().includes("serena") || v.name.toLowerCase().includes("tessa") || v.name.toLowerCase().includes("ava")) ||
+        voices.find((v) => v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("karen") || v.name.toLowerCase().includes("zoe")) ||
+        voices.find((v) => (v.lang.includes("en-IN") || v.lang.includes("en_IN")) && v.name.toLowerCase().includes("female")) ||
         voices.find((v) => v.lang.includes("en-IN") || v.lang.includes("en_IN")) ||
         voices.find((v) => v.lang.startsWith("en"));
 
-      if (softFemaleVoice) {
-        utterance.voice = softFemaleVoice;
-        utterance.lang = softFemaleVoice.lang;
+      if (realisticVoice) {
+        utterance.voice = realisticVoice;
+        utterance.lang = realisticVoice.lang;
       }
     } else {
       utterance.lang = "en-IN";
     }
 
-    // Soft, pleasant young female pitch & natural clear pacing
-    utterance.rate = 0.95; // Gentle, clear pronunciation pace
-    utterance.pitch = 1.12; // Soft, warm, young lady tone pitch
-    utterance.volume = 0.95; // Pleasant volume
+    // Ultra-realistic natural human speech prosody
+    utterance.rate = 0.93; // Conversational, human cadence
+    utterance.pitch = 1.05; // Warm, natural human pitch
+    utterance.volume = 1.0;
 
     window.speechSynthesis.speak(utterance);
   };
