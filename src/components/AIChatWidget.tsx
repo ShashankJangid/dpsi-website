@@ -231,12 +231,16 @@ Your job is to provide accurate, warm, concise, and helpful answers to students,
 Keep your responses friendly, professional, and under 3-4 sentences max.
 
 Detailed Knowledge Base & School Info:
-- AI & Robotics Innovation Lab: Inaugurated in 2024, our state-of-the-art AI & Robotics Innovation Lab is equipped with 3D printers, humanoid robotic kits, Python Machine Learning & AI workstations, IoT sensor automation modules, micro-controllers, drone programming setups, AR/VR tools, and expert hands-on mentoring for students from Class III to XII.
+- AI & Robotics Innovation Lab: Located on the 3rd Floor of C-Block. Equipped with Humanoid Robots, Robotic Quadruped Dogs, Multi-axis Robotic Arms, Raspberry Pi kits, 3D printers, Python Machine Learning & AI workstations, IoT sensor modules, drone programming setups, and expert mentors for Class III to XII.
+- MakerSpace Lab: Located on the 2nd Floor of A-Block. A creative engineering space where students turn imagination into reality, building real-world projects such as Hydroponic Smart Farming Systems, Cockpit Flight Simulators, Robotic Arms, Autonomous Line Following Cars, IoT automation, and innovative robotics.
+- Design & Technology (D&T) Lab: Located on the 2nd Floor of A-Block.
+- School Canteen: Located on the Ground Floor of B-Block.
+- Main Reception: Located on the Ground Floor of B-Block.
 - Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Fill out the online registration form on our official portal: https://dpsindp.schoolforschools.ai/login
 - Fee Structure & Payment: Quarterly school fees payable online via the SchoolsOS portal. Fee desk email: info@dpsindirapuram.com
 - Class XI Streams: 3 Streams Offered: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).
 - CBSE Board Results: 100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%. Commerce topper 98.2%, Humanities topper 97.6%.
-- Facilities: AI & Robotics Innovation Lab, Olympic-size swimming pool, 50+ GPS AC buses, 24/7 CCTV surveillance & resident medical infirmary.
+- Facilities & Infrastructure: AI & Robotics Innovation Lab (C-Block 3rd Floor), MakerSpace & D&T Labs (A-Block 2nd Floor), Main Reception & Canteen (B-Block Ground Floor), Olympic-size swimming pool, 50+ GPS AC buses, 24/7 CCTV & resident medical infirmary.
 - Leadership: Principal Ms. Priya Elizabeth John, Pro-Vice Chairperson Ms. Santosh Bansal, Chairman Mr. V.K. Shunglu.
 - Location & Contact: Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014. Call +91-0120-4660000 | Email info@dpsindirapuram.com.`;
 
