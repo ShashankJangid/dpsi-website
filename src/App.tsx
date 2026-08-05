@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Routes, Route } from 'react-router'
 import Home from './pages/Home'
 import About from './pages/About'
@@ -13,22 +12,6 @@ import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 
 export default function App() {
-  useEffect(() => {
-    const existingScript = document.querySelector('script[src="https://size-club-snow-weeks.trycloudflare.com/widget.js"]')
-    if (!existingScript) {
-      const script = document.createElement('script')
-      script.src = 'https://size-club-snow-weeks.trycloudflare.com/widget.js'
-      script.async = true
-      document.body.appendChild(script)
-
-      return () => {
-        if (document.body.contains(script)) {
-          document.body.removeChild(script)
-        }
-      }
-    }
-  }, [])
-
   return (
     <Routes>
       <Route path="/" element={<Home />} />
