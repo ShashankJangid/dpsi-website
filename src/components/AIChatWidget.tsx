@@ -369,12 +369,37 @@ Detailed Knowledge Base & School Info:
               className="w-[340px] sm:w-[385px] h-[500px] max-h-[82vh] bg-gradient-to-br from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-slate-900/25 flex flex-col overflow-hidden mb-3 text-slate-900 relative max-w-[94vw]"
             >
               {/* Peach Ash Grey Silk Ambient Wavy Mesh Orbs */}
-              <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#fed7aa]/35 blur-3xl pointer-events-none animate-pulse" />
-              <div className="absolute top-1/3 left-0 w-64 h-64 rounded-full bg-[#cbd5e1]/50 blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#fecdd3]/35 blur-3xl pointer-events-none" />
+              <motion.div
+                animate={{
+                  scale: [1, 1.25, 1],
+                  x: [0, 20, 0],
+                  y: [0, -15, 0]
+                }}
+                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-0 right-0 w-72 h-72 rounded-full bg-gradient-to-br from-[#fed7aa]/50 via-[#fbcfe8]/40 to-[#bae6fd]/30 blur-3xl pointer-events-none"
+              />
+              <motion.div
+                animate={{
+                  scale: [1, 1.2, 1],
+                  x: [0, -15, 0],
+                  y: [0, 20, 0]
+                }}
+                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-gradient-to-tr from-[#a7f3d0]/50 via-[#cbd5e1]/40 to-[#fed7aa]/30 blur-3xl pointer-events-none"
+              />
 
-              {/* STICKY TOP HEADER */}
-              <div className="sticky top-0 z-40 shrink-0 p-3.5 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white flex items-center justify-between shadow-sm border-b border-emerald-500/30">
+              {/* STICKY TOP HEADER WITH ANIMATED MOVING GRADIENT */}
+              <motion.div
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+                }}
+                transition={{
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                className="sticky top-0 z-40 shrink-0 p-3.5 bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_25%,#1e3a8a_50%,#047857_75%,#0f172a_100%)] bg-[size:300%_300%] text-white flex items-center justify-between shadow-md border-b border-emerald-400/30"
+              >
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0">
                     <Bot className="w-4 h-4 text-white" />
@@ -401,7 +426,7 @@ Detailed Knowledge Base & School Info:
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* MESSAGES SCROLL AREA */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3.5 relative z-10 custom-scrollbar">
@@ -508,13 +533,21 @@ Detailed Knowledge Base & School Info:
                 </div>
               </div>
 
-              {/* INPUT FORM */}
-              <form
+              {/* INPUT FORM WITH ANIMATED MOVING GRADIENT */}
+              <motion.form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSend(input);
                 }}
-                className="relative z-20 p-3 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white shrink-0 border-t border-emerald-500/30"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+                }}
+                transition={{
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                className="relative z-20 p-3 bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_25%,#1e3a8a_50%,#047857_75%,#0f172a_100%)] bg-[size:300%_300%] text-white shrink-0 border-t border-emerald-400/30"
               >
                 <AnimatePresence>
                   {isListening && (
@@ -564,12 +597,12 @@ Detailed Knowledge Base & School Info:
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </form>
+              </motion.form>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Floating Draggable Trigger Button */}
+        {/* Floating Draggable Trigger Button with Smooth Moving Gradient */}
         {!isOpen && (
           <motion.button
             drag
@@ -582,20 +615,28 @@ Detailed Knowledge Base & School Info:
               if (!isDragging) setIsOpen(true);
             }}
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+            }}
+            transition={{
+              backgroundPosition: { duration: 8, repeat: Infinity, ease: "linear" },
+              scale: { duration: 0.2 }
+            }}
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl cursor-grab active:cursor-grabbing relative select-none touch-none"
+            className="flex items-center gap-3 px-4 py-3 rounded-full bg-[linear-gradient(135deg,#ffffff_0%,#fce7f3_30%,#e2e8f0_60%,#ffedd5_90%,#ffffff_100%)] bg-[size:300%_300%] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl cursor-grab active:cursor-grabbing relative select-none touch-none"
             title="Drag to move, click to open DPSI AI Assistant"
           >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 pointer-events-none">
-                <Bot className="w-4 h-4 text-white" />
-              </div>
-              <div className="text-left pr-1 pointer-events-none">
-                <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
-                <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
-              </div>
-            </motion.button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 pointer-events-none">
+              <Bot className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-left pr-1 pointer-events-none">
+              <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
+              <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
+            </div>
+          </motion.button>
         )}
       </div>
     );
