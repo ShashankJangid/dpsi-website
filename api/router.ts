@@ -9,6 +9,7 @@ import { testimonialRouter } from "./testimonial-router";
 import { achievementRouter } from "./achievement-router";
 import { announcementRouter } from "./announcement-router";
 import { statsRouter } from "./stats-router";
+import { aiRouter } from "./ai-router";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -22,6 +23,7 @@ export const appRouter = createRouter({
   achievements: achievementRouter,
   announcements: announcementRouter,
   stats: statsRouter,
+  ai: aiRouter,
 });
 
 export type AppRouter = typeof appRouter;
