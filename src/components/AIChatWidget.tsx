@@ -94,8 +94,10 @@ export default function AIChatWidget() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const startListening = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
+  const isProcessingRef = useRef(false);
+
+  const startListening = (e?: React.SyntheticEvent) => {
+    if (e) e.preventDefault();
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
@@ -107,13 +109,13 @@ export default function AIChatWidget() {
       return;
     }
 
-    if (isListening) return;
+    if (isListening || recognitionRef.current) return;
 
     try {
       const recognition = new SpeechRecognitionAPI();
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = "en-US";
+      recognition.lang = "en-IN";
 
       transcriptRef.current = "";
 
@@ -128,10 +130,18 @@ export default function AIChatWidget() {
 
       recognition.onerror = (event: any) => {
         console.warn("Speech recognition error:", event.error);
+        setIsListening(false);
+        recognitionRef.current = null;
       };
 
       recognition.onend = () => {
         setIsListening(false);
+        recognitionRef.current = null;
+        const text = transcriptRef.current.trim();
+        if (text) {
+          transcriptRef.current = "";
+          handleSend(text);
+        }
       };
 
       recognition.start();
@@ -139,10 +149,12 @@ export default function AIChatWidget() {
       setIsListening(true);
     } catch (err) {
       console.error("Speech recognition error:", err);
+      setIsListening(false);
+      recognitionRef.current = null;
     }
   };
 
-  const stopListening = (e?: React.MouseEvent | React.TouchEvent) => {
+  const stopListening = (e?: React.SyntheticEvent) => {
     if (e) e.preventDefault();
     if (recognitionRef.current) {
       try {
@@ -150,13 +162,15 @@ export default function AIChatWidget() {
       } catch {
         // ignore
       }
-      recognitionRef.current = null;
     }
-    setIsListening(false);
+  };
 
-    const finalText = transcriptRef.current.trim();
-    if (finalText) {
-      handleSend(finalText);
+  const toggleMic = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    if (isListening) {
+      stopListening(e);
+    } else {
+      startListening(e);
     }
   };
 
@@ -180,6 +194,7 @@ export default function AIChatWidget() {
     spokenResponseRef.current = null;
     if (typingTimerRef.current) clearInterval(typingTimerRef.current);
     setIsTyping(false);
+    isProcessingRef.current = false;
     setMessages([
       {
         role: "assistant",
@@ -251,60 +266,68 @@ Key Info:
   };
 
   const handleSend = async (userQuery: string) => {
-    if (!userQuery.trim() || isTyping) return;
+    const textToSend = userQuery.trim();
+    if (!textToSend || isTyping || isProcessingRef.current) return;
+    isProcessingRef.current = true;
 
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
 
     const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const textToSend = userQuery.trim();
     setInput("");
+    transcriptRef.current = "";
 
     setMessages((prev) => [...prev, { role: "user", text: textToSend, timestamp: timeStr }]);
     setIsTyping(true);
 
-    const response = await fetchGroqAIResponse(textToSend, messages);
-    const words = response.answer.split(" ");
-    let currentWordIndex = 0;
+    try {
+      const response = await fetchGroqAIResponse(textToSend, messages);
+      const words = response.answer.split(" ");
+      let currentWordIndex = 0;
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        text: "",
-        timestamp: timeStr,
-        isStreaming: true,
-        actionUrl: response.actionUrl,
-        actionType: response.actionType
-      }
-    ]);
-
-    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-
-    typingTimerRef.current = setInterval(() => {
-      currentWordIndex++;
-      const currentText = words.slice(0, currentWordIndex).join(" ");
-
-      setMessages((prev) => {
-        const updated = [...prev];
-        const lastIdx = updated.length - 1;
-        if (lastIdx >= 0 && updated[lastIdx].role === "assistant") {
-          updated[lastIdx] = {
-            ...updated[lastIdx],
-            text: currentText,
-            isStreaming: currentWordIndex < words.length
-          };
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: "",
+          timestamp: timeStr,
+          isStreaming: true,
+          actionUrl: response.actionUrl,
+          actionType: response.actionType
         }
-        return updated;
-      });
+      ]);
 
-      if (currentWordIndex >= words.length) {
-        if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-        setIsTyping(false);
-        speakAnswerOnce(response.answer);
-      }
-    }, 8);
+      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+
+      typingTimerRef.current = setInterval(() => {
+        currentWordIndex++;
+        const currentText = words.slice(0, currentWordIndex).join(" ");
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0 && updated[lastIdx].role === "assistant") {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              text: currentText,
+              isStreaming: currentWordIndex < words.length
+            };
+          }
+          return updated;
+        });
+
+        if (currentWordIndex >= words.length) {
+          if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+          setIsTyping(false);
+          isProcessingRef.current = false;
+          speakAnswerOnce(response.answer);
+        }
+      }, 8);
+    } catch {
+      setIsTyping(false);
+      isProcessingRef.current = false;
+    }
   };
 
   return (
@@ -484,11 +507,8 @@ Key Info:
 
               <button
                 type="button"
-                onMouseDown={startListening}
-                onMouseUp={stopListening}
-                onMouseLeave={stopListening}
-                onTouchStart={startListening}
-                onTouchEnd={stopListening}
+                onClick={toggleMic}
+                title={isListening ? "Stop listening and send" : "Speak to DPSI AI"}
                 className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
                   isListening
                     ? "bg-rose-600 text-white scale-110 shadow-rose-500/50"
