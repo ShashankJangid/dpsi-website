@@ -489,7 +489,7 @@ Key Info:
                 e.preventDefault();
                 handleSend(input);
               }}
-              className="relative z-20 p-3 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white flex items-center gap-2 shrink-0 border-t border-emerald-500/30"
+              className="relative z-20 p-3 bg-gradient-to-r from-[#1e1b4b] via-[#1e3a8a] to-[#047857] text-white shrink-0 border-t border-emerald-500/30"
             >
               <AnimatePresence>
                 {isListening && (
@@ -505,34 +505,40 @@ Key Info:
                 )}
               </AnimatePresence>
 
-              <button
-                type="button"
-                onClick={toggleMic}
-                title={isListening ? "Stop listening and send" : "Speak to DPSI AI"}
-                className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-                  isListening
-                    ? "bg-rose-600 text-white scale-110 shadow-rose-500/50"
-                    : "bg-white/15 hover:bg-white/25 text-white border border-white/20"
-                }`}
-              >
-                <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} />
-              </button>
+              {/* Unified Input Box Pill Container */}
+              <div className="w-full flex items-center gap-1.5 p-1 rounded-full bg-white/10 border border-white/20 focus-within:ring-2 focus-within:ring-emerald-400 transition-all">
+                {/* Extreme Left Mic Button */}
+                <button
+                  type="button"
+                  onClick={toggleMic}
+                  title={isListening ? "Stop listening and send" : "Speak to DPSI AI"}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer shrink-0 ${
+                    isListening
+                      ? "bg-rose-600 text-white scale-105 shadow-rose-500/50"
+                      : "bg-white/15 hover:bg-white/25 text-white border border-white/20"
+                  }`}
+                >
+                  <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} />
+                </button>
 
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask anything..."
-                className="flex-1 px-4 py-2.5 rounded-full bg-white/10 border border-white/20 text-xs text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-              />
+                {/* Input Text Field */}
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask anything..."
+                  className="flex-1 bg-transparent text-xs text-white placeholder-white/50 focus:outline-none px-2.5 py-1"
+                />
 
-              <button
-                type="submit"
-                disabled={!input.trim() || isTyping}
-                className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#10b981] to-[#00c6ff] text-white flex items-center justify-center transition-all disabled:opacity-40"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+                {/* Extreme Right Send Button */}
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isTyping}
+                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#10b981] to-[#00c6ff] text-white flex items-center justify-center transition-all disabled:opacity-40 shrink-0 shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </form>
           </motion.div>
         )}
