@@ -1,0 +1,359 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+% --- COLOR PALETTE ---
+\definecolor{dpsemerald}{HTML}{047857}
+\definecolor{dpslightemerald}{HTML}{10b981}
+\definecolor{dpsdarkindigo}{HTML}{1e1b4b}
+\definecolor{dpsslate}{HTML}{0f172a}
+\definecolor{dpsaccent}{HTML}{f59e0b}
+\definecolor{codebg}{HTML}{f8fafc}
+\definecolor{codeframe}{HTML}{cbd5e1}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=dpsemerald,
+    filecolor=dpsemerald,
+    urlcolor=dpslightemerald,
+    pdftitle={DPS Indirapuram - Official Technical Documentation},
+    pdfpagemode=FullScreen,
+}
+
+% --- PAGE STYLE SETUP ---
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\textcolor{dpsemerald}{\textbf{DPS Indirapuram | Website}}}
+\lhead{\textcolor{gray}{\small Technical Documentation}}
+\rfoot{Page \thepage}
+\lfoot{\textcolor{gray}{\small Project Report}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- LISTINGS CONFIGURATION ---
+\lstset{
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{codeframe},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{dpsemerald}\bfseries,
+    stringstyle=\color{dpsaccent},
+    commentstyle=\color{gray}\itshape,
+    breaklines=true,
+    captionpos=b,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false
+}
+
+% --- SECTION FORMATTING ---
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{dpsemerald}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{dpsdarkindigo}}{\thesubsection}{1em}{}
+
+% =========================================================
+% DOCUMENT START
+% =========================================================
+\begin{document}
+
+% --- TITLE PAGE (ALIGNED TO MATCH IMAGE 2 EXACTLY) ---
+\begin{titlepage}
+    \thispagestyle{empty}
+    \centering
+    \vspace*{2.5cm}
+    
+    {\Huge \bfseries \textcolor{dpsemerald}{DELHI PUBLIC SCHOOL}}\\[0.2cm]
+    {\Huge \bfseries \textcolor{dpsemerald}{INDIRAPURAM}}\\[0.8cm]
+    
+    {\Large \textbf{Website \& Autonomous Voice AI }}\\[0.4cm]
+    {\large \textcolor{gray}{Comprehensive Technical Specifications \& Project Deliverable Report}}\\[2.5cm]
+    
+    \begin{tcolorbox}[colback=dpsemerald!8,colframe=dpsemerald,arc=5mm,width=0.85\textwidth,halign=center,boxrule=1.2pt]
+        \vspace{0.4cm}
+        {\Large \textbf{Project Release Version:}} 1.0 (Production Build)\\[0.25cm]
+        {\Large \textbf{Live Website Domain:}} \url{https://dpsindirapuram.vercel.app}\\[0.25cm]
+        {\Large \textbf{Repository:}} GitHub (\texttt{ShashankJangid/dpsi-website})\\[0.25cm]
+        {\Large \textbf{Document Date:}} August 2026
+        \vspace{0.4cm}
+    \end{tcolorbox}
+    
+    \vfill
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% =========================================================
+% SECTION 1: PROJECT OVERVIEW & INSTITUTIONAL BACKGROUND
+% =========================================================
+\section{Project Overview \& Institutional Background}
+
+Delhi Public School Indirapuram (Est. 2003), functioning under the aegis of the \textbf{DPS Society, New Delhi}, is one of India's premier K-12 educational institutions. Situated in Ghaziabad, Uttar Pradesh, the school caters to over 6,000+ students with a legacy of 100\% CBSE Board examination pass records, state-of-the-art AI \& Robotics infrastructure, and international awards including the \textbf{British Council International Dimension in Schools Award}.
+
+\subsection{Key Institutional Parameters}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{CBSE Affiliation Number:} 2130647 | \textbf{School Code:} 60287
+    \item \textbf{Campus Location:} 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad, UP 201014
+    \item \textbf{Key Highlights:} 50+ GPS-enabled AC buses, Olympic-size aquatic complex, AI \& Robotics Innovation Lab with humanoid kits and 3D printing, 100\% CBSE Class X \& XII results with top score 99.4\%.
+\end{itemize}
+
+\subsection{Core Website Project Objectives}
+\begin{enumerate}
+    \item \textbf{Modern High-Aesthetic Web Platform:} Deliver a sleek, mobile-first web portal with rich emerald-to-indigo gradient themes, glassmorphic UI cards, dark mode toggle, and smooth 60FPS Framer Motion micro-animations.
+    \item \textbf{Interactive Voice AI Assistant:} Integrate an autonomous conversational DPSI AI assistant supporting Hold-to-Talk speech recognition, natural Indian English voice responses (\texttt{en-IN}), and direct CTA action buttons (Call, Email, Open Portals).
+    \item \textbf{Unblocked Hero Banner with Typewriter Bar:} Provide a full 100\% natural color campus image slider operating seamlessly below a separate real-time Typewriter backspacing/rewriting announcement bar.
+    \item \textbf{Smooth Anchor Navigation Engine:} Implement global offset hash-scrolling for instant navigation to sections like Curriculum, Departments, Results, Leadership, and Timeline.
+\end{enumerate}
+
+% =========================================================
+% SECTION 2: DETAILED TECHNOLOGY MAPPING & PURPOSE
+% =========================================================
+\section{Detailed Technology Architecture \& Feature Mapping}
+
+This section explains \textbf{why each technology was selected} and \textbf{the specific functionality it powers} within the application.
+
+\begin{table}[h!]
+\centering
+\caption{Comprehensive Technology Mapping Table}
+\vspace{0.2cm}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Technology} & \textbf{Selection Rationale (Why)} & \textbf{Functionality Powered (What For)} \\ \midrule
+React 18 & Component reusability \& strict state handling & Core Single-Page Application (SPA) architecture \\
+TypeScript & Type-safety, auto-complete, zero reference crashes & Typed interfaces for components, state \& AI knowledge base \\
+Vite 7 & Instant HMR \& Rollup production bundling & Production code splitting, minification \& asset optimization \\
+TailwindCSS & Utility-first CSS \& responsive breakpoints & Theme colors (Emerald \texttt{\#047857}, Indigo \texttt{\#1e1b4b}), dark mode \\
+Framer Motion & Hardware-accelerated 60FPS animations & Hero slider 1.4s crossfade, social drawer \& AI widget popups \\
+Web Speech API & Native browser speech recognition \& synthesis & Hold-to-talk mic input \& single-play Indian English voice reader \\
+Recharts & Dynamic SVG charting library for React & CBSE Pass Rate bar charts \& Class 11 stream pie charts \\
+Lucide React & Scalable vector icon library & UI icons across Navbar, Footer, AI Chat, and Socials \\
+React Router & Declarative client-side route management & Page routing (\texttt{/}, \texttt{/about}, \texttt{/academics}) \& hash tracking \\
+Cloudflare Script & Edge script loading & Remote widget integration (\texttt{widget.js}) \\
+Vercel Edge Network & Global serverless CDN hosting & Active live deployment at \url{https://dpsindirapuram.vercel.app} \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Deep-Dive Specification of Core Technologies}
+
+\subsubsection{React 18 \& TypeScript Engine}
+\begin{itemize}
+    \item \textbf{Why Chosen:} React 18's virtual DOM diffing guarantees fast UI updates, while TypeScript enforces strict compile-time type safety across all components.
+    \item \textbf{What It Powers:} Powers component lifecycle, state hooks in \texttt{AIChatWidget.tsx}, slide indexing in \texttt{HeroSection.tsx}, and client-side routing in \texttt{App.tsx}.
+\end{itemize}
+
+\subsubsection{Framer Motion Animation Suite}
+\begin{itemize}
+    \item \textbf{Why Chosen:} Provides 60FPS GPU-accelerated motion without layout thrashing.
+    \item \textbf{What It Powers:} Powers the 1.4s hero slider crossfade dissolve (\texttt{AnimatePresence}), the right-edge slide-out social media drawer (\texttt{FloatingSocials.tsx}), and modal open/close animations.
+\end{itemize}
+
+\subsubsection{Web Speech API (Audio \& Voice Engine)}
+\begin{itemize}
+    \item \textbf{Why Chosen:} Delivers native browser speech recognition and natural text-to-speech without external API fees or latency.
+    \item \textbf{What It Powers:} Enables Hold-to-Talk microphone input (\texttt{window.SpeechRecognition}) and reads AI responses once using preferred Indian English voices (\texttt{window.speechSynthesis.getVoices()}).
+\end{itemize}
+
+\subsubsection{Recharts Interactive Analytics}
+\begin{itemize}
+    \item \textbf{Why Chosen:} High-performance SVG-based rendering optimized for responsive React containers.
+    \item \textbf{What It Powers:} Renders the 5-year CBSE Pass Rate \& Distinction trend bar chart and Class 11 Student Stream Distribution pie chart in \texttt{src/pages/Academics.tsx}.
+\end{itemize}
+
+\newpage
+
+% =========================================================
+% SECTION 3: COMPLETE PAGE-BY-PAGE MODULE BREAKDOWN
+% =========================================================
+\section{Complete Page-by-Page Module Breakdown}
+
+The application consists of 11 fully developed pages and interactive modules:
+
+\subsection{Home Page (\texttt{src/pages/Home.tsx} \& \texttt{src/sections/HeroSection.tsx})}
+\begin{itemize}
+    \item \textbf{Top Announcement Bar:} Houses a responsive Typewriter engine that types announcements character-by-character (40ms), pauses (2600ms), backspaces (20ms), and transitions to the next topic.
+    \item \textbf{100\% Unblocked Hero Slider:} Displays high-resolution campus imagery below the text bar with a 1.4s smooth crossfade dissolve transition.
+    \item \textbf{Welcome Overview \& Quick Stats:} Showcases student strength, faculty count, affiliation details, and quick link CTA buttons (\texttt{Apply Now}, \texttt{Explore Campus}).
+\end{itemize}
+
+\subsection{About Us Page (\texttt{src/pages/About.tsx})}
+\begin{itemize}
+    \item \textbf{Vision \& Mission Statements (\texttt{\#vision}):} Clear institutional roadmap focusing on global citizenship, academic rigor, and moral integrity.
+    \item \textbf{Core Values:} Interactive cards detailing Excellence, Integrity, Inclusivity, Innovation, and Resilience.
+    \item \textbf{School Leadership (\texttt{\#leadership}):} Profile cards for Mr. V.K. Shunglu (Chairman), Ms. Santosh Bansal (Pro-Vice Chairperson), and Ms. Priya Elizabeth John (Principal).
+    \item \textbf{2003--2026 History Timeline (\texttt{\#timeline}):} Chronological milestone timeline tracking school foundation, CBSE affiliation, sports complex, digital upgrade, AI lab, and global awards.
+\end{itemize}
+
+\subsection{Academics Page (\texttt{src/pages/Academics.tsx})}
+\begin{itemize}
+    \item \textbf{CBSE Curriculum Framework (\texttt{\#curriculum}):} Comprehensive breakdown of primary, middle, and senior secondary pedagogy.
+    \item \textbf{Academic Departments (\texttt{\#departments}):} 6 specialized cards detailing Science (PCM/PCB/Biotech), Mathematics, Languages, Arts \& Humanities, Computer Science/AI, and Physical Education.
+    \item \textbf{Board Examination Analytics (\texttt{\#results}):} Interactive Recharts bar graph displaying 5-year CBSE pass rate (99.9\%) and distinction percentage (72\%), alongside a stream distribution pie chart.
+\end{itemize}
+
+\subsection{Admissions Page (\texttt{src/pages/Admissions.tsx})}
+\begin{itemize}
+    \item Guidelines for Session 2026-27 (Pre-Nursery to Class IX \& XI).
+    \item Age eligibility criteria, required documents checklist, and direct portal link to SchoolsOS (\url{https://dpsindp.schoolforschools.ai/login}).
+\end{itemize}
+
+\subsection{Facilities Page (\texttt{src/pages/Facilities.tsx})}
+\begin{itemize}
+    \item Features the AI \& Robotics Innovation Lab (humanoid kits, 3D printers, Machine Learning), Olympic-size aquatic complex, 50+ GPS AC buses, and 24/7 security & infirmary.
+\end{itemize}
+
+\subsection{News \& Events Page (\texttt{src/pages/NewsEvents.tsx})}
+\begin{itemize}
+    \item Highlights recent awards (Times Education Icons 2024), CBSE board toppers (Siddhant Tiwari 99.4\%, Ansh Pathak 99.4\%), and inter-school championship announcements.
+\end{itemize}
+
+\subsection{Gallery Page (\texttt{src/pages/Gallery.tsx})}
+\begin{itemize}
+    \item Filterable campus photo gallery covering sports events, cultural fests, science exhibitions, and annual days.
+\end{itemize}
+
+\subsection{Contact Page (\texttt{src/pages/Contact.tsx})}
+\begin{itemize}
+    \item Address details, interactive map embed, direct phone links (\texttt{+91-0120-4660000}), and email inquiry forms (\texttt{info@dpsindirapuram.com}).
+\end{itemize}
+
+\subsection{Administrative Portal (\texttt{src/pages/Admin.tsx})}
+\begin{itemize}
+    \item Administrative dashboard interface for managing announcements, admissions queries, and school updates.
+\end{itemize}
+
+\newpage
+
+% =========================================================
+% SECTION 4: AI KNOWLEDGE BASE MANAGEMENT
+% =========================================================
+\section{AI Knowledge Base Management}
+
+The DPSI AI Assistant's knowledge base is configured in \texttt{src/components/AIChatWidget.tsx} under the \texttt{KNOWLEDGE\_BASE} array.
+
+\subsection{Knowledge Base Entry Schema}
+\begin{lstlisting}[language=typescript]
+interface KnowledgeEntry {
+  topic: string;
+  keywords: string[];
+  answer: string;
+  actionUrl?: string;
+  actionType?: "call" | "email" | "link";
+}
+\end{lstlisting}
+
+\subsection{Knowledge Base Records Code}
+\begin{lstlisting}[language=typescript]
+const KNOWLEDGE_BASE: KnowledgeEntry[] = [
+  {
+    topic: "Admissions 2026-27",
+    keywords: ["admiss", "apply", "join", "register", "nursery", "form"],
+    answer: "Admissions 2026-27 are OPEN for Pre-Nursery to IX & XI. Fill the online registration form on our official portal.",
+    actionUrl: "https://dpsindp.schoolforschools.ai/login",
+    actionType: "link"
+  },
+  {
+    topic: "Fee Structure & Payment",
+    keywords: ["fee", "cost", "payment", "dues", "tuition"],
+    answer: "Quarterly school fees can be paid online via the SchoolsOS portal. For detailed fee desk queries, contact info@dpsindirapuram.com.",
+    actionUrl: "https://dpsindp.schoolforschools.ai/login",
+    actionType: "link"
+  },
+  {
+    topic: "Class XI Streams",
+    keywords: ["stream", "class 11", "science", "commerce", "humanities"],
+    answer: "3 Streams Offered: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).",
+    actionUrl: "mailto:info@dpsindirapuram.com",
+    actionType: "email"
+  },
+  {
+    topic: "Transport & Bus Fleet",
+    keywords: ["bus", "transport", "route", "van", "pickup", "drop", "gps"],
+    answer: "50+ GPS-enabled AC buses with live app tracking, CCTV surveillance, and trained female attendants covering Noida & Ghaziabad.",
+    actionUrl: "tel:+9101204660000",
+    actionType: "call"
+  }
+];
+\end{lstlisting}
+
+% =========================================================
+% SECTION 5: BUILD & DEPLOYMENT INSTRUCTIONS
+% =========================================================
+\section{Build \& Deployment Instructions}
+
+\subsection{Local Development \& Verification Commands}
+\begin{lstlisting}[language=bash]
+# 1. Install dependencies
+npm install
+
+# 2. Run TypeScript type checks
+npm run check
+
+# 3. Run ESLint checks
+npm run lint
+
+# 4. Build production static bundle
+npm run build
+
+# 5. Preview local production bundle
+npm run preview
+\end{lstlisting}
+
+\subsection{Vercel Edge Network Deployment}
+The codebase is configured for automated push-to-deploy on GitHub branch \texttt{main}:
+\begin{lstlisting}[language=bash]
+git add .
+git commit -m "Production update"
+git push origin main
+\end{lstlisting}
+
+Or manual production deployment via Vercel CLI:
+\begin{lstlisting}[language=bash]
+npx --yes vercel deploy --yes --prod
+\end{lstlisting}
+
+% =========================================================
+% SECTION 6: DELIVERABLE VERIFICATION MATRIX
+% =========================================================
+\section{System Deliverable Verification Matrix}
+
+\begin{table}[h!]
+\centering
+\caption{System Deliverable Verification Matrix}
+\vspace{0.2cm}
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Feature Module} & \textbf{Implementation Details} & \textbf{Status} \\ \midrule
+Header Logo Separation & Header uses logo.webp; favicons use S3 icon & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\
+Cloudflare Integration & Widget script injected asynchronously in \texttt{index.html} \& \texttt{App.tsx} & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\
+Hero Slider & 60FPS 1.4s crossfade transition with unblocked natural images & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\
+Typewriter Banner & Upper bar with character backspacing/rewriting animation & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\
+Voice AI Assistant & Hold-to-talk mic, single voice output, action buttons & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\
+Floating Socials & Extreme right edge position with icon-only symbol drawer & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\
+Smooth Anchor Scroll & Automated offset scrolling to section IDs (\texttt{\#departments}, etc.) & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\
+Vercel Edge Hosting & Active live deployment at \url{https://dpsindirapuram.vercel.app} & \textcolor{dpsemerald}{\textbf{VERIFIED}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1cm}
+\begin{center}
+    \textcolor{gray}{\small --- End of Technical Documentation ---}
+\end{center}
+
+\end{document}

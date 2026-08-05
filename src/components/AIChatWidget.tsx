@@ -288,7 +288,63 @@ export default function AIChatWidget() {
     ]);
   };
 
-  const handleSend = (userQuery: string) => {
+  const fetchGroqAIResponse = async (query: string, currentHistory: Message[]) => {
+    const apiKey = import.meta.env.VITE_GROQ_API_KEY || "";
+    try {
+      const systemPrompt = `You are DPSI AI, the official conversational AI assistant for Delhi Public School Indirapuram (DPS Indirapuram), Ghaziabad.
+Your job is to provide accurate, warm, concise, and helpful answers to students, parents, and visitors about DPS Indirapuram.
+Keep your responses friendly, professional, and under 3-4 sentences max.
+Key Info:
+- Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Online registration form on official portal.
+- Fees: Quarterly school fees payable online via SchoolsOS. Email desk: info@dpsindirapuram.com
+- Class XI Streams: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).
+- CBSE Results: 100% Pass Record. School toppers Siddhant Tiwari & Ansh Pathak scored 99.4%.
+- Facilities: AI & Robotics Innovation Lab (3D printers, humanoid kits), Olympic-size swimming pool, 50+ GPS AC buses, 24/7 CCTV & infirmary.
+- Leadership: Principal Ms. Priya Elizabeth John, Pro-Vice Chairperson Ms. Santosh Bansal, Chairman Mr. V.K. Shunglu.
+- Contact: Phone +91-0120-4660000 | Email info@dpsindirapuram.com | Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014.`;
+
+      const formattedHistory = currentHistory
+        .filter((m) => m.text)
+        .slice(-6)
+        .map((m) => ({
+          role: m.role === "user" ? ("user" as const) : ("assistant" as const),
+          content: m.text,
+        }));
+
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...formattedHistory,
+            { role: "user", content: query },
+          ],
+          temperature: 0.5,
+          max_tokens: 300,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content;
+        if (text && text.trim()) {
+          const fallback = getAIResponse(query);
+          return { answer: text.trim(), actionUrl: fallback.actionUrl, actionType: fallback.actionType };
+        }
+      }
+    } catch (err) {
+      console.warn("Groq API fallback to Knowledge Base:", err);
+    }
+
+    return getAIResponse(query);
+  };
+
+  const handleSend = async (userQuery: string) => {
     if (!userQuery.trim() || isTyping) return;
 
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -302,49 +358,47 @@ export default function AIChatWidget() {
     setMessages((prev) => [...prev, { role: "user", text: textToSend, timestamp: timeStr }]);
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = getAIResponse(textToSend);
-      const words = response.answer.split(" ");
-      let currentWordIndex = 0;
+    const response = await fetchGroqAIResponse(textToSend, messages);
+    const words = response.answer.split(" ");
+    let currentWordIndex = 0;
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          text: "",
-          timestamp: timeStr,
-          isStreaming: true,
-          actionUrl: response.actionUrl,
-          actionType: response.actionType
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        text: "",
+        timestamp: timeStr,
+        isStreaming: true,
+        actionUrl: response.actionUrl,
+        actionType: response.actionType
+      }
+    ]);
+
+    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+
+    typingTimerRef.current = setInterval(() => {
+      currentWordIndex++;
+      const currentText = words.slice(0, currentWordIndex).join(" ");
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIdx = updated.length - 1;
+        if (lastIdx >= 0 && updated[lastIdx].role === "assistant") {
+          updated[lastIdx] = {
+            ...updated[lastIdx],
+            text: currentText,
+            isStreaming: currentWordIndex < words.length
+          };
         }
-      ]);
+        return updated;
+      });
 
-      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-
-      typingTimerRef.current = setInterval(() => {
-        currentWordIndex++;
-        const currentText = words.slice(0, currentWordIndex).join(" ");
-
-        setMessages((prev) => {
-          const updated = [...prev];
-          const lastIdx = updated.length - 1;
-          if (lastIdx >= 0 && updated[lastIdx].role === "assistant") {
-            updated[lastIdx] = {
-              ...updated[lastIdx],
-              text: currentText,
-              isStreaming: currentWordIndex < words.length
-            };
-          }
-          return updated;
-        });
-
-        if (currentWordIndex >= words.length) {
-          if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-          setIsTyping(false);
-          speakAnswerOnce(response.answer);
-        }
-      }, 8);
-    }, 50);
+      if (currentWordIndex >= words.length) {
+        if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+        setIsTyping(false);
+        speakAnswerOnce(response.answer);
+      }
+    }, 8);
   };
 
   return (
