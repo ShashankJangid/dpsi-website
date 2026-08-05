@@ -593,7 +593,7 @@ Detailed Knowledge Base & School Info:
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Ask anything..."
-                    className="flex-1 bg-transparent text-xs text-white placeholder-white/50 focus:outline-none px-2.5 py-1"
+                    className="flex-1 bg-transparent text-[16px] sm:text-xs text-white placeholder-white/50 focus:outline-none px-2.5 py-1"
                   />
 
                   {/* Extreme Right Send Button */}
