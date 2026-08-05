@@ -19,118 +19,19 @@ interface Message {
   actionType?: "call" | "email" | "link";
 }
 
-// Expanded Ultra-Precise Knowledge Base for DPS Indirapuram (Short & Concise Responses)
-const KNOWLEDGE_BASE: { keywords: string[]; topic: string; answer: string; actionUrl?: string; actionType?: "call" | "email" | "link" }[] = [
-  {
-    topic: "Admissions 2026-27",
-    keywords: ["admiss", "apply", "join", "register", "nursery", "prep", "class 1", "admission date", "form", "entry", "eligibility"],
-    answer: "Admissions 2026-27 are OPEN for Pre-Nursery to IX & XI. Fill the online registration form on our official portal.",
-    actionUrl: "https://dpsindp.schoolforschools.ai/login",
-    actionType: "link"
-  },
-  {
-    topic: "Fee Structure & Payment",
-    keywords: ["fee", "cost", "charge", "payment", "installment", "structure", "dues", "tuition", "pay"],
-    answer: "Quarterly school fees can be paid online via the SchoolsOS portal. For detailed fee desk queries, contact info@dpsindirapuram.com.",
-    actionUrl: "https://dpsindp.schoolforschools.ai/login",
-    actionType: "link"
-  },
-  {
-    topic: "Class XI Streams",
-    keywords: ["stream", "class 11", "class 10", "class 12", "subject", "science", "commerce", "humanities", "arts", "pcm", "pcb", "biotech"],
-    answer: "3 Streams Offered: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).",
-    actionUrl: "mailto:info@dpsindirapuram.com",
-    actionType: "email"
-  },
-  {
-    topic: "CBSE Board Results & Toppers",
-    keywords: ["result", "score", "topper", "rank", "cbse", "percent", "percentage", "academic", "siddhant", "ansh"],
-    answer: "100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%, with Commerce 98.2% and Humanities 97.6%.",
-    actionUrl: "https://dpsindp.schoolforschools.ai/login",
-    actionType: "link"
-  },
-  {
-    topic: "AI & Robotics Innovation Lab",
-    keywords: ["ai", "robot", "robotics", "stem", "code", "coding", "lab", "3d printer", "humanoid"],
-    answer: "Inaugurated 2024: Features humanoid robotic kits, 3D printers, Python Machine Learning, IoT sensors, and expert mentors.",
-  },
-
-  {
-    topic: "Transport & Bus Fleet",
-    keywords: ["bus", "transport", "route", "van", "pickup", "drop", "gps", "noida", "indirapuram", "vaishali", "vasundhara", "ghaziabad"],
-    answer: "50+ GPS-enabled AC buses with live app tracking, CCTV surveillance, and trained female attendants covering Noida, Ghaziabad & NCR.",
-    actionUrl: "tel:+9101204660000",
-    actionType: "call"
-  },
-  {
-    topic: "School Timings",
-    keywords: ["timing", "time", "hour", "open", "schedule", "working", "visiting"],
-    answer: "Junior Wing: 8:00 AM - 1:30 PM. Senior Wing: 8:00 AM - 2:10 PM (Mon-Sat). Parent visiting hours: 9:00 AM - 11:30 AM by appointment.",
-  },
-  {
-    topic: "Sports & Swimming Pool",
-    keywords: ["sport", "swimming", "pool", "cricket", "football", "basketball", "tennis", "skating", "taekwondo"],
-    answer: "Facilities include an Olympic-size swimming pool, cricket academy, basketball courts, lawn tennis, and indoor sports hall.",
-  },
-  {
-    topic: "Leadership & Principal",
-    keywords: ["principal", "chairman", "management", "director", "priya", "shunglu", "bansal", "dps society"],
-    answer: "Principal: Ms. Priya Elizabeth John | Pro-Vice Chairperson: Ms. Santosh Bansal | Chairman: Mr. V.K. Shunglu.",
-  },
-  {
-    topic: "Location & Contact",
-    keywords: ["contact", "phone", "email", "address", "location", "map", "where", "reach", "number"],
-    answer: "Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014. Call +91-0120-4660000 | Email info@dpsindirapuram.com.",
-    actionUrl: "tel:+9101204660000",
-    actionType: "call"
-  },
-  {
-    topic: "School Uniform",
-    keywords: ["uniform", "dress", "code", "blazer", "tie", "shirt", "winter uniform", "summer uniform"],
-    answer: "Summer: White shirt with green collar & trousers/skirt. Winter: Green blazer with school crest, grey trousers, and school tie.",
-  },
-  {
-    topic: "Houses & Clubs",
-    keywords: ["house", "club", "ganga", "yamuna", "jhelum", "chenab", "ravi", "beas", "mun", "astronomy", "music"],
-    answer: "6 Houses: Ganga, Yamuna, Jhelum, Chenab, Ravi, Beas. Active Clubs: Astronomy, Robotics, MUN, Eco Club, Coding, & Dramatics.",
-  },
-  {
-    topic: "Safety & Medical",
-    keywords: ["safety", "security", "cctv", "nurse", "medical", "infirmary", "doctor", "guard"],
-    answer: "24/7 CCTV surveillance, biometric security, trained guards, and full-time infirmary with resident medical nurse.",
+// Dynamic Action Helper for Action Buttons
+function getDynamicAction(query: string, text: string) {
+  const combined = (query + " " + text).toLowerCase();
+  if (combined.includes("admiss") || combined.includes("apply") || combined.includes("fee") || combined.includes("portal") || combined.includes("login") || combined.includes("register")) {
+    return { actionUrl: "https://dpsindp.schoolforschools.ai/login", actionType: "link" as const };
   }
-];
-
-// Precision AI Response Engine
-function getAIResponse(query: string) {
-  const q = query.toLowerCase().trim();
-  if (!q) return { answer: "How can I assist you with DPS Indirapuram today?" };
-
-  let bestMatch = KNOWLEDGE_BASE[0];
-  let maxScore = 0;
-
-  for (const item of KNOWLEDGE_BASE) {
-    let score = 0;
-    for (const kw of item.keywords) {
-      if (q.includes(kw)) {
-        score += kw.length > 4 ? 3 : 1.5;
-      }
-    }
-    if (score > maxScore) {
-      maxScore = score;
-      bestMatch = item;
-    }
+  if (combined.includes("contact") || combined.includes("phone") || combined.includes("call") || combined.includes("bus") || combined.includes("transport")) {
+    return { actionUrl: "tel:+9101204660000", actionType: "call" as const };
   }
-
-  if (maxScore > 0) {
-    return { answer: bestMatch.answer, actionUrl: bestMatch.actionUrl, actionType: bestMatch.actionType };
+  if (combined.includes("email") || combined.includes("mail") || combined.includes("stream")) {
+    return { actionUrl: "mailto:info@dpsindirapuram.com", actionType: "email" as const };
   }
-
-  return {
-    answer: "DPS Indirapuram (Est. 2003) offers top CBSE academics, AI & Robotics Lab, 100% CBSE results, and 50+ AC GPS buses. Call +91-0120-4660000.",
-    actionUrl: "tel:+9101204660000",
-    actionType: "call" as const
-  };
+  return { actionUrl: undefined, actionType: undefined };
 }
 
 export default function AIChatWidget() {
@@ -333,15 +234,20 @@ Key Info:
         const data = await res.json();
         const text = data?.choices?.[0]?.message?.content;
         if (text && text.trim()) {
-          const fallback = getAIResponse(query);
-          return { answer: text.trim(), actionUrl: fallback.actionUrl, actionType: fallback.actionType };
+          const action = getDynamicAction(query, text.trim());
+          return { answer: text.trim(), actionUrl: action.actionUrl, actionType: action.actionType };
         }
       }
     } catch (err) {
-      console.warn("Groq API fallback to Knowledge Base:", err);
+      console.warn("Groq API call error:", err);
     }
 
-    return getAIResponse(query);
+    const fallbackAction = getDynamicAction(query, "");
+    return {
+      answer: "I am DPSI AI. Please ensure VITE_GROQ_API_KEY is configured in Vercel settings for real-time AI answers! For inquiries, call +91-0120-4660000.",
+      actionUrl: fallbackAction.actionUrl || "tel:+9101204660000",
+      actionType: fallbackAction.actionType || ("call" as const)
+    };
   };
 
   const handleSend = async (userQuery: string) => {
