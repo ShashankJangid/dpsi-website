@@ -79,22 +79,22 @@ export default function HeroSection() {
   };
 
   return (
-    <div className="w-full flex flex-col bg-slate-950">
-      {/* SEPARATE TEXT BAR ABOVE IMAGE WITH TYPEWRITER BACKSPACE & REWRITE EFFECT */}
-      <div className="relative z-30 bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 text-white border-b border-emerald-500/30 py-3.5 sm:py-4 px-4 sm:px-8 shadow-xl">
+    <div className="w-full flex flex-col bg-slate-50">
+      {/* SEPARATE TEXT BAR ABOVE IMAGE WITH TYPEWRITER BACKSPACE & REWRITE EFFECT (LIGHT THEME) */}
+      <div className="relative z-30 bg-gradient-to-r from-sky-100 via-white to-blue-50 text-slate-900 border-b border-sky-200/80 py-3.5 sm:py-4 px-4 sm:px-8 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
           
           {/* Badge & Animated Typewriter Text */}
           <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 min-w-0">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide uppercase shrink-0 w-max shadow-sm">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-sky-600 text-white text-[11px] font-bold tracking-wide uppercase shrink-0 w-max shadow-xs">
               {slide.badge}
             </span>
 
-            <div className="text-xs sm:text-base lg:text-lg font-bold text-white tracking-tight min-h-[2.5rem] sm:min-h-[1.75rem] flex items-center min-w-0">
-              <span className="text-emerald-300 drop-shadow-sm leading-tight sm:leading-snug break-words">
+            <div className="text-xs sm:text-base lg:text-lg font-bold text-slate-900 tracking-tight min-h-[2.5rem] sm:min-h-[1.75rem] flex items-center min-w-0">
+              <span className="text-sky-950 drop-shadow-2xs leading-tight sm:leading-snug break-words">
                 {displayText}
               </span>
-              <span className="inline-block w-1.5 h-4 sm:w-2 sm:h-5 bg-emerald-400 ml-1 animate-pulse shrink-0" />
+              <span className="inline-block w-1.5 h-4 sm:w-2 sm:h-5 bg-sky-600 ml-1 animate-pulse shrink-0" />
             </div>
           </div>
 
@@ -102,7 +102,7 @@ export default function HeroSection() {
           <div className="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
             <Button
               size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 text-xs shadow-md cursor-pointer"
+              className="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 text-xs shadow-sm cursor-pointer"
               asChild
             >
               <Link to="/admissions">
@@ -111,7 +111,7 @@ export default function HeroSection() {
             </Button>
             <Button
               size="sm"
-              className="border border-white/40 bg-white/10 hover:bg-white hover:text-slate-950 text-white px-4 py-2 rounded-xl font-bold transition-all duration-300 text-xs cursor-pointer"
+              className="border border-sky-300 bg-white hover:bg-sky-50 text-sky-900 px-4 py-2 rounded-xl font-bold transition-all duration-300 text-xs cursor-pointer shadow-2xs"
               asChild
             >
               <Link to="/about">Explore Campus</Link>
@@ -122,7 +122,7 @@ export default function HeroSection() {
       </div>
 
       {/* FULL UNBLOCKED HERO IMAGE SLIDER BELOW THE BAR */}
-      <section className="relative min-h-[50vh] sm:min-h-[65vh] lg:min-h-[75vh] overflow-hidden bg-slate-950">
+      <section className="relative min-h-[50vh] sm:min-h-[65vh] lg:min-h-[75vh] overflow-hidden bg-slate-100">
         <AnimatePresence>
           <motion.div
             key={slide.image}

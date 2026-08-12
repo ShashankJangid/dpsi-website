@@ -40,7 +40,32 @@ export default function VideoGallerySection() {
   };
 
   return (
-    <section className="relative py-20 sm:py-24 bg-gradient-to-br from-[#064e3b] via-[#022c22] to-slate-950 text-white overflow-hidden">
+    <div className="w-full flex flex-col">
+      {/* SKY BLUE VERY LIGHT GRADIENT SECTION BEFORE YOUTUBE LINK */}
+      <div className="w-full py-14 sm:py-16 bg-gradient-to-r from-sky-100 via-sky-50 to-blue-100 border-y border-sky-200/70 text-slate-900 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-600/10 border border-sky-300 text-sky-800 text-xs font-bold uppercase tracking-wider mb-3 shadow-2xs">
+              🎬 School Video Showcase
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-sky-950 tracking-tight font-serif">
+              Experience Life at DPS Indirapuram
+            </h2>
+            <div className="w-20 h-1 bg-gradient-to-r from-sky-400 to-blue-600 mx-auto mt-3.5 rounded-full" />
+            <p className="text-sky-900/80 mt-3 max-w-2xl mx-auto text-sm sm:text-base font-medium">
+              Explore our state-of-the-art AI & Robotics Innovation Lab, Annual Cultural Celebrations, and campus achievements in video.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* YOUTUBE VIDEO GALLERY SECTION */}
+      <section className="relative py-16 sm:py-20 bg-gradient-to-br from-[#064e3b] via-[#022c22] to-slate-950 text-white overflow-hidden">
       {/* Background ambient glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15),transparent_70%)] pointer-events-none" />
 
@@ -159,5 +184,6 @@ export default function VideoGallerySection() {
         </div>
       </div>
     </section>
-  );
+  </div>
+);
 }

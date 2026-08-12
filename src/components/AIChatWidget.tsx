@@ -372,9 +372,9 @@ Detailed Knowledge Base & School Info:
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{ opacity: 0, y: 25, scale: 0.94 }}
+              initial={{ opacity: 0, y: 20, scale: 0.94 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 25, scale: 0.94 }}
+              exit={{ opacity: 0, y: -16, scale: 0.96 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               className="w-[340px] sm:w-[385px] h-[500px] max-h-[82vh] bg-gradient-to-b from-[#fce7f3] via-[#e2e8f0] to-[#047857] backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-slate-900/25 flex flex-col overflow-hidden mb-3 text-slate-900 relative max-w-[94vw]"
             >
