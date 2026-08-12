@@ -583,11 +583,12 @@ Detailed Knowledge Base & School Info:
           )}
         </AnimatePresence>
 
-        {/* Floating Draggable Trigger Button */}
+        {/* Floating Trigger Button - Fixed Anchor with Smooth Spring Snap */}
         {!isOpen && (
           <motion.button
             drag
-            dragMomentum={false}
+            dragSnapToOrigin={true}
+            dragElastic={0.15}
             onDragStart={() => setIsDragging(true)}
             onDragEnd={() => {
               setTimeout(() => setIsDragging(false), 50);
@@ -595,12 +596,14 @@ Detailed Knowledge Base & School Info:
             onClick={() => {
               if (!isDragging) setIsOpen(true);
             }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl cursor-grab active:cursor-grabbing relative select-none touch-none"
-            title="Drag to move, click to open DPSI AI Assistant"
+            className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl cursor-pointer relative select-none touch-none"
+            title="Click to open DPSI AI Assistant"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 pointer-events-none">
               <Bot className="w-4 h-4 text-white" />
