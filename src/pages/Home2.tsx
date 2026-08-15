@@ -16,23 +16,23 @@ export default function Home2() {
     <Layout>
       <AnnouncementsBar />
       
-      {/* Interactive 3D Spline Scene Hero Banner Section */}
-      <section className="w-full py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-950 text-white relative overflow-hidden">
+      {/* Interactive 3D Spline Scene Hero Banner Section (Light Color Theme) */}
+      <section className="w-full py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-sky-50 via-slate-50 to-white text-slate-900 border-b border-sky-200/60 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           {/* Header intro badge */}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-extrabold tracking-wide uppercase">
-                <Sparkles className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-100 border border-sky-300 text-sky-800 text-xs font-extrabold tracking-wide uppercase shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-sky-600" />
                 Home 2.0 Experience
               </span>
-              <span className="text-xs text-slate-400 font-semibold hidden sm:inline-block">
+              <span className="text-xs text-slate-600 font-semibold hidden sm:inline-block">
                 Interactive 3D Robotics & WebGL Interface
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-xs font-bold text-emerald-400">Live 3D View</span>
+            <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-sky-200 shadow-2xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-xs font-bold text-emerald-700">Live 3D View</span>
             </div>
           </div>
 
@@ -46,14 +46,14 @@ export default function Home2() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
-              className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex items-center gap-3.5"
+              className="p-4 rounded-2xl bg-white/95 border border-sky-200/80 shadow-md backdrop-blur-md flex items-center gap-3.5"
             >
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-sky-100 border border-sky-300 flex items-center justify-center text-sky-700 shrink-0 shadow-2xs">
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-white">Humanoid Robotics</h4>
-                <p className="text-xs text-slate-400">AI Lab C-Block 3rd Floor</p>
+                <h4 className="font-bold text-sm text-slate-900">Humanoid Robotics</h4>
+                <p className="text-xs text-slate-500 font-medium">AI Lab C-Block 3rd Floor</p>
               </div>
             </motion.div>
 
@@ -62,14 +62,14 @@ export default function Home2() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex items-center gap-3.5"
+              className="p-4 rounded-2xl bg-white/95 border border-sky-200/80 shadow-md backdrop-blur-md flex items-center gap-3.5"
             >
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-700 shrink-0 shadow-2xs">
                 <Cpu className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-white">MakerSpace Lab</h4>
-                <p className="text-xs text-slate-400">Flight Simulators & IoT (A-Block 2nd Fl)</p>
+                <h4 className="font-bold text-sm text-slate-900">MakerSpace Lab</h4>
+                <p className="text-xs text-slate-500 font-medium">Flight Simulators & IoT (A-Block 2nd Fl)</p>
               </div>
             </motion.div>
 
@@ -78,14 +78,14 @@ export default function Home2() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex items-center gap-3.5"
+              className="p-4 rounded-2xl bg-white/95 border border-sky-200/80 shadow-md backdrop-blur-md flex items-center gap-3.5"
             >
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
                 <Rocket className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-white">Smart Innovation</h4>
-                <p className="text-xs text-slate-400">Next-Gen STEAM Curriculum</p>
+                <h4 className="font-bold text-sm text-slate-900">Smart Innovation</h4>
+                <p className="text-xs text-slate-500 font-medium">Next-Gen STEAM Curriculum</p>
               </div>
             </motion.div>
           </div>
