@@ -94,6 +94,8 @@ export default function AchievementsSection() {
                           src={t.photo}
                           alt={t.name}
                           className="relative w-full h-full object-cover rounded-full mix-blend-normal z-10"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </div>
                     </div>

@@ -108,11 +108,15 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
+          spline: ["@splinetool/react-spline", "@splinetool/runtime"],
           three: ["three", "@react-three/fiber", "@react-three/drei"],
           charts: ["recharts"],
+          icons: ["lucide-react"],
           vendor: ["react", "react-dom", "react-router", "framer-motion"],
         },
       },

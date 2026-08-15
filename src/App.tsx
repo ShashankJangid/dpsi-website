@@ -1,32 +1,63 @@
-import { Routes, Route } from 'react-router'
-import Home from './pages/Home'
-import Home2 from './pages/Home2'
-import About from './pages/About'
-import Academics from './pages/Academics'
-import Admissions from './pages/Admissions'
-import Facilities from './pages/Facilities'
-import NewsEvents from './pages/NewsEvents'
-import Gallery from './pages/Gallery'
-import Contact from './pages/Contact'
-import Admin from './pages/Admin'
-import Login from './pages/Login'
-import NotFound from './pages/NotFound'
+import { lazy, Suspense, useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router'
+
+const Home = lazy(() => import('./pages/Home'))
+const Home2 = lazy(() => import('./pages/Home2'))
+const About = lazy(() => import('./pages/About'))
+const Academics = lazy(() => import('./pages/Academics'))
+const Admissions = lazy(() => import('./pages/Admissions'))
+const Facilities = lazy(() => import('./pages/Facilities'))
+const NewsEvents = lazy(() => import('./pages/NewsEvents'))
+const Gallery = lazy(() => import('./pages/Gallery'))
+const Contact = lazy(() => import('./pages/Contact'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Login = lazy(() => import('./pages/Login'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+
+// Smooth scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [pathname])
+  return null
+}
+
+// Lightweight, sleek page loading spinner
+function PageLoader() {
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-opacity duration-300">
+      <div className="relative flex items-center justify-center mb-4">
+        <div className="w-12 h-12 rounded-full border-3 border-emerald-500/20 border-t-emerald-600 animate-spin" />
+        <div className="absolute w-6 h-6 rounded-full bg-emerald-500/10 animate-pulse" />
+      </div>
+      <p className="text-xs font-bold tracking-wider text-emerald-800 dark:text-emerald-400 uppercase">
+        DPS Indirapuram
+      </p>
+    </div>
+  )
+}
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/home-2" element={<Home2 />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/academics" element={<Academics />} />
-      <Route path="/admissions" element={<Admissions />} />
-      <Route path="/facilities" element={<Facilities />} />
-      <Route path="/news-events" element={<NewsEvents />} />
-      <Route path="/gallery" element={<Gallery />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/admin" element={<Admin />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <ScrollToTop />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/home-2" element={<Home2 />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/academics" element={<Academics />} />
+          <Route path="/admissions" element={<Admissions />} />
+          <Route path="/facilities" element={<Facilities />} />
+          <Route path="/news-events" element={<NewsEvents />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </>
   )
 }
