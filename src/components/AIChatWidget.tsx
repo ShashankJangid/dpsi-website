@@ -206,13 +206,47 @@ export default function AIChatWidget() {
   }, [messages, isTyping]);
 
   useEffect(() => {
-    return () => {
-      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+    if (!isOpen) {
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
-    };
-  }, []);
+      if (isListening || recognitionRef.current) {
+        try {
+          recognitionRef.current?.stop();
+        } catch {
+          // ignore
+        }
+        setIsListening(false);
+        recognitionRef.current = null;
+      }
+      if (typingTimerRef.current) {
+        clearInterval(typingTimerRef.current);
+      }
+      setIsTyping(false);
+      isProcessingRef.current = false;
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    if (isListening || recognitionRef.current) {
+      try {
+        recognitionRef.current?.stop();
+      } catch {
+        // ignore
+      }
+      setIsListening(false);
+      recognitionRef.current = null;
+    }
+    if (typingTimerRef.current) {
+      clearInterval(typingTimerRef.current);
+    }
+    setIsTyping(false);
+    isProcessingRef.current = false;
+    setIsOpen(false);
+  };
 
   const handleResetChat = () => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -404,7 +438,7 @@ Detailed Knowledge Base & School Info:
                     <RotateCcw className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleClose}
                     className="p-1.5 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
                     title="Close Assistant"
                   >
