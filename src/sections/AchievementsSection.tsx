@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, Star, Sparkles } from "lucide-react";
+import { Award, Sparkles } from "lucide-react";
 
 const toppersList = [
   {
