@@ -9,7 +9,7 @@ import TestimonialsSection from "@/sections/TestimonialsSection";
 import CTASection from "@/sections/CTASection";
 import { SplineSceneBasic } from "@/components/ui/demo";
 import { motion } from "framer-motion";
-import { Sparkles, Bot, Cpu, Rocket } from "lucide-react";
+import { Bot, Cpu, Rocket } from "lucide-react";
 
 export default function Home2() {
   return (
@@ -22,17 +22,12 @@ export default function Home2() {
           {/* Header intro badge */}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-100 border border-sky-300 text-sky-800 text-xs font-extrabold tracking-wide uppercase shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+              <span className="inline-flex items-center px-3.5 py-1 rounded-full bg-sky-100 border border-sky-300 text-sky-800 text-xs font-extrabold tracking-wide uppercase shadow-2xs">
                 Home 2.0 Experience
               </span>
               <span className="text-xs text-slate-600 font-semibold hidden sm:inline-block">
                 Interactive 3D Robotics & WebGL Interface
               </span>
-            </div>
-            <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-sky-200 shadow-2xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-              <span className="text-xs font-bold text-emerald-700">Live 3D View</span>
             </div>
           </div>
 

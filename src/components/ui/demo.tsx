@@ -15,8 +15,7 @@ export function SplineSceneBasic() {
       <div className="flex flex-col lg:flex-row h-full min-h-[550px]">
         {/* Left content */}
         <div className="flex-1 p-8 sm:p-12 relative z-10 flex flex-col justify-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 border border-sky-300 text-sky-800 text-xs font-bold uppercase tracking-wider mb-6 w-max shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-sky-600 animate-pulse"></span>
+          <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-sky-100 border border-sky-300 text-sky-800 text-xs font-bold uppercase tracking-wider mb-6 w-max shadow-2xs">
             Next-Gen AI & Robotics
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-tight">
