@@ -43,6 +43,7 @@ export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -91,21 +92,27 @@ export default function Navbar() {
             </div>
           </div>
           <div className="hidden lg:flex items-center gap-3 text-[11px] font-bold text-white shrink-0">
-            <a
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               href="https://dpsindp.schoolforschools.ai/login"
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded shadow-md transition-all font-extrabold"
             >
               SchoolsOS Login 🔒
-            </a>
-            <Link to="/admissions" className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-all">
-              Apply Now
-            </Link>
-            {isAdmin && (
-              <Link to="/admin" className="px-3 py-1 bg-emerald-800 hover:bg-emerald-700 rounded transition-all">
-                Admin Panel
+            </motion.a>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to="/admissions" className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-all block">
+                Apply Now
               </Link>
+            </motion.div>
+            {isAdmin && (
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link to="/admin" className="px-3 py-1 bg-emerald-800 hover:bg-emerald-700 rounded transition-all block">
+                  Admin Panel
+                </Link>
+              </motion.div>
             )}
           </div>
         </div>
@@ -114,104 +121,140 @@ export default function Navbar() {
       <motion.header
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg shadow-md border-b border-slate-200/50 dark:border-slate-800/50"
-            : "bg-white dark:bg-slate-900"
+            ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl shadow-lg border-b border-slate-200/60 dark:border-slate-800/60"
+            : "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md"
         }`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link to="/" className="flex items-center group">
-              <img
+              <motion.img
+                whileHover={{ scale: 1.04 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 src="/images/dps/logo.webp"
                 alt="DPS Indirapuram Logo"
-                className="h-12 sm:h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300"
               />
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <div
-                  key={link.label}
-                  className="relative"
-                  onMouseEnter={() =>
-                    link.children && setActiveDropdown(link.label)
-                  }
-                  onMouseLeave={() => setActiveDropdown(null)}
-                >
-                  <Link
-                    to={link.href}
-                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-1 ${
-                      location.pathname === link.href
-                        ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30"
-                        : "text-foreground hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20"
-                    }`}
-                  >
-                    {link.label}
-                    {link.children && (
-                      <ChevronDown className="w-3 h-3" />
-                    )}
-                  </Link>
+            <nav className="hidden lg:flex items-center gap-1.5" onMouseLeave={() => setHoveredLink(null)}>
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.href;
+                const isHovered = hoveredLink === link.label;
 
-                  <AnimatePresence>
-                    {link.children && activeDropdown === link.label && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-border overflow-hidden"
-                      >
-                        {link.children.map((child) => (
-                          <Link
-                            key={child.label}
-                            to={child.href}
-                            className="block px-4 py-2.5 text-sm text-foreground hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
+                return (
+                  <div
+                    key={link.label}
+                    className="relative"
+                    onMouseEnter={() => {
+                      setHoveredLink(link.label);
+                      if (link.children) setActiveDropdown(link.label);
+                    }}
+                    onMouseLeave={() => {
+                      if (link.children) setActiveDropdown(null);
+                    }}
+                  >
+                    <Link
+                      to={link.href}
+                      className={`relative z-10 px-3.5 py-2 text-sm font-semibold rounded-full transition-colors flex items-center gap-1 ${
+                        isActive
+                          ? "text-emerald-800 dark:text-emerald-300"
+                          : "text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-400"
+                      }`}
+                    >
+                      {/* Smooth Gliding Active / Hover Pill Indicator */}
+                      {isActive && (
+                        <motion.div
+                          layoutId="navActivePill"
+                          className="absolute inset-0 bg-emerald-100/90 dark:bg-emerald-950/60 border border-emerald-300/60 dark:border-emerald-700/50 rounded-full -z-10 shadow-2xs"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                      {!isActive && isHovered && (
+                        <motion.div
+                          layoutId="navHoverPill"
+                          className="absolute inset-0 bg-slate-100/80 dark:bg-slate-800/60 rounded-full -z-10"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+
+                      <span>{link.label}</span>
+                      {link.children && (
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === link.label ? "rotate-180" : ""}`} />
+                      )}
+                    </Link>
+
+                    <AnimatePresence>
+                      {link.children && activeDropdown === link.label && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                          transition={{ duration: 0.2, ease: "easeOut" }}
+                          className="absolute top-full left-0 mt-1.5 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden py-1 z-50"
+                        >
+                          {link.children.map((child, idx) => (
+                            <motion.div
+                              key={child.label}
+                              initial={{ opacity: 0, x: -6 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.15, delay: idx * 0.04 }}
+                            >
+                              <Link
+                                to={child.href}
+                                className="block px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                              >
+                                {child.label}
+                              </Link>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </nav>
 
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="hidden sm:flex items-center pl-2 border-l border-slate-200 dark:border-slate-800">
-                <img
+                <motion.img
+                  whileHover={{ scale: 1.05 }}
                   src="/images/dps/international_logo.webp"
                   alt="British Council International Dimension in Schools 2020-23"
-                  className="h-9 sm:h-11 w-auto object-contain rounded shadow-sm hover:scale-105 transition-transform"
+                  className="h-9 sm:h-11 w-auto object-contain rounded shadow-xs"
                   title="British Council International Dimension in Schools 2020-23"
                 />
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 15 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsDark(!isDark)}
-                className="p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
                 aria-label="Toggle dark mode"
               >
                 {isDark ? (
-                  <Sun className="w-5 h-5 text-amber-400" />
+                  <Sun className="w-4 h-4 text-amber-400" />
                 ) : (
-                  <Moon className="w-5 h-5 text-slate-500" />
+                  <Moon className="w-4 h-4 text-slate-600" />
                 )}
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileOpen(!isMobileOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
               >
                 {isMobileOpen ? (
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className="w-5 h-5" />
                 )}
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -222,46 +265,68 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="lg:hidden bg-white dark:bg-slate-900 border-t border-border overflow-hidden"
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 overflow-hidden"
             >
-              <div className="px-4 py-4 space-y-1">
+              <motion.div
+                initial="closed"
+                animate="open"
+                exit="closed"
+                variants={{
+                  open: { transition: { staggerChildren: 0.04, delayChildren: 0.05 } },
+                  closed: { transition: { staggerChildren: 0.02, staggerDirection: -1 } }
+                }}
+                className="px-4 py-4 space-y-1"
+              >
                 {navLinks.map((link) => (
-                  <div key={link.label}>
+                  <motion.div
+                    key={link.label}
+                    variants={{
+                      open: { opacity: 1, y: 0 },
+                      closed: { opacity: 0, y: -6 }
+                    }}
+                  >
                     <Link
                       to={link.href}
-                      className={`block px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                      className={`block px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                         location.pathname === link.href
-                          ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30"
-                          : "text-foreground hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                          ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/50"
+                          : "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
                       }`}
                     >
                       {link.label}
                     </Link>
                     {link.children && (
-                      <div className="ml-4 mt-1 space-y-1">
+                      <div className="ml-4 mt-1 space-y-1 border-l-2 border-emerald-200 dark:border-emerald-900 pl-2">
                         {link.children.map((child) => (
                           <Link
                             key={child.label}
                             to={child.href}
-                            className="block px-3 py-2 text-sm text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                            className="block px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
                           >
                             {child.label}
                           </Link>
                         ))}
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
                 {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="block px-3 py-2.5 rounded-md text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30"
+                  <motion.div
+                    variants={{
+                      open: { opacity: 1, y: 0 },
+                      closed: { opacity: 0, y: -6 }
+                    }}
                   >
-                    Admin Panel
-                  </Link>
+                    <Link
+                      to="/admin"
+                      className="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/50"
+                    >
+                      Admin Panel
+                    </Link>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -98,45 +98,75 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons with Spring Hover/Tap Physics */}
           <div className="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
-            <Button
-              size="sm"
-              className="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 text-xs shadow-sm cursor-pointer"
-              asChild
-            >
-              <Link to="/admissions">
-                Apply Now <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </Link>
-            </Button>
-            <Button
-              size="sm"
-              className="border border-sky-300 bg-white hover:bg-sky-50 text-sky-900 px-4 py-2 rounded-xl font-bold transition-all duration-300 text-xs cursor-pointer shadow-2xs"
-              asChild
-            >
-              <Link to="/about">Explore Campus</Link>
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="sm"
+                className="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl transition-all duration-300 text-xs shadow-md shadow-sky-600/25 cursor-pointer flex items-center gap-1"
+                asChild
+              >
+                <Link to="/admissions">
+                  Apply Now <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="sm"
+                className="border border-sky-300 bg-white hover:bg-sky-50 text-sky-900 px-4 py-2 rounded-xl font-bold transition-all duration-300 text-xs cursor-pointer shadow-xs"
+                asChild
+              >
+                <Link to="/about">Explore Campus</Link>
+              </Button>
+            </motion.div>
           </div>
 
         </div>
       </div>
 
       {/* FULL UNBLOCKED HERO IMAGE SLIDER BELOW THE BAR */}
-      <section className="relative min-h-[50vh] sm:min-h-[65vh] lg:min-h-[75vh] overflow-hidden bg-slate-100">
-        <AnimatePresence>
+      <section className="relative min-h-[50vh] sm:min-h-[65vh] lg:min-h-[75vh] overflow-hidden bg-slate-950">
+        {/* Subtle Ambient Floating Glow Orbs */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none z-10"
+        />
+        <motion.div
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.2, 0.35, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-sky-500/20 blur-3xl pointer-events-none z-10"
+        />
+
+        <AnimatePresence mode="wait">
           <motion.div
             key={slide.image}
-            initial={{ opacity: 0, scale: 1.04 }}
+            initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.4, ease: [0.4, 0, 0.2, 1] }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
             className="absolute inset-0 flex items-center justify-center bg-slate-950 overflow-hidden"
           >
             {/* 100% Unblocked Banner Image displayed in full natural color */}
             <img
               src={slide.image}
               alt={slide.title}
-              className="w-full h-full object-cover object-center z-0"
+              className="w-full h-full object-cover object-center z-0 will-change-transform"
               fetchPriority={currentSlide === 0 ? "high" : "auto"}
               loading="eager"
               decoding="async"
@@ -144,37 +174,44 @@ export default function HeroSection() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Slide Navigation Controls */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 sm:bottom-6 z-30 flex items-center gap-3">
-          <button
+        {/* Slide Navigation Controls with Glassmorphism and Spring Bounce */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 sm:bottom-6 z-30 flex items-center gap-3 bg-slate-950/40 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/20 shadow-2xl">
+          <motion.button
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => handleManualSlideChange((currentSlide - 1 + heroSlides.length) % heroSlides.length)}
-            className="p-2 sm:p-2.5 rounded-full bg-slate-900/80 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl hover:scale-110 active:scale-95 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
             title="Previous Slide"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          </motion.button>
 
           {/* Slide Indicator Dots */}
-          <div className="flex items-center gap-1.5 px-2">
+          <div className="flex items-center gap-2 px-1">
             {heroSlides.map((_, idx) => (
-              <button
+              <motion.button
                 key={idx}
                 onClick={() => handleManualSlideChange(idx)}
-                className={`h-2 rounded-full transition-all cursor-pointer ${
-                  currentSlide === idx ? "w-6 bg-emerald-400" : "w-2 bg-white/50 hover:bg-white/80"
-                }`}
+                animate={{
+                  width: currentSlide === idx ? 24 : 8,
+                  backgroundColor: currentSlide === idx ? "#38bdf8" : "rgba(255, 255, 255, 0.45)"
+                }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="h-2 rounded-full cursor-pointer shadow-xs"
                 title={`Go to slide ${idx + 1}`}
               />
             ))}
           </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => handleManualSlideChange((currentSlide + 1) % heroSlides.length)}
-            className="p-2 sm:p-2.5 rounded-full bg-slate-900/80 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl hover:scale-110 active:scale-95 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
             title="Next Slide"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          </motion.button>
         </div>
       </section>
     </div>
