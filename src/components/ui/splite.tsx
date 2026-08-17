@@ -1,5 +1,6 @@
 'use client'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense, lazy, useRef, useEffect } from 'react'
 
 const Spline = lazy(() => import('@splinetool/react-spline'))
