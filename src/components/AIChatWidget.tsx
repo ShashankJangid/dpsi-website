@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Bot, MessageSquare, GraduationCap, Award, RotateCcw, ExternalLink, Phone, Mail, Mic } from "lucide-react";
+import { X, Send, Bot, MessageSquare, GraduationCap, RotateCcw, ExternalLink, Phone, Mail, Mic, Calendar } from "lucide-react";
+import { getFormattedAcademicCalendarPrompt } from "@/lib/academicCalendarData";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
@@ -22,6 +23,9 @@ interface Message {
 // Dynamic Action Helper for Action Buttons
 function getDynamicAction(query: string, text: string) {
   const combined = (query + " " + text).toLowerCase();
+  if (combined.includes("calendar") || combined.includes("exam") || combined.includes("test") || combined.includes("holiday") || combined.includes("vacation") || combined.includes("break") || combined.includes("ptm") || combined.includes("reopen") || combined.includes("preboard") || combined.includes("pre-board") || combined.includes("annual")) {
+    return { actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf", actionType: "link" as const };
+  }
   if (combined.includes("admiss") || combined.includes("apply") || combined.includes("fee") || combined.includes("portal") || combined.includes("login") || combined.includes("register")) {
     return { actionUrl: "https://www.dpsindirapuram.com/page/admission-procedure", actionType: "link" as const };
   }
@@ -41,7 +45,7 @@ export default function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Hello! I am DPSI AI, your smart school guide. Ask me about Admissions, Fees, Streams, AI Robotics Lab, Timings, or Facilities!",
+      text: "Hello! I am DPSI AI, your smart school assistant. Ask me about the 2026-27 Academic Calendar, Exam Dates, Vacations, Admissions, or Facilities!",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     }
   ]);
@@ -267,6 +271,8 @@ export default function AIChatWidget() {
 
   const fetchGroqAIResponse = async (query: string, currentHistory: Message[]) => {
     const apiKey = import.meta.env.VITE_GROQ_API_KEY || "";
+    const calendarContext = getFormattedAcademicCalendarPrompt();
+
     try {
       const systemPrompt = `You are DPSI AI, the official conversational AI assistant for Delhi Public School Indirapuram (DPS Indirapuram), Ghaziabad.
 Your job is to provide accurate, warm, concise, and helpful answers to students, parents, and visitors about DPS Indirapuram.
@@ -286,7 +292,9 @@ Detailed Knowledge Base & School Info:
 - CBSE Board Results: 100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%. Commerce topper 98.2%, Humanities topper 97.6%.
 - Facilities & Infrastructure: AI & Robotics Innovation Lab (C-Block 3rd Floor), MakerSpace & D&T Labs (A-Block 2nd Floor), Main Reception & Canteen (B-Block Ground Floor), Olympic-size swimming pool, 50+ GPS AC buses, 24/7 CCTV & resident medical infirmary.
 - Leadership: Principal Ms. Priya Elizabeth John, Pro-Vice Chairperson Ms. Santosh Bansal, Chairman Mr. V.K. Shunglu.
-- Location & Contact: Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014. Call +91-0120-4660000 | Email info@dpsindirapuram.com.`;
+- Location & Contact: Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014. Call +91-0120-4660000 | Email info@dpsindirapuram.com.
+
+${calendarContext}`;
 
       const formattedHistory = currentHistory
         .filter((m) => m.text)
@@ -296,39 +304,92 @@ Detailed Knowledge Base & School Info:
           content: m.text,
         }));
 
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...formattedHistory,
-            { role: "user", content: query },
-          ],
-          temperature: 0.5,
-          max_tokens: 300,
-        }),
-      });
+      if (apiKey) {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...formattedHistory,
+              { role: "user", content: query },
+            ],
+            temperature: 0.5,
+            max_tokens: 350,
+          }),
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        const text = data?.choices?.[0]?.message?.content;
-        if (text && text.trim()) {
-          const action = getDynamicAction(query, text.trim());
-          return { answer: text.trim(), actionUrl: action.actionUrl, actionType: action.actionType };
+        if (res.ok) {
+          const data = await res.json();
+          const text = data?.choices?.[0]?.message?.content;
+          if (text && text.trim()) {
+            const action = getDynamicAction(query, text.trim());
+            return { answer: text.trim(), actionUrl: action.actionUrl, actionType: action.actionType };
+          }
         }
       }
     } catch (err) {
       console.warn("Groq API call error:", err);
     }
 
+    // Comprehensive smart local fallback answers grounded in the official academic calendar and school records
+    const lower = query.toLowerCase();
     const fallbackAction = getDynamicAction(query, "");
+
+    if (lower.includes("calendar") || lower.includes("academic year") || lower.includes("schedule")) {
+      return {
+        answer: "The DPS Indirapuram Academic Year 2026-27 begins in April 2026 for all classes. It features regular Periodic Tests (PT), Mid-Term & Half Yearly exams in September, Pre-Board exams in December/January, and Annual exams concluding in February-March 2027.",
+        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
+        actionType: "link" as const
+      };
+    }
+
+    if (lower.includes("summer") || lower.includes("vacation")) {
+      return {
+        answer: "Summer break begins in late May 2026 (Nursery to Class XII). School reopens after summer break in June 2026 for Classes X & XII, and in July 2026 for Nursery to Class IX and Class XI.",
+        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
+        actionType: "link" as const
+      };
+    }
+
+    if (lower.includes("winter") || lower.includes("winter break")) {
+      return {
+        answer: "Winter break begins towards the end of December 2026 for all classes (Nursery to XII). Classes IX to XII reopen in early January 2027, followed by Nursery to Class VIII reopening in mid-January 2027.",
+        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
+        actionType: "link" as const
+      };
+    }
+
+    if (lower.includes("exam") || lower.includes("test") || lower.includes("half yearly") || lower.includes("preboard") || lower.includes("annual")) {
+      return {
+        answer: "Periodic Tests (PT) are held across April, May, July, and November. Half Yearly exams take place in September 2026, Pre-Boards (PB-1 and PB-2) for Classes X & XII take place in December 2026 and January 2027, and Annual Final Exams occur in January-March 2027.",
+        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
+        actionType: "link" as const
+      };
+    }
+
+    if (lower.includes("ptm") || lower.includes("parent teacher")) {
+      return {
+        answer: "Parent-Teacher Meetings (PTMs) are scheduled in May, August, September, October, November, December, January, and March following key assessment cycles with answer script viewings.",
+        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
+        actionType: "link" as const
+      };
+    }
+
+    if (lower.includes("admiss") || lower.includes("apply") || lower.includes("register")) {
+      return {
+        answer: "Admissions for the 2026-27 academic session are currently open from Pre-Nursery to Class IX and Class XI. You can register online through the official admission portal.",
+        actionUrl: "https://www.dpsindirapuram.com/page/admission-procedure",
+        actionType: "link" as const
+      };
+    }
+
     return {
-      answer: "I am DPSI AI. Please ensure VITE_GROQ_API_KEY is configured in Vercel settings for real-time AI answers! For inquiries, call +91-0120-4660000.",
+      answer: "I am DPSI AI. I can assist you with our Annual Academic Calendar, Exam Schedules, Admissions 2026-27, Streams, and School Facilities! How may I help you today?",
       actionUrl: fallbackAction.actionUrl || "tel:+9101204660000",
       actionType: fallbackAction.actionType || ("call" as const)
     };
@@ -539,9 +600,9 @@ Detailed Knowledge Base & School Info:
                 <div className="grid grid-cols-2 gap-1.5 py-0.5">
                   {[
                     { label: "Admissions 2026", icon: <GraduationCap className="w-3 h-3 text-sky-600" />, query: "Tell me about admissions 2026" },
-                    { label: "Class 11 Streams", icon: <MessageSquare className="w-3 h-3 text-indigo-600" />, query: "What streams are offered in Class 11?" },
+                    { label: "Academic Calendar", icon: <Calendar className="w-3 h-3 text-rose-500" />, query: "What is the 2026-27 Academic Calendar schedule for exams, breaks, and PTMs?" },
                     { label: "AI Robotics Lab", icon: <Bot className="w-3 h-3 text-amber-500" />, query: "Tell me about your AI Robotics Lab" },
-                    { label: "CBSE Results", icon: <Award className="w-3 h-3 text-emerald-600" />, query: "What are your recent CBSE results?" },
+                    { label: "Class 11 Streams", icon: <MessageSquare className="w-3 h-3 text-indigo-600" />, query: "What streams are offered in Class 11?" },
                   ].map((chip, i) => (
                     <button
                       key={i}
