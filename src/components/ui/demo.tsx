@@ -8,7 +8,7 @@ import { ArrowRight, Bot, Cpu, ShieldCheck, Zap } from "lucide-react";
 
 export function SplineSceneBasic() {
   return (
-    <div className="relative w-full min-h-[700px] lg:min-h-[850px] flex items-center justify-between overflow-visible">
+    <div className="relative w-full min-h-[680px] lg:min-h-[820px] flex items-center justify-between overflow-visible">
       {/* Background ambient lighting and spotlight */}
       <Spotlight
         className="-top-40 left-0 md:left-60 md:-top-20"
@@ -16,8 +16,8 @@ export function SplineSceneBasic() {
       />
 
       {/* Floating Ambient Glowing Mesh Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-sky-400/15 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-indigo-500/15 rounded-full blur-3xl pointer-events-none -z-10" />
 
       {/* Full-width responsive container */}
       <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8 relative z-10">
@@ -81,17 +81,17 @@ export function SplineSceneBasic() {
           </div>
         </motion.div>
 
-        {/* Right Giant Full-Screen 3D Robot - High-Scale Freedom & Global Tracking */}
-        <div className="flex-1 w-full min-h-[550px] sm:min-h-[650px] md:min-h-[750px] lg:min-h-[850px] relative flex items-center justify-center pointer-events-auto">
+        {/* Right Ultra-Crisp High-Res 3D Robot Container */}
+        <div className="flex-1 w-full min-h-[550px] sm:min-h-[650px] lg:min-h-[780px] relative flex items-center justify-center pointer-events-auto">
           {/* Subtle Glow behind the Robot */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-sky-400/20 via-blue-500/20 to-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-sky-400/15 via-blue-500/15 to-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Massive 3D Spline Scene filling entire container */}
-          <div className="w-full h-full min-h-[550px] sm:min-h-[650px] md:min-h-[750px] lg:min-h-[850px] relative flex items-center justify-center">
+          {/* Native High-Res Spline 3D Scene */}
+          <div className="w-full h-full min-h-[550px] sm:min-h-[650px] lg:min-h-[780px] relative flex items-center justify-center">
             <SplineScene
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               trackGlobalCursor={true}
-              className="w-full h-full scale-120 sm:scale-130 md:scale-140 lg:scale-150 xl:scale-160 transform-gpu origin-center"
+              className="w-full h-full"
             />
           </div>
 
@@ -105,7 +105,7 @@ export function SplineSceneBasic() {
           >
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
             <span className="text-xs font-black text-slate-900 dark:text-white tracking-wide">
-              3D AI Robot • Realtime Tracking
+              Ultra HD • Realtime Tracking
             </span>
           </motion.div>
         </div>

@@ -79,13 +79,34 @@ export function SplineScene({ scene, className, trackGlobalCursor = true }: Spli
     } else if (containerRef.current) {
       canvasRef.current = containerRef.current.querySelector('canvas')
     }
+
+    // Enforce crisp Retina / High-DPI resolution without pixelation
+    try {
+      const dpr = Math.min(window.devicePixelRatio || 2, 2.5)
+      if (splineApp) {
+        if (typeof splineApp.setPixelRatio === 'function') {
+          splineApp.setPixelRatio(dpr)
+        }
+        if (splineApp._renderer && typeof splineApp._renderer.setPixelRatio === 'function') {
+          splineApp._renderer.setPixelRatio(dpr)
+        }
+        if (splineApp._renderer && splineApp._renderer.domElement) {
+          splineApp._renderer.domElement.style.imageRendering = 'auto'
+        }
+      }
+      if (canvasRef.current) {
+        canvasRef.current.style.imageRendering = 'auto'
+      }
+    } catch {
+      // ignore
+    }
   }
 
   return (
     <div ref={containerRef} className={`w-full h-full relative ${className || ''}`}>
       <Suspense
         fallback={
-          <div className="w-full h-full min-h-[400px] flex flex-col items-center justify-center gap-3">
+          <div className="w-full h-full min-h-[500px] flex flex-col items-center justify-center gap-3">
             <div className="w-10 h-10 border-3 border-sky-400 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-xs font-semibold text-sky-400/80 animate-pulse tracking-wide uppercase">
               Loading 3D Robot...
