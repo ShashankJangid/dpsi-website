@@ -3,7 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Text, Float, RoundedBox, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles as SparklesIcon, Shield, ChevronRight } from "lucide-react";
+import { Shield, ChevronRight } from "lucide-react";
 
 const facilityData = [
   {
@@ -161,7 +161,6 @@ export default function Facilities3D() {
             className="absolute top-6 left-6 max-w-sm p-5 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-emerald-500/30 shadow-2xl text-white pointer-events-none hidden sm:block"
           >
             <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-widest mb-2">
-              <SparklesIcon className="w-3.5 h-3.5 fill-amber-400" />
               <span>DPS Indirapuram Innovation</span>
             </div>
             <h3 className="text-xl font-black text-white mb-2">{active.label}</h3>

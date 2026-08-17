@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Layers, Sparkles } from "lucide-react";
+import { X, Layers } from "lucide-react";
 import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
 import VideoGallerySection from "@/sections/VideoGallerySection";
@@ -131,7 +131,7 @@ export default function Gallery() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Interactive Campus Tour
+              Interactive Campus Tour
             </span>
             <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">3D Campus Gallery</h1>
             <p className="text-base md:text-lg text-slate-300">

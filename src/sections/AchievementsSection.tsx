@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, Sparkles, Layers, LayoutGrid } from "lucide-react";
+import { Award, Layers, LayoutGrid } from "lucide-react";
 import { CoverflowCarousel, type CoverflowSlide } from "@/components/ui/coverflow-carousel";
 
 const topperCoverflowSlides: CoverflowSlide[] = [
@@ -161,7 +161,6 @@ export default function AchievementsSection() {
           className="text-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Academic Excellence</span>
           </div>
 

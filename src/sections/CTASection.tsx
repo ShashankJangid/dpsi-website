@@ -1,27 +1,30 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router";
-import { ArrowRight, Phone, Mail, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function CTASection() {
   return (
-    <section className="py-24 bg-gradient-to-r from-emerald-900 via-emerald-850 to-slate-950 text-white relative overflow-hidden">
-      {/* Background Floating Gradient Mesh */}
+    <section className="relative py-20 bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 text-white overflow-hidden">
+      {/* Background patterns */}
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px]" />
+      
+      {/* Dynamic Animated Ambient Orbs */}
       <motion.div
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.15, 0.3, 0.15]
+          scale: [1, 1.25, 1],
+          opacity: [0.2, 0.4, 0.2]
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-emerald-400/20 blur-3xl pointer-events-none rounded-full"
+        className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-500/20 blur-3xl pointer-events-none rounded-full"
       />
       <motion.div
         animate={{
           scale: [1.2, 1, 1.2],
-          opacity: [0.1, 0.25, 0.1]
+          opacity: [0.15, 0.35, 0.15]
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-0 left-10 w-96 h-96 bg-amber-400/15 blur-3xl pointer-events-none rounded-full"
+        className="absolute -bottom-32 -left-32 w-96 h-96 bg-amber-500/15 blur-3xl pointer-events-none rounded-full"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -33,7 +36,6 @@ export default function CTASection() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               <span>Admissions Open 2026-27</span>
             </div>
 
