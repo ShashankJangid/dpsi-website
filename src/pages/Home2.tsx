@@ -10,44 +10,23 @@ import CTASection from "@/sections/CTASection";
 import { SplineSceneBasic } from "@/components/ui/demo";
 import { motion } from "framer-motion";
 import { Bot, Cpu, Rocket } from "lucide-react";
-import { Link } from "react-router";
 
 export default function Home2() {
   return (
     <Layout>
       <AnnouncementsBar />
       
-      {/* UNBOXED 3D ROBOTICS HERO SECTION */}
-      <section className="w-full py-10 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-sky-50/70 via-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white border-b border-sky-200/50 dark:border-slate-800 relative overflow-hidden">
+      {/* UNBOXED GIANT 3D ROBOTICS HERO SECTION */}
+      <section className="w-full py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-sky-50/80 via-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white border-b border-sky-200/50 dark:border-slate-800 relative overflow-hidden">
         {/* Ambient Top Glow Grid */}
         <div className="absolute inset-0 bg-[radial-gradient(#0284c7_1px,transparent_1px)] [background-size:32px_32px] opacity-10 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
-          {/* Header intro badge */}
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/70 border border-sky-300 dark:border-sky-700 text-sky-800 dark:text-sky-300 text-xs font-black tracking-wider uppercase shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
-                Home 2.0 • 3D Spatial Experience
-              </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:inline-block">
-                Move cursor anywhere to interact with the 3D Robot
-              </span>
-            </div>
-
-            <Link
-              to="/"
-              className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors flex items-center gap-1"
-            >
-              Switch to Classic Home →
-            </Link>
-          </div>
-
-          {/* Unboxed Spline 3D Component */}
+          {/* Giant Unboxed Spline 3D Component */}
           <SplineSceneBasic />
 
           {/* Quick 3D Tech Feature Highlights */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-8 lg:mt-12">
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
