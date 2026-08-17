@@ -1,9 +1,101 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Layers } from "lucide-react";
+import { X, Layers, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
 import VideoGallerySection from "@/sections/VideoGallerySection";
+import { CoverflowCarousel, type CoverflowSlide } from "@/components/ui/coverflow-carousel";
+
+const coverflowSlides: CoverflowSlide[] = [
+  {
+    src: "/images/facilities/ai_robotics_lab.webp",
+    alt: "Futuristic AI & Robotics Innovation Lab",
+    title: "AI & Robotics Innovation Lab",
+    subtitle: "Equipped with Humanoids, Raspberry Pi & 3D Printers • C-Block 3rd Floor",
+    meta: [
+      { label: "Category", value: "Innovation & Robotics" },
+      { label: "Eligibility", value: "Class VI to XII" },
+      { label: "Tech Stack", value: "Python ML, IoT, Sensors" },
+    ],
+  },
+  {
+    src: "/images/facilities/quantum_science_lab.webp",
+    alt: "Quantum & Modern Science Laboratories",
+    title: "State-of-the-Art Science Labs",
+    subtitle: "Physics, Chemistry & Biology Research Laboratories",
+    meta: [
+      { label: "Category", value: "Advanced Sciences" },
+      { label: "Safety", value: "100% Certified Safety" },
+      { label: "Pedagogy", value: "Experiential Learning" },
+    ],
+  },
+  {
+    src: "/images/facilities/swimming_pool.webp",
+    alt: "Olympic-Size Swimming Pool",
+    title: "Olympic Aquatic Center",
+    subtitle: "All-weather training pool with certified coaches",
+    meta: [
+      { label: "Category", value: "Sports & Fitness" },
+      { label: "Standard", value: "Olympic Regulation" },
+      { label: "Trainers", value: "National-Level Coaches" },
+    ],
+  },
+  {
+    src: "/images/facilities/smart_classroom.webp",
+    alt: "Interactive Smart Classroom",
+    title: "Interactive Smart Classrooms",
+    subtitle: "Digitally-enabled 4K learning environments",
+    meta: [
+      { label: "Category", value: "Digital Academics" },
+      { label: "Tech", value: "Interactive Touch Panels" },
+      { label: "Air Quality", value: "Centrally Air-Conditioned" },
+    ],
+  },
+  {
+    src: "/images/facilities/sports_complex.webp",
+    alt: "Multi-Sport Athletics Arena",
+    title: "Grand Sports Arena",
+    subtitle: "Football turf, basketball courts & tennis academy",
+    meta: [
+      { label: "Category", value: "Athletics & Games" },
+      { label: "Courts", value: "Basketball, Tennis, Turf" },
+      { label: "Honors", value: "CBSE National Champions" },
+    ],
+  },
+  {
+    src: "/images/facilities/auditorium.webp",
+    alt: "Grand Multi-Purpose Auditorium",
+    title: "Grand Air-Conditioned Auditorium",
+    subtitle: "1,200+ seating cultural and symposium hall",
+    meta: [
+      { label: "Category", value: "Arts & Culture" },
+      { label: "Capacity", value: "1,200+ Seating" },
+      { label: "Audio", value: "Surround Digital Acoustics" },
+    ],
+  },
+  {
+    src: "/images/facilities/library.webp",
+    alt: "Central Knowledge Hub Library",
+    title: "Central Digital Library",
+    subtitle: "30,000+ volumes, periodicals, and e-learning pods",
+    meta: [
+      { label: "Category", value: "Learning Resources" },
+      { label: "Collection", value: "30,000+ Books" },
+      { label: "Digital", value: "Kindle & Research Databases" },
+    ],
+  },
+  {
+    src: "/images/dps/slider_2.webp",
+    alt: "Times Education Icons 2024",
+    title: "Times Education Award Winner",
+    subtitle: "Recognized as the #1 CBSE School in Ghaziabad",
+    meta: [
+      { label: "Category", value: "Awards & Honors" },
+      { label: "Year", value: "2024-25" },
+      { label: "Ranking", value: "#1 CBSE Ghaziabad" },
+    ],
+  },
+];
 
 const categories = ["All", "Labs", "Sports", "Library", "Events", "Campus"];
 
@@ -34,16 +126,55 @@ export default function Gallery() {
       <section className="relative py-24 bg-gradient-to-br from-slate-900 to-emerald-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Gallery</h1>
-            <p className="text-lg text-slate-300">
-              A visual journey through the vibrant life at DPS Indirapuram.
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Interactive Campus Tour
+            </span>
+            <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">3D Campus Gallery</h1>
+            <p className="text-base md:text-lg text-slate-300">
+              Drag, swipe, and explore the futuristic infrastructure, innovation labs, sports arenas, and vibrant life at DPS Indirapuram.
             </p>
           </motion.div>
         </div>
       </section>
 
+      {/* 3D COVERFLOW INTERACTIVE SHOWCASE */}
+      <section className="py-12 sm:py-16 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 text-white overflow-hidden border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6">
+            <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
+              3D Coverflow Perspective
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
+              Drag or Click to Navigate
+            </h2>
+          </div>
+
+          <div className="w-full max-w-5xl mx-auto">
+            <CoverflowCarousel
+              slides={coverflowSlides}
+              showCaption={true}
+              showNavigation={true}
+              showPagination={true}
+              cardWidth="clamp(180px, 28vw, 320px)"
+              rotate={42}
+              depth={0.7}
+              perspective={3.2}
+              className="py-4"
+              cardClassName="border-2 border-emerald-500/30 shadow-2xl rounded-3xl"
+            />
+          </div>
+        </div>
+      </section>
+
       <section className="py-20 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              All Photo Collections
+            </h2>
+            <div className="w-16 h-1 bg-emerald-500 mx-auto mt-3 rounded-full" />
+          </div>
+
           <div className="flex flex-wrap justify-center gap-2 mb-10">
             {categories.map((cat) => (
               <button
