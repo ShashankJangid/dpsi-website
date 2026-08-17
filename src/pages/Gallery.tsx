@@ -100,14 +100,18 @@ const coverflowSlides: CoverflowSlide[] = [
 const categories = ["All", "Labs", "Sports", "Library", "Events", "Campus"];
 
 const defaultGalleryItems = [
-  { id: 1, title: "Futuristic AI & Robotics Lab", category: "Labs", imageUrl: "/images/facilities/ai_robotics_lab.webp" },
-  { id: 2, title: "Quantum Science Laboratory", category: "Labs", imageUrl: "/images/facilities/quantum_science_lab.webp" },
-  { id: 3, title: "Interactive Smart Classroom", category: "Campus", imageUrl: "/images/facilities/smart_classroom.webp" },
-  { id: 4, title: "Times Education Award 2024", category: "Events", imageUrl: "/images/dps/slider_2.webp" },
-  { id: 5, title: "School Main Campus Building", category: "Campus", imageUrl: "/images/dps/about_us.webp" },
-  { id: 6, title: "Annual Cultural & Sports Meet", category: "Sports", imageUrl: "/images/dps/slider_5.webp" },
-  { id: 7, title: "NEET & JEE Top Achievers", category: "Events", imageUrl: "/images/dps/event_jeea.webp" },
-  { id: 8, title: "DPS Indirapuram Block", category: "Campus", imageUrl: "/images/dps/slider_6.webp" },
+  { id: 1, title: "AI & Robotics Innovation Lab", category: "Labs", imageUrl: "/images/facilities/ai_robotics_lab.webp" },
+  { id: 2, title: "State-of-the-Art Science Research Lab", category: "Labs", imageUrl: "/images/facilities/quantum_science_lab.webp" },
+  { id: 3, title: "Interactive 4K Smart Classroom", category: "Campus", imageUrl: "/images/facilities/smart_classroom.webp" },
+  { id: 4, title: "Olympic Aquatic Center", category: "Sports", imageUrl: "/images/facilities/swimming_pool.webp" },
+  { id: 5, title: "Multi-Sport Athletics Arena", category: "Sports", imageUrl: "/images/facilities/sports_complex.webp" },
+  { id: 6, title: "Central Digital Knowledge Hub", category: "Library", imageUrl: "/images/facilities/library.webp" },
+  { id: 7, title: "Grand Auditorium & Symposium Hall", category: "Events", imageUrl: "/images/facilities/auditorium.webp" },
+  { id: 8, title: "Performing Arts & Music Studio", category: "Events", imageUrl: "/images/facilities/music_dance.webp" },
+  { id: 9, title: "Fine Art & Creative Design Studio", category: "Campus", imageUrl: "/images/facilities/art_craft_studio.webp" },
+  { id: 10, title: "GPS-Enabled AC Transit Fleet", category: "Campus", imageUrl: "/images/facilities/transport_bus.webp" },
+  { id: 11, title: "Times Education Awards 2024", category: "Events", imageUrl: "/images/dps/slider_2.webp" },
+  { id: 12, title: "DPS Indirapuram Main Campus", category: "Campus", imageUrl: "/images/dps/about_us.webp" },
 ];
 
 export default function Gallery() {

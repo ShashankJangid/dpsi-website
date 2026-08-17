@@ -31,7 +31,7 @@ const facilityData = [
     description: "Olympic-standard swimming arena, multi-sport indoor courts, and FIFA-standard turf fields.",
     color: "#065f46",
     accent: "#f59e0b",
-    image: "/images/dps/slider_5.webp",
+    image: "/images/facilities/swimming_pool.webp",
     geometry: "dodecahedron"
   }
 ];

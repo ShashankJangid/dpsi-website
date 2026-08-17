@@ -5,16 +5,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import Facilities3D from "@/components/3d/Facilities3D";
 
 const facilities = [
-  { icon: <Microscope className="w-8 h-8" />, title: "Futuristic AI & Robotics Lab", desc: "Next-gen AI/ML research center equipped with humanoid robots, holographic code stations, 3D printers, and expert mentors.", image: "/images/facilities/ai_robotics_lab.webp" },
+  { icon: <Microscope className="w-8 h-8" />, title: "Futuristic AI & Robotics Lab", desc: "Next-gen AI/ML research center equipped with humanoid robots, Arduino/Raspberry Pi workstations, 3D printers, and expert mentors.", image: "/images/facilities/ai_robotics_lab.webp" },
   { icon: <FlaskConical className="w-8 h-8" />, title: "Quantum Science Lab (Upcoming)", desc: "Upcoming next-generation research laboratory planned with laser optics, digital micro-analysis, and modern safety systems.", image: "/images/facilities/quantum_science_lab.webp", isUpcoming: true },
-  { icon: <Wifi className="w-8 h-8" />, title: "Next-Gen Smart Classrooms", desc: "Equipped with interactive AR/VR learning pods, curved glass touchboards, and high-speed gigabit connectivity.", image: "/images/facilities/smart_classroom.webp" },
-  { icon: <Dumbbell className="w-8 h-8" />, title: "Sports & Aquatic Complex", desc: "Olympic-size swimming pool, basketball courts, cricket ground, athletics track, and indoor badminton courts.", image: "/images/dps/slider_5.webp" },
-  { icon: <BookOpen className="w-8 h-8" />, title: "Digital Knowledge Library", desc: "A vast repository of 50,000+ books, digital archives, e-journals, and quiet reading spaces for focused study.", image: "/images/dps/about_us.webp" },
-  { icon: <Music className="w-8 h-8" />, title: "Performing Arts & Music", desc: "Professional music rooms, dance studios, and an auditorium with stage lighting and acoustics.", image: "/images/dps/slider_6.webp" },
-  { icon: <Palette className="w-8 h-8" />, title: "Art & Craft Studio", desc: "Spacious art studios for painting, sculpture, pottery, and craft with professional-grade materials.", image: "/images/dps/event_neet.webp" },
-  { icon: <Bus className="w-8 h-8" />, title: "GPS AC Transportation", desc: "Fleet of 50+ GPS-enabled AC buses covering all major areas with trained drivers and attendants.", image: "/images/dps/event_neet2.webp" },
-  { icon: <Shield className="w-8 h-8" />, title: "Campus Safety & Security", desc: "24/7 CCTV surveillance, trained security personnel, fire safety systems, and emergency response protocols.", image: "/images/dps/event_jeea.webp" },
-  { icon: <HeartPulse className="w-8 h-8" />, title: "Health & Medical Center", desc: "On-campus medical facility with qualified nurses, annual health checkups, and counseling services.", image: "/images/dps/international_logo.webp" },
+  { icon: <Wifi className="w-8 h-8" />, title: "Next-Gen Smart Classrooms", desc: "Equipped with interactive digital touchboards, ergonomic learning pods, and high-speed gigabit connectivity.", image: "/images/facilities/smart_classroom.webp" },
+  { icon: <Dumbbell className="w-8 h-8" />, title: "Sports & Aquatic Complex", desc: "Olympic-size swimming pool, basketball courts, cricket ground, athletics track, and indoor badminton courts.", image: "/images/facilities/swimming_pool.webp" },
+  { icon: <BookOpen className="w-8 h-8" />, title: "Digital Knowledge Library", desc: "A vast repository of 50,000+ books, digital archives, e-journals, and quiet reading spaces for focused study.", image: "/images/facilities/library.webp" },
+  { icon: <Music className="w-8 h-8" />, title: "Performing Arts & Music", desc: "Professional music rooms, dance studios, and an auditorium with stage lighting and acoustics.", image: "/images/facilities/music_dance.webp" },
+  { icon: <Palette className="w-8 h-8" />, title: "Art & Craft Studio", desc: "Spacious art studios for painting, sculpture, pottery, and craft with professional-grade materials.", image: "/images/facilities/art_craft_studio.webp" },
+  { icon: <Bus className="w-8 h-8" />, title: "GPS AC Transportation", desc: "Fleet of 50+ GPS-enabled AC buses covering all major areas with trained drivers and attendants.", image: "/images/facilities/transport_bus.webp" },
+  { icon: <Shield className="w-8 h-8" />, title: "Campus Safety & Security", desc: "24/7 CCTV surveillance, trained security personnel, fire safety systems, and emergency response protocols.", image: "/images/facilities/campus_security.webp" },
+  { icon: <HeartPulse className="w-8 h-8" />, title: "Health & Medical Center", desc: "On-campus medical facility with qualified nurses, annual health checkups, and counseling services.", image: "/images/facilities/medical_infirmary.webp" },
 ];
 
 export default function Facilities() {
