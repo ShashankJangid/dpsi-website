@@ -159,24 +159,24 @@ export default function Navbar() {
                   >
                     <Link
                       to={link.href}
-                      className={`relative z-10 px-3.5 py-2 text-sm font-semibold rounded-full transition-colors flex items-center gap-1 ${
+                      className={`relative z-10 px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1 ${
                         isActive
                           ? "text-emerald-800 dark:text-emerald-300"
                           : "text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-400"
                       }`}
                     >
-                      {/* Smooth Gliding Active / Hover Pill Indicator */}
+                      {/* Smooth Gliding Active / Hover Rectangle Indicator */}
                       {isActive && (
                         <motion.div
                           layoutId="navActivePill"
-                          className="absolute inset-0 bg-emerald-100/90 dark:bg-emerald-950/60 border border-emerald-300/60 dark:border-emerald-700/50 rounded-full -z-10 shadow-2xs"
+                          className="absolute inset-0 bg-emerald-100/90 dark:bg-emerald-950/60 border border-emerald-300/60 dark:border-emerald-700/50 rounded-lg -z-10 shadow-2xs"
                           transition={{ type: "spring", stiffness: 380, damping: 30 }}
                         />
                       )}
                       {!isActive && isHovered && (
                         <motion.div
                           layoutId="navHoverPill"
-                          className="absolute inset-0 bg-slate-100/80 dark:bg-slate-800/60 rounded-full -z-10"
+                          className="absolute inset-0 bg-slate-100/80 dark:bg-slate-800/60 rounded-lg -z-10"
                           transition={{ type: "spring", stiffness: 380, damping: 30 }}
                         />
                       )}
