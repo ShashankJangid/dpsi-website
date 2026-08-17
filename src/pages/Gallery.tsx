@@ -127,14 +127,40 @@ export default function Gallery() {
 
   return (
     <Layout>
-      <section className="relative py-24 bg-gradient-to-br from-slate-900 to-emerald-950 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto">
+      <section className="relative py-20 sm:py-24 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 text-white overflow-hidden">
+        {/* Dynamic Background Mesh Orbs */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.15, 0.3, 0.15],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-500/20 blur-3xl pointer-events-none rounded-full"
+        />
+        <motion.div
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.1, 0.25, 0.1],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-24 -left-24 w-96 h-96 bg-amber-500/15 blur-3xl pointer-events-none rounded-full"
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center max-w-3xl mx-auto"
+          >
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
               Interactive Campus Tour
             </span>
-            <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">3D Campus Gallery</h1>
-            <p className="text-base md:text-lg text-slate-300">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-5 tracking-tight text-white">
+              3D Campus Gallery
+            </h1>
+            <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-amber-400 mx-auto rounded-full mb-6" />
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 font-medium leading-relaxed">
               Drag, swipe, and explore the futuristic infrastructure, innovation labs, sports arenas, and vibrant life at DPS Indirapuram.
             </p>
           </motion.div>
