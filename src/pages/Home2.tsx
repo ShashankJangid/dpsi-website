@@ -10,45 +10,58 @@ import CTASection from "@/sections/CTASection";
 import { SplineSceneBasic } from "@/components/ui/demo";
 import { motion } from "framer-motion";
 import { Bot, Cpu, Rocket } from "lucide-react";
+import { Link } from "react-router";
 
 export default function Home2() {
   return (
     <Layout>
       <AnnouncementsBar />
       
-      {/* Interactive 3D Spline Scene Hero Banner Section (Light Color Theme) */}
-      <section className="w-full py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-sky-50 via-slate-50 to-white text-slate-900 border-b border-sky-200/60 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto">
+      {/* UNBOXED 3D ROBOTICS HERO SECTION */}
+      <section className="w-full py-10 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-sky-50/70 via-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white border-b border-sky-200/50 dark:border-slate-800 relative overflow-hidden">
+        {/* Ambient Top Glow Grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(#0284c7_1px,transparent_1px)] [background-size:32px_32px] opacity-10 pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
           {/* Header intro badge */}
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center px-3.5 py-1 rounded-full bg-sky-100 border border-sky-300 text-sky-800 text-xs font-extrabold tracking-wide uppercase shadow-2xs">
-                Home 2.0 Experience
+              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/70 border border-sky-300 dark:border-sky-700 text-sky-800 dark:text-sky-300 text-xs font-black tracking-wider uppercase shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+                Home 2.0 • 3D Spatial Experience
               </span>
-              <span className="text-xs text-slate-600 font-semibold hidden sm:inline-block">
-                Interactive 3D Robotics & WebGL Interface
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:inline-block">
+                Move cursor anywhere to interact with the 3D Robot
               </span>
             </div>
+
+            <Link
+              to="/"
+              className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors flex items-center gap-1"
+            >
+              Switch to Classic Home →
+            </Link>
           </div>
 
-          {/* Spline 3D Component */}
+          {/* Unboxed Spline 3D Component */}
           <SplineSceneBasic />
 
           {/* Quick 3D Tech Feature Highlights */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-10">
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
-              className="p-4 rounded-2xl bg-white/95 border border-sky-200/80 shadow-md backdrop-blur-md flex items-center gap-3.5"
+              whileHover={{ y: -4 }}
+              className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-sky-200/80 dark:border-slate-800 shadow-lg backdrop-blur-xl flex items-center gap-4 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-sky-100 border border-sky-300 flex items-center justify-center text-sky-700 shrink-0 shadow-2xs">
-                <Bot className="w-5 h-5" />
+              <div className="w-12 h-12 rounded-2xl bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-700 flex items-center justify-center text-sky-700 dark:text-sky-300 shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                <Bot className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900">Humanoid Robotics</h4>
-                <p className="text-xs text-slate-500 font-medium">AI Lab C-Block 3rd Floor</p>
+                <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Humanoid Robotics</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">AI Lab • C-Block 3rd Floor</p>
               </div>
             </motion.div>
 
@@ -57,14 +70,15 @@ export default function Home2() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="p-4 rounded-2xl bg-white/95 border border-sky-200/80 shadow-md backdrop-blur-md flex items-center gap-3.5"
+              whileHover={{ y: -4 }}
+              className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-blue-200/80 dark:border-slate-800 shadow-lg backdrop-blur-xl flex items-center gap-4 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-700 shrink-0 shadow-2xs">
-                <Cpu className="w-5 h-5" />
+              <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/80 border border-blue-300 dark:border-blue-700 flex items-center justify-center text-blue-700 dark:text-blue-300 shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                <Cpu className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900">MakerSpace Lab</h4>
-                <p className="text-xs text-slate-500 font-medium">Flight Simulators & IoT (A-Block 2nd Fl)</p>
+                <h4 className="font-extrabold text-base text-slate-900 dark:text-white">MakerSpace Lab</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Flight Simulators • A-Block 2nd Fl</p>
               </div>
             </motion.div>
 
@@ -73,20 +87,22 @@ export default function Home2() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="p-4 rounded-2xl bg-white/95 border border-sky-200/80 shadow-md backdrop-blur-md flex items-center gap-3.5"
+              whileHover={{ y: -4 }}
+              className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-emerald-200/80 dark:border-slate-800 shadow-lg backdrop-blur-xl flex items-center gap-4 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
-                <Rocket className="w-5 h-5" />
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 flex items-center justify-center text-emerald-700 dark:text-emerald-300 shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                <Rocket className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900">Smart Innovation</h4>
-                <p className="text-xs text-slate-500 font-medium">Next-Gen STEAM Curriculum</p>
+                <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Next-Gen Curriculum</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">STEAM & Experiential Learning</p>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
+      {/* CORE WEBSITE SECTIONS */}
       <QuickStats />
       <NewsHighlights />
       <PrincipalMessage />
