@@ -20,19 +20,19 @@ interface Message {
   actionType?: "call" | "email" | "link";
 }
 
-// Dynamic Action Helper for Action Buttons
-function getDynamicAction(query: string, text: string) {
-  const combined = (query + " " + text).toLowerCase();
-  if (combined.includes("calendar") || combined.includes("exam") || combined.includes("test") || combined.includes("holiday") || combined.includes("vacation") || combined.includes("break") || combined.includes("ptm") || combined.includes("reopen") || combined.includes("preboard") || combined.includes("pre-board") || combined.includes("annual")) {
+// Dynamic Action Helper for Action Buttons - only shown when explicitly requested/relevant
+function getDynamicAction(query: string, text?: string) {
+  const q = (query + " " + (text || "")).toLowerCase();
+  if (q.includes("calendar link") || q.includes("download calendar") || q.includes("academic calendar pdf") || q.includes("schedule pdf")) {
     return { actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf", actionType: "link" as const };
   }
-  if (combined.includes("admiss") || combined.includes("apply") || combined.includes("fee") || combined.includes("portal") || combined.includes("login") || combined.includes("register")) {
+  if (q.includes("how to apply") || q.includes("admission link") || q.includes("registration link") || q.includes("admission portal") || q.includes("admission form")) {
     return { actionUrl: "https://www.dpsindirapuram.com/page/admission-procedure", actionType: "link" as const };
   }
-  if (combined.includes("contact") || combined.includes("phone") || combined.includes("call") || combined.includes("bus") || combined.includes("transport")) {
+  if (q.includes("contact number") || q.includes("phone number") || q.includes("call school") || q.includes("phone no")) {
     return { actionUrl: "tel:+9101204660000", actionType: "call" as const };
   }
-  if (combined.includes("email") || combined.includes("mail") || combined.includes("stream")) {
+  if (q.includes("email id") || q.includes("email address") || q.includes("send email")) {
     return { actionUrl: "mailto:info@dpsindirapuram.com", actionType: "email" as const };
   }
   return { actionUrl: undefined, actionType: undefined };
@@ -88,38 +88,54 @@ export default function AIChatWidget() {
       .replace(/\s+/g, " ")
       .trim();
 
+    // Detect if the response contains Hindi (Devanagari script) or Indian English
+    const hasHindi = /[\u0900-\u097F]/.test(cleanText);
+
     const utterance = new SpeechSynthesisUtterance(cleanText);
 
     const voices = window.speechSynthesis.getVoices();
     if (voices && voices.length > 0) {
-      // Prioritize ultra-realistic, natural, neural female voices across browsers and OS
-      const realisticVoice =
-        voices.find((v) => v.name.includes("Jenny") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
-        voices.find((v) => v.name.includes("Aria") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
-        voices.find((v) => v.name.includes("Neerja") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
-        voices.find((v) => v.name.includes("Sonia") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
-        voices.find((v) => v.name.includes("Serena") && v.name.includes("Premium")) ||
-        voices.find((v) => v.name.includes("Samantha") && (v.name.includes("Premium") || v.name.includes("Enhanced"))) ||
-        voices.find((v) => v.name.toLowerCase().includes("samantha")) ||
-        voices.find((v) => v.name.toLowerCase().includes("google us english")) ||
-        voices.find((v) => v.name.toLowerCase().includes("google uk english female")) ||
-        voices.find((v) => v.name.toLowerCase().includes("serena") || v.name.toLowerCase().includes("tessa") || v.name.toLowerCase().includes("ava")) ||
-        voices.find((v) => v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("karen") || v.name.toLowerCase().includes("zoe")) ||
-        voices.find((v) => (v.lang.includes("en-IN") || v.lang.includes("en_IN")) && v.name.toLowerCase().includes("female")) ||
-        voices.find((v) => v.lang.includes("en-IN") || v.lang.includes("en_IN")) ||
-        voices.find((v) => v.lang.startsWith("en"));
+      if (hasHindi) {
+        // Prioritize natural Indian Hindi female voices
+        const hindiVoice =
+          voices.find((v) => (v.lang === "hi-IN" || v.lang === "hi_IN" || v.lang.startsWith("hi")) && (v.name.includes("Swara") || v.name.includes("Madhur") || v.name.includes("Kalpana") || v.name.includes("Hemant") || v.name.toLowerCase().includes("female") || v.name.includes("Natural") || v.name.includes("Neural"))) ||
+          voices.find((v) => v.lang === "hi-IN" || v.lang === "hi_IN" || v.lang.startsWith("hi")) ||
+          voices.find((v) => (v.lang.includes("en-IN") || v.lang.includes("en_IN")) && v.name.toLowerCase().includes("female")) ||
+          voices.find((v) => v.lang.includes("en-IN") || v.lang.includes("en_IN"));
 
-      if (realisticVoice) {
-        utterance.voice = realisticVoice;
-        utterance.lang = realisticVoice.lang;
+        if (hindiVoice) {
+          utterance.voice = hindiVoice;
+          utterance.lang = hindiVoice.lang;
+        } else {
+          utterance.lang = "hi-IN";
+        }
+      } else {
+        // Prioritize natural, sweet, warm Indian / English female voices
+        const indianFemaleVoice =
+          voices.find((v) => (v.lang.includes("en-IN") || v.lang.includes("en_IN")) && (v.name.includes("Neerja") || v.name.includes("Sonia") || v.name.includes("Heera") || v.name.includes("Veena") || v.name.includes("Kavya") || v.name.includes("Natural") || v.name.includes("Neural") || v.name.toLowerCase().includes("female"))) ||
+          voices.find((v) => v.name.includes("Jenny") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
+          voices.find((v) => v.name.includes("Aria") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
+          voices.find((v) => (v.lang.includes("en-IN") || v.lang.includes("en_IN"))) ||
+          voices.find((v) => v.name.includes("Samantha") && (v.name.includes("Premium") || v.name.includes("Enhanced"))) ||
+          voices.find((v) => v.name.toLowerCase().includes("samantha")) ||
+          voices.find((v) => v.name.toLowerCase().includes("google uk english female")) ||
+          voices.find((v) => v.name.toLowerCase().includes("google us english")) ||
+          voices.find((v) => v.lang.startsWith("en"));
+
+        if (indianFemaleVoice) {
+          utterance.voice = indianFemaleVoice;
+          utterance.lang = indianFemaleVoice.lang;
+        } else {
+          utterance.lang = "en-IN";
+        }
       }
     } else {
-      utterance.lang = "en-IN";
+      utterance.lang = hasHindi ? "hi-IN" : "en-IN";
     }
 
-    // Ultra-realistic natural human speech prosody
-    utterance.rate = 0.93; // Conversational, human cadence
-    utterance.pitch = 1.05; // Warm, natural human pitch
+    // Natural, warm, fluent prosody
+    utterance.rate = 0.95; // Friendly conversational speed
+    utterance.pitch = 1.05; // Sweet, warm, natural pitch
     utterance.volume = 1.0;
 
     window.speechSynthesis.speak(utterance);
@@ -276,24 +292,21 @@ export default function AIChatWidget() {
 
     try {
       const systemPrompt = `You are DPSI AI, the official conversational AI assistant for Delhi Public School Indirapuram (DPS Indirapuram), Ghaziabad.
-Your job is to provide accurate, warm, concise, and helpful answers to students, parents, and visitors about DPS Indirapuram.
-Keep your responses friendly, professional, and under 3-4 sentences max. Do NOT write raw HTTP URLs in your text responses (a clean interactive button will automatically be provided below your message).
-
-CRITICAL RULE FOR LOCATIONS: Do NOT mention location details (such as floor numbers, block letters like C-Block 3rd Floor, A-Block 2nd Floor, B-Block Ground Floor, or address) UNLESS the user explicitly asks for the location, address, or where a facility/lab is situated.
+Your job is to provide accurate, warm, polite, and helpful answers to students, parents, and visitors about DPS Indirapuram.
+Language Instruction:
+- If the user talks in Hindi or Hinglish (e.g., "नमस्ते", "स्कूल कब खुलेगा", "Principal kaun hai?"), reply in fluent, polite, and natural Hindi / Hinglish.
+- If the user talks in English, reply in fluent, warm, and professional English.
+- Keep your answers concise, clear, and between 2 to 3 sentences maximum.
+- Never use markdown asterisks (* or **), hashtags, or bullet stars. Always output clean, smooth conversational text.
 
 Detailed Knowledge Base & School Info:
-- AI & Robotics Innovation Lab: Located on the 3rd Floor of C-Block. Equipped with Humanoid Robots, Robotic Quadruped Dogs, Multi-axis Robotic Arms, Raspberry Pi kits, 3D printers, Python Machine Learning & AI workstations, IoT sensor modules, drone programming setups, and expert mentors for Class VI to XII (Class 6-12).
-- MakerSpace Lab: Located on the 2nd Floor of A-Block. A creative engineering space where students turn imagination into reality, building real-world projects such as Hydroponic Smart Farming Systems, Cockpit Flight Simulators, Robotic Arms, Autonomous Line Following Cars, IoT automation, and innovative robotics.
-- Design & Technology (D&T) Lab: Located on the 2nd Floor of A-Block.
-- School Canteen: Located on the Ground Floor of B-Block.
-- Main Reception: Located on the Ground Floor of B-Block.
-- Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Fill out the online registration form on our official portal: https://www.dpsindirapuram.com/page/admission-procedure
-- Fee Structure & Payment: Quarterly school fees payable online via the SchoolsOS portal. Fee desk email: info@dpsindirapuram.com
-- Class XI Streams: 3 Streams Offered: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).
-- CBSE Board Results: 100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%. Commerce topper 98.2%, Humanities topper 97.6%.
-- Facilities & Infrastructure: AI & Robotics Innovation Lab (C-Block 3rd Floor), MakerSpace & D&T Labs (A-Block 2nd Floor), Main Reception & Canteen (B-Block Ground Floor), Olympic-size swimming pool, 50+ GPS AC buses, 24/7 CCTV & resident medical infirmary.
-- Leadership: Principal Ms. Priya Elizabeth John, Pro-Vice Chairperson Ms. Santosh Bansal, Chairman Mr. V.K. Shunglu.
-- Location & Contact: Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014. Call +91-0120-4660000 | Email info@dpsindirapuram.com.
+- Leadership: Principal is Ms. Priya Elizabeth John, Pro-Vice Chairperson Ms. Santosh Bansal, Chairman Mr. V.K. Shunglu.
+- Admissions 2026-27: OPEN for Pre-Nursery to Class IX & XI. Fill out online registration on school portal.
+- AI & Robotics Innovation Lab: Equipped with Humanoid Robots, Quadruped Robot Dogs, 3D printers, Python Machine Learning workstations, and IoT sensors for Class VI to XII.
+- MakerSpace Lab: Creative engineering lab with Cockpit Flight Simulators, Hydroponic Smart Farming, and autonomous robotics.
+- Streams Offered for Class XI: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), & Humanities (Psychology, Legal Studies).
+- CBSE Board Results: 100% Pass Record in CBSE. School Toppers Siddhant Tiwari & Ansh Pathak scored 99.4%.
+- Contact: Phone +91-0120-4660000 | Email info@dpsindirapuram.com | Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad UP 201014.
 
 ${calendarContext}`;
 
@@ -313,14 +326,15 @@ ${calendarContext}`;
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            model: "openai/gpt-oss-120b",
+            model: "qwen/qwen3.6-27b",
             messages: [
               { role: "system", content: systemPrompt },
               ...formattedHistory,
               { role: "user", content: query },
             ],
             temperature: 0.5,
-            max_tokens: 350,
+            max_tokens: 300,
+            reasoning_effort: "none",
           }),
         });
 
@@ -354,56 +368,56 @@ ${calendarContext}`;
 
     if (lower.includes("calendar") || lower.includes("academic year") || lower.includes("schedule")) {
       return {
-        answer: "The DPS Indirapuram Academic Year 2026-27 begins in April 2026 for all classes. It features regular Periodic Tests (PT), Mid-Term & Half Yearly exams in September, Pre-Board exams in December/January, and Annual exams concluding in February-March 2027.",
-        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
-        actionType: "link" as const
+        answer: "The DPS Indirapuram Academic Year 2026-27 begins in April 2026 for all classes. It features regular Periodic Tests, Mid-Term & Half Yearly exams in September, Pre-Board exams in December/January, and Annual exams concluding in February-March 2027.",
+        actionUrl: fallbackAction.actionUrl,
+        actionType: fallbackAction.actionType
       };
     }
 
     if (lower.includes("summer") || lower.includes("vacation")) {
       return {
-        answer: "Summer break begins in late May 2026 (Nursery to Class XII). School reopens after summer break in June 2026 for Classes X & XII, and in July 2026 for Nursery to Class IX and Class XI.",
-        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
-        actionType: "link" as const
+        answer: "Summer break begins in late May 2026 for all classes (Nursery to XII). School reopens after summer break in June 2026 for Classes X & XII, and in July 2026 for Nursery to Class IX and Class XI.",
+        actionUrl: fallbackAction.actionUrl,
+        actionType: fallbackAction.actionType
       };
     }
 
     if (lower.includes("winter") || lower.includes("winter break")) {
       return {
-        answer: "Winter break begins towards the end of December 2026 for all classes (Nursery to XII). Classes IX to XII reopen in early January 2027, followed by Nursery to Class VIII reopening in mid-January 2027.",
-        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
-        actionType: "link" as const
+        answer: "Winter break begins towards the end of December 2026 for all classes. Classes IX to XII reopen in early January 2027, followed by Nursery to Class VIII in mid-January 2027.",
+        actionUrl: fallbackAction.actionUrl,
+        actionType: fallbackAction.actionType
       };
     }
 
     if (lower.includes("exam") || lower.includes("test") || lower.includes("half yearly") || lower.includes("preboard") || lower.includes("annual")) {
       return {
-        answer: "Periodic Tests (PT) are held across April, May, July, and November. Half Yearly exams take place in September 2026, Pre-Boards (PB-1 and PB-2) for Classes X & XII take place in December 2026 and January 2027, and Annual Final Exams occur in January-March 2027.",
-        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
-        actionType: "link" as const
+        answer: "Periodic Tests are held across April, May, July, and November. Half Yearly exams take place in September 2026, Pre-Boards for Classes X & XII occur in December 2026 and January 2027, and Annual Final Exams occur in January-March 2027.",
+        actionUrl: fallbackAction.actionUrl,
+        actionType: fallbackAction.actionType
       };
     }
 
     if (lower.includes("ptm") || lower.includes("parent teacher")) {
       return {
-        answer: "Parent-Teacher Meetings (PTMs) are scheduled in May, August, September, October, November, December, January, and March following key assessment cycles with answer script viewings.",
-        actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
-        actionType: "link" as const
+        answer: "Parent-Teacher Meetings (PTMs) are scheduled regularly throughout the academic session following key assessment cycles with answer script viewings.",
+        actionUrl: fallbackAction.actionUrl,
+        actionType: fallbackAction.actionType
       };
     }
 
     if (lower.includes("admiss") || lower.includes("apply") || lower.includes("register")) {
       return {
-        answer: "Admissions for the 2026-27 academic session are currently open from Pre-Nursery to Class IX and Class XI. You can register online through the official admission portal.",
-        actionUrl: "https://www.dpsindirapuram.com/page/admission-procedure",
-        actionType: "link" as const
+        answer: "Admissions for the 2026-27 academic session are currently open from Pre-Nursery to Class IX and Class XI through the official school admission portal.",
+        actionUrl: fallbackAction.actionUrl,
+        actionType: fallbackAction.actionType
       };
     }
 
     return {
-      answer: "I am DPSI AI. I can assist you with our Annual Academic Calendar, Exam Schedules, Admissions 2026-27, Streams, and School Facilities! How may I help you today?",
-      actionUrl: fallbackAction.actionUrl || "tel:+9101204660000",
-      actionType: fallbackAction.actionType || ("call" as const)
+      answer: "नमस्ते! I am DPSI AI. You can ask me about Admissions 2026-27, Academic Calendar, Exam Schedules, Streams, or Facilities in both English and Hindi. How can I assist you today?",
+      actionUrl: fallbackAction.actionUrl,
+      actionType: fallbackAction.actionType
     };
   };
 
