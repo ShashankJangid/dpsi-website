@@ -61,7 +61,16 @@ Keep your answers friendly, concise (2-4 sentences max), and directly address th
         }
 
         const data = (await response.json()) as GroqApiResponse;
-        const replyText = data?.choices?.[0]?.message?.content || "I am here to help you with DPS Indirapuram. How can I assist you?";
+        let replyText = data?.choices?.[0]?.message?.content || "I am here to help you with DPS Indirapuram. How can I assist you?";
+        replyText = replyText
+          .replace(/\*\*(.*?)\*\*/g, "$1")
+          .replace(/\*(.*?)\*/g, "$1")
+          .replace(/#{1,6}\s+/g, "")
+          .replace(/`{1,3}/g, "")
+          .replace(/^\s*[-*]\s+/gm, "• ")
+          .replace(/\*/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
         return { answer: replyText };
       } catch (error) {
         console.error("Error calling Groq API:", error);

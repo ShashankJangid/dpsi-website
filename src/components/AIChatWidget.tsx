@@ -326,10 +326,21 @@ ${calendarContext}`;
 
         if (res.ok) {
           const data = await res.json();
-          const text = data?.choices?.[0]?.message?.content;
+          let text = data?.choices?.[0]?.message?.content;
           if (text && text.trim()) {
-            const action = getDynamicAction(query, text.trim());
-            return { answer: text.trim(), actionUrl: action.actionUrl, actionType: action.actionType };
+            // Strip markdown asterisks (bold/italic ** or *), hashtags, backticks, and bullet asterisks
+            text = text
+              .replace(/\*\*(.*?)\*\*/g, "$1")
+              .replace(/\*(.*?)\*/g, "$1")
+              .replace(/#{1,6}\s+/g, "")
+              .replace(/`{1,3}/g, "")
+              .replace(/^\s*[-*]\s+/gm, "• ")
+              .replace(/\*/g, "")
+              .replace(/\s+/g, " ")
+              .trim();
+
+            const action = getDynamicAction(query, text);
+            return { answer: text, actionUrl: action.actionUrl, actionType: action.actionType };
           }
         }
       }
@@ -527,8 +538,17 @@ ${calendarContext}`;
                       }`}
                     >
                       <p className="whitespace-pre-wrap break-words [word-break:break-word]">
-                        {msg.role === "assistant" && msg.actionUrl
-                          ? msg.text.replace(/https?:\/\/\S+/g, "").replace(/:\s*(\.|\s*$)/g, ".").replace(/\s+/g, " ").trim()
+                        {msg.role === "assistant"
+                          ? msg.text
+                              .replace(/\*\*(.*?)\*\*/g, "$1")
+                              .replace(/\*(.*?)\*/g, "$1")
+                              .replace(/\*/g, "")
+                              .replace(/#{1,6}\s+/g, "")
+                              .replace(/`{1,3}/g, "")
+                              .replace(/https?:\/\/\S+/g, "")
+                              .replace(/:\s*(\.|\s*$)/g, ".")
+                              .replace(/\s+/g, " ")
+                              .trim()
                           : msg.text}
                       </p>
                       {msg.isStreaming && (
