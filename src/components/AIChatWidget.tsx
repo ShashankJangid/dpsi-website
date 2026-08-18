@@ -313,7 +313,7 @@ ${calendarContext}`;
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
+            model: "openai/gpt-oss-120b",
             messages: [
               { role: "system", content: systemPrompt },
               ...formattedHistory,
@@ -333,8 +333,8 @@ ${calendarContext}`;
           }
         }
       }
-    } catch (err) {
-      console.warn("Groq API call error:", err);
+    } catch {
+      // Gracefully fall back without console noise
     }
 
     // Comprehensive smart local fallback answers grounded in the official academic calendar and school records

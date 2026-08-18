@@ -47,7 +47,7 @@ Keep your answers friendly, concise (2-4 sentences max), and directly address th
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
+            model: "openai/gpt-oss-120b",
             messages: messagesPayload,
             temperature: 0.5,
             max_tokens: 350,
