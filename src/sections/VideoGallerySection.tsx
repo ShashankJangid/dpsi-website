@@ -51,7 +51,7 @@ export default function VideoGallerySection() {
             transition={{ duration: 0.5 }}
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-600/10 border border-sky-300 text-sky-800 text-xs font-bold uppercase tracking-wider mb-3 shadow-2xs">
-              🎬 School Video Showcase
+              School Video Showcase
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-sky-950 tracking-tight font-serif">
               Experience Life at DPS Indirapuram

@@ -22,7 +22,7 @@ const quickLinks = [
 ];
 
 const resources = [
-  { label: "SchoolsOS Portal Login 🔒", href: "https://dpsindp.schoolforschools.ai/login", external: true },
+  { label: "SchoolsOS Portal Login", href: "https://dpsindp.schoolforschools.ai/login", external: true },
   { label: "Event Calendar", href: "/news-events" },
   { label: "Mandatory Public Disclosure", href: "#" },
   { label: "Careers", href: "#" },

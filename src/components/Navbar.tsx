@@ -100,7 +100,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded shadow-md transition-all font-extrabold"
             >
-              SchoolsOS Login 🔒
+              SchoolsOS Login
             </motion.a>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link to="/admissions" className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-all block">
