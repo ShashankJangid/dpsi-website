@@ -11,7 +11,7 @@ const coverflowSlides: CoverflowSlide[] = [
     src: "/images/facilities/ai_robotics_lab.webp",
     alt: "Futuristic AI & Robotics Innovation Lab",
     title: "AI & Robotics Innovation Lab",
-    subtitle: "Equipped with Humanoids, Raspberry Pi & 3D Printers • C-Block 3rd Floor",
+    subtitle: "Equipped with Humanoids, Raspberry Pi & 3D Printers",
     meta: [
       { label: "Category", value: "Innovation & Robotics" },
       { label: "Eligibility", value: "Class VI to XII" },

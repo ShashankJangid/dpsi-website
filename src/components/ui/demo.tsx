@@ -55,7 +55,7 @@ export function SplineSceneBasic() {
               <Cpu className="w-3.5 h-3.5 text-sky-500" /> Quadruped Robot Dogs
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold shadow-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> C-Block 3rd Floor
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> AI Innovation Center
             </span>
           </div>
 
@@ -95,20 +95,6 @@ export function SplineSceneBasic() {
               className="w-full h-full"
             />
           </div>
-
-          {/* Floating Interactive Status Indicator */}
-          <motion.div
-            animate={{
-              y: [0, -8, 0],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 px-4 py-2 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-sky-400/40 shadow-2xl flex items-center gap-2.5 pointer-events-none z-20"
-          >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-xs font-black text-slate-900 dark:text-white tracking-wide">
-              Ultra HD • Realtime Tracking
-            </span>
-          </motion.div>
         </div>
       </div>
     </div>

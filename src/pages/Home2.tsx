@@ -40,7 +40,7 @@ export default function Home2() {
               </div>
               <div>
                 <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Humanoid Robotics</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">AI Lab • C-Block 3rd Floor</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">AI Innovation Lab</p>
               </div>
             </motion.div>
 
@@ -57,7 +57,7 @@ export default function Home2() {
               </div>
               <div>
                 <h4 className="font-extrabold text-base text-slate-900 dark:text-white">MakerSpace Lab</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Flight Simulators • A-Block 2nd Fl</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Flight Simulators & D&T</p>
               </div>
             </motion.div>
 
