@@ -57,8 +57,9 @@ export default function AIChatWidget() {
   const recognitionRef = useRef<any>(null);
   const transcriptRef = useRef<string>("");
 
-  // Single-speak Voice Response Helper with Warm Indian / High-Quality Natural Voice Selection
+  // Single-speak Voice Response Helper with ElevenLabs (Voice ID: MF4J4IDTRo0AxOO4dpFR) & Neural Browser Fallback
   const spokenResponseRef = useRef<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -69,14 +70,22 @@ export default function AIChatWidget() {
     }
   }, []);
 
-  const speakAnswerOnce = (text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  const speakAnswerOnce = async (text: string) => {
+    if (typeof window === "undefined") return;
     if (spokenResponseRef.current === text) return;
 
     spokenResponseRef.current = text;
-    window.speechSynthesis.cancel();
 
-    // Clean markdown, URLs, and normalize acronyms for ultra-realistic human pronunciation
+    // Stop any existing audio or speech synthesis
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+
+    // Clean markdown, URLs, and normalize acronyms for ultra-realistic pronunciation
     const cleanText = text
       .replace(/https?:\/\/\S+/g, "")
       .replace(/[*_#`~[\]()|]/g, " ")
@@ -88,15 +97,56 @@ export default function AIChatWidget() {
       .replace(/\s+/g, " ")
       .trim();
 
-    // Detect if the response contains Hindi (Devanagari script) or Indian English
+    if (!cleanText) return;
+
+    const elevenLabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || "";
+    const voiceId = "MF4J4IDTRo0AxOO4dpFR"; // Requested Indian female voice
+
+    // If ElevenLabs API Key is present, stream the studio-quality voice audio
+    if (elevenLabsApiKey) {
+      try {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+          method: "POST",
+          headers: {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": elevenLabsApiKey,
+          },
+          body: JSON.stringify({
+            text: cleanText,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+              style: 0.2,
+              use_speaker_boost: true,
+            },
+          }),
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const audioUrl = URL.createObjectURL(blob);
+          const audio = new Audio(audioUrl);
+          audioRef.current = audio;
+          audio.play().catch(() => {
+            // If autoplay is blocked, fall back gracefully
+          });
+          return;
+        }
+      } catch {
+        // Fallback to browser neural TTS below
+      }
+    }
+
+    // Fallback: Ultra-realistic Sweet Indian Female Browser TTS (Supporting both Hindi & English)
+    if (!("speechSynthesis" in window)) return;
     const hasHindi = /[\u0900-\u097F]/.test(cleanText);
-
     const utterance = new SpeechSynthesisUtterance(cleanText);
-
     const voices = window.speechSynthesis.getVoices();
+
     if (voices && voices.length > 0) {
       if (hasHindi) {
-        // Prioritize natural Indian Hindi female voices
         const hindiVoice =
           voices.find((v) => (v.lang === "hi-IN" || v.lang === "hi_IN" || v.lang.startsWith("hi")) && (v.name.includes("Swara") || v.name.includes("Madhur") || v.name.includes("Kalpana") || v.name.includes("Hemant") || v.name.toLowerCase().includes("female") || v.name.includes("Natural") || v.name.includes("Neural"))) ||
           voices.find((v) => v.lang === "hi-IN" || v.lang === "hi_IN" || v.lang.startsWith("hi")) ||
@@ -110,7 +160,6 @@ export default function AIChatWidget() {
           utterance.lang = "hi-IN";
         }
       } else {
-        // Prioritize natural, sweet, warm Indian / English female voices
         const indianFemaleVoice =
           voices.find((v) => (v.lang.includes("en-IN") || v.lang.includes("en_IN")) && (v.name.includes("Neerja") || v.name.includes("Sonia") || v.name.includes("Heera") || v.name.includes("Veena") || v.name.includes("Kavya") || v.name.includes("Natural") || v.name.includes("Neural") || v.name.toLowerCase().includes("female"))) ||
           voices.find((v) => v.name.includes("Jenny") && (v.name.includes("Natural") || v.name.includes("Neural"))) ||
@@ -133,9 +182,8 @@ export default function AIChatWidget() {
       utterance.lang = hasHindi ? "hi-IN" : "en-IN";
     }
 
-    // Natural, warm, fluent prosody
-    utterance.rate = 0.95; // Friendly conversational speed
-    utterance.pitch = 1.05; // Sweet, warm, natural pitch
+    utterance.rate = 0.95;
+    utterance.pitch = 1.05;
     utterance.volume = 1.0;
 
     window.speechSynthesis.speak(utterance);
@@ -227,6 +275,10 @@ export default function AIChatWidget() {
 
   useEffect(() => {
     if (!isOpen) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
@@ -249,6 +301,10 @@ export default function AIChatWidget() {
   }, [isOpen]);
 
   const handleClose = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
@@ -270,6 +326,10 @@ export default function AIChatWidget() {
   };
 
   const handleResetChat = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
