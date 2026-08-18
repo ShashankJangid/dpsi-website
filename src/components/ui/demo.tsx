@@ -24,7 +24,8 @@ export function SplineSceneBasic() {
         {/* Left Content Area - Elevated Glassmorphism */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="flex-1 max-w-xl py-4 lg:py-10 pointer-events-auto z-20"
         >

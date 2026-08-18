@@ -229,6 +229,7 @@ export default function AIChatWidget() {
       setIsTyping(false);
       isProcessingRef.current = false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleClose = () => {
