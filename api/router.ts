@@ -10,6 +10,7 @@ import { achievementRouter } from "./achievement-router";
 import { announcementRouter } from "./announcement-router";
 import { statsRouter } from "./stats-router";
 import { aiRouter } from "./ai-router";
+import { cmsRouter } from "./cms-router";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -24,6 +25,7 @@ export const appRouter = createRouter({
   announcements: announcementRouter,
   stats: statsRouter,
   ai: aiRouter,
+  cms: cmsRouter,
 });
 
 export type AppRouter = typeof appRouter;

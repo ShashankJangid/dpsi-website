@@ -115,15 +115,26 @@ const defaultGalleryItems = [
 ];
 
 export default function Gallery() {
-  const { data: gallery } = trpc.gallery.list.useQuery();
+  const { data: legacyGallery } = trpc.gallery.list.useQuery();
+  const { data: cmsGallery } = trpc.cms.listGalleryImages.useQuery();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const displayItems = gallery?.length ? gallery : defaultGalleryItems;
+  // Merge CMS images with legacy / fallback images
+  const liveCmsItems = cmsGallery?.map((img: any) => ({
+    id: img._id,
+    title: img.title,
+    category: img.category,
+    imageUrl: img.imageUrl,
+  })) || [];
+
+  const displayItems = liveCmsItems.length > 0 
+    ? [...liveCmsItems, ...defaultGalleryItems] 
+    : (legacyGallery?.length ? legacyGallery : defaultGalleryItems);
 
   const filtered = selectedCategory === "All"
     ? displayItems
-    : displayItems.filter((g) => g.category === selectedCategory);
+    : displayItems.filter((g) => g.category?.toLowerCase() === selectedCategory.toLowerCase());
 
   return (
     <Layout>

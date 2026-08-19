@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import FloatingSocials from "./FloatingSocials";
 import AIChatWidget from "./AIChatWidget";
+import PopupModal from "./PopupModal";
 
 const ScrollProgress = lazy(() => import("./ScrollProgress"));
 
@@ -53,6 +54,7 @@ export default function Layout({ children }: LayoutProps) {
       <Footer />
       <FloatingSocials />
       <AIChatWidget />
+      <PopupModal />
     </div>
   );
 }

@@ -1,33 +1,74 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { trpc } from "@/providers/trpc";
 
-const videos = [
+const defaultVideos = [
   {
     id: "Nn2K8b2JQn0",
     title: "India's First Advanced AI & Robotics Lab | DPS Indirapuram",
     url: "https://www.youtube.com/embed/Nn2K8b2JQn0?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/Nn2K8b2JQn0/hqdefault.jpg"
+    thumbnail: "https://img.youtube.com/vi/Nn2K8b2JQn0/hqdefault.jpg",
+    isDirectVideo: false,
   },
   {
     id: "UDcIVb8OpNw",
     title: "DPS Indirapuram — Annual Cultural Celebration & Excellence",
     url: "https://www.youtube.com/embed/UDcIVb8OpNw?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/UDcIVb8OpNw/hqdefault.jpg"
+    thumbnail: "https://img.youtube.com/vi/UDcIVb8OpNw/hqdefault.jpg",
+    isDirectVideo: false,
   },
   {
     id: "89P74IV5k9M",
     title: "DPS Indirapuram — Holistic School Campus & Achievements",
     url: "https://www.youtube.com/embed/89P74IV5k9M?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/89P74IV5k9M/hqdefault.jpg"
-  }
+    thumbnail: "https://img.youtube.com/vi/89P74IV5k9M/hqdefault.jpg",
+    isDirectVideo: false,
+  },
 ];
 
+function extractYoutubeInfo(url: string) {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  const id = match ? match[1] : (url.length === 11 ? url : "");
+  if (!id) return null;
+  return {
+    id,
+    embedUrl: `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`,
+    thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+  };
+}
+
 export default function VideoGallerySection() {
+  const { data: cmsVideos } = trpc.cms.listVideos.useQuery();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const activeVideo = videos[currentIndex];
+  const dynamicVideos = cmsVideos
+    ?.filter((v: any) => !v.isDeleted && v.isPublished !== false)
+    ?.map((v: any) => {
+      const yt = v.youtubeUrl ? extractYoutubeInfo(v.youtubeUrl) : null;
+      if (yt) {
+        return {
+          id: v._id || yt.id,
+          title: v.title,
+          url: yt.embedUrl,
+          thumbnail: v.thumbnailUrl || yt.thumbnail,
+          isDirectVideo: false,
+        };
+      }
+      return {
+        id: v._id,
+        title: v.title,
+        url: v.videoUrl || "",
+        thumbnail: v.thumbnailUrl || "/images/facilities/auditorium.webp",
+        isDirectVideo: !!v.videoUrl,
+      };
+    });
+
+  const videos = (dynamicVideos && dynamicVideos.length > 0) ? dynamicVideos : defaultVideos;
+  const safeIndex = currentIndex % videos.length;
+  const activeVideo = videos[safeIndex] || defaultVideos[0];
 
   const handlePrev = () => {
     setIsPlaying(false);
@@ -102,14 +143,24 @@ export default function VideoGallerySection() {
             <div className="w-full aspect-video rounded-3xl overflow-hidden bg-slate-950 border-2 border-sky-400/50 shadow-2xl shadow-sky-950/20 relative group">
               <AnimatePresence mode="wait">
                 {isPlaying ? (
-                  <iframe
-                    key={activeVideo.id}
-                    src={activeVideo.url}
-                    title={activeVideo.title}
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  activeVideo.isDirectVideo ? (
+                    <video
+                      key={activeVideo.id}
+                      src={activeVideo.url}
+                      controls
+                      autoPlay
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <iframe
+                      key={activeVideo.id}
+                      src={activeVideo.url}
+                      title={activeVideo.title}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )
                 ) : (
                   <motion.div
                     key={`thumb-${activeVideo.id}`}
@@ -185,7 +236,7 @@ export default function VideoGallerySection() {
                   setIsPlaying(false);
                 }}
                 className={`relative rounded-2xl overflow-hidden border-2 transition-all shrink-0 w-28 sm:w-36 aspect-video cursor-pointer ${
-                  currentIndex === index
+                  safeIndex === index
                     ? "border-sky-500 shadow-xl shadow-sky-400/40 ring-4 ring-sky-400/40"
                     : "border-sky-200/80 opacity-70 hover:opacity-100"
                 }`}
@@ -199,6 +250,6 @@ export default function VideoGallerySection() {
           </div>
         </div>
       </section>
-  </div>
-);
+    </div>
+  );
 }

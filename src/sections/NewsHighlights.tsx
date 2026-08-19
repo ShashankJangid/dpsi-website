@@ -4,10 +4,60 @@ import { ArrowRight, Clock, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/providers/trpc";
 
-export default function NewsHighlights() {
-  const { data: news } = trpc.news.featured.useQuery();
+const defaultNewsItems = [
+  {
+    id: "default-1",
+    title: "India's First Advanced AI & Robotics Innovation Lab Inaugurated at DPS Indirapuram",
+    category: "Innovation",
+    excerpt: "DPS Indirapuram sets a new benchmark in holistic and future-ready technology education with state-of-the-art humanoid robotics and IoT labs.",
+    image: "/images/facilities/ai_robotics_lab.webp",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "default-2",
+    title: "Times Education Icons 2024: DPS Indirapuram Crowned Premier CBSE School",
+    category: "Awards",
+    excerpt: "Recognized for exceptional academic pedagogy, outstanding faculty standards, and national-level board examination toppers.",
+    image: "/images/dps/slider_2.webp",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "default-3",
+    title: "Annual Cultural Extravaganza & Inter-School MUN 2026 Registration Open",
+    category: "Events",
+    excerpt: "Inviting delegates and students from across India for intellectual debates, diplomacy forums, and artistic celebrations.",
+    image: "/images/facilities/auditorium.webp",
+    createdAt: new Date().toISOString(),
+  },
+];
 
-  if (!news?.length) return null;
+export default function NewsHighlights() {
+  const { data: cmsActivities } = trpc.cms.listActivities.useQuery();
+  const { data: legacyNews } = trpc.news.featured.useQuery();
+
+  const dynamicActivities = cmsActivities
+    ?.filter((a: any) => !a.isDeleted && a.isPublished !== false)
+    ?.map((a: any) => ({
+      id: a._id,
+      title: a.title,
+      category: a.category || "Campus Update",
+      excerpt: a.description,
+      image: a.imageUrl || "/images/facilities/ai_robotics_lab.webp",
+      createdAt: a.eventDate || a.createdAt || new Date().toISOString(),
+    }));
+
+  const displayNews = (dynamicActivities && dynamicActivities.length > 0)
+    ? dynamicActivities.slice(0, 6)
+    : (legacyNews && legacyNews.length > 0)
+    ? legacyNews.map((n: any) => ({
+        id: n.id,
+        title: n.title,
+        category: n.category || "News",
+        excerpt: n.excerpt || n.content?.slice(0, 120),
+        image: n.image || "/images/facilities/ai_robotics_lab.webp",
+        createdAt: n.createdAt,
+      }))
+    : defaultNewsItems;
 
   return (
     <section className="py-24 bg-slate-50 dark:bg-slate-900 relative overflow-hidden">
@@ -45,7 +95,7 @@ export default function NewsHighlights() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {news.map((item, i) => (
+          {displayNews.map((item, i) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 30 }}
@@ -86,7 +136,7 @@ export default function NewsHighlights() {
                       {item.title}
                     </h3>
                     <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
-                      {item.excerpt || item.content.slice(0, 120)}
+                      {item.excerpt}
                     </p>
                   </div>
 

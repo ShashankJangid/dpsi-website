@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { CoverflowCarousel, type CoverflowSlide } from "@/components/ui/coverflow-carousel";
+import { trpc } from "@/providers/trpc";
 
-const topperCoverflowSlides: CoverflowSlide[] = [
+const defaultTopperSlides: CoverflowSlide[] = [
   {
     src: "/images/dps/topper_siddhant.webp",
     alt: "Siddhant Tiwari",
@@ -82,6 +83,50 @@ const topperCoverflowSlides: CoverflowSlide[] = [
 ];
 
 export default function AchievementsSection() {
+  const { data: cmsActivities } = trpc.cms.listActivities.useQuery();
+  const { data: legacyAchievements } = trpc.achievements.featured.useQuery();
+
+  // Filter activities for achievement/award categories
+  const achievementActivities = cmsActivities?.filter((a: any) =>
+    !a.isDeleted &&
+    a.isPublished !== false &&
+    (
+      a.category?.toLowerCase().includes("achiev") ||
+      a.category?.toLowerCase().includes("topper") ||
+      a.category?.toLowerCase().includes("award") ||
+      a.category?.toLowerCase().includes("academic") ||
+      a.category?.toLowerCase().includes("honor")
+    )
+  );
+
+  let slides: CoverflowSlide[] = defaultTopperSlides;
+
+  if (achievementActivities && achievementActivities.length > 0) {
+    slides = achievementActivities.map((a: any) => ({
+      src: a.imageUrl || "/images/dps/topper_siddhant.webp",
+      alt: a.title,
+      title: a.title,
+      subtitle: a.description ? (a.description.length > 60 ? a.description.slice(0, 60) + "..." : a.description) : "Academic Excellence",
+      meta: [
+        { label: "Category", value: a.category || "Academic Excellence" },
+        { label: "Date", value: new Date(a.eventDate || a.createdAt).toLocaleDateString() },
+        { label: "Recognition", value: "DPS Indirapuram" },
+      ],
+    }));
+  } else if (legacyAchievements && legacyAchievements.length > 0) {
+    slides = legacyAchievements.map((ach: any) => ({
+      src: ach.image || "/images/dps/topper_siddhant.webp",
+      alt: ach.studentName,
+      title: `${ach.studentName} • ${ach.score}`,
+      subtitle: `${ach.class} • ${ach.exam || "CBSE Board Examination"}`,
+      meta: [
+        { label: "Year", value: ach.year || "2024-25" },
+        { label: "Score", value: ach.score },
+        { label: "Board", value: "CBSE All India" },
+      ],
+    }));
+  }
+
   return (
     <section className="py-24 sm:py-28 bg-gradient-to-b from-slate-950 via-emerald-950 to-slate-950 text-white relative overflow-hidden">
       {/* Dynamic Animated Ambient Orbs */}
@@ -132,7 +177,7 @@ export default function AchievementsSection() {
           className="w-full max-w-5xl mx-auto py-2"
         >
           <CoverflowCarousel
-            slides={topperCoverflowSlides}
+            slides={slides}
             showCaption={true}
             showNavigation={true}
             showPagination={true}

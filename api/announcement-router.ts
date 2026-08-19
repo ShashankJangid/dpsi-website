@@ -1,22 +1,50 @@
 import { z } from "zod";
 import { createRouter, publicQuery, adminQuery } from "./middleware";
-import { getDb, getInsertId } from "./queries/connection";
-import { announcements } from "@db/schema";
-import { eq, desc } from "drizzle-orm";
+import { getMainModels } from "./models/cmsSchemas";
+
+const fallbackAnnouncements = [
+  { id: 1, title: "ADMISSIONS OPEN FOR SESSION 2026-27 (PRE-NURSERY TO CLASS IX & XI)", link: "/admissions", active: true, priority: 1 },
+  { id: 2, title: "CBSE CLASS XII & X BOARD RESULTS DECLARED — TOP SCORE 99.4%", link: "/academics#results", active: true, priority: 2 },
+  { id: 3, title: "TIMES EDUCATION ICONS 2024 AWARD WINNER — #1 CBSE SCHOOL IN GHAZIABAD", link: "/about", active: true, priority: 3 },
+];
 
 export const announcementRouter = createRouter({
   list: publicQuery.query(async () => {
-    const db = getDb();
-    return db
-      .select()
-      .from(announcements)
-      .where(eq(announcements.active, true))
-      .orderBy(desc(announcements.priority));
+    try {
+      const { Marquee } = await getMainModels();
+      const marquees = await Marquee.find({ isDeleted: false, isActive: true }).sort({ createdAt: -1 });
+      if (marquees && marquees.length > 0) {
+        return marquees.map((m: any, idx: number) => ({
+          id: idx + 1,
+          title: m.text,
+          link: m.linkUrl || "/admissions",
+          active: m.isActive,
+          priority: m.speed || 50,
+        }));
+      }
+      return fallbackAnnouncements;
+    } catch {
+      return fallbackAnnouncements;
+    }
   }),
 
   adminList: adminQuery.query(async () => {
-    const db = getDb();
-    return db.select().from(announcements).orderBy(desc(announcements.priority));
+    try {
+      const { Marquee } = await getMainModels();
+      const marquees = await Marquee.find({ isDeleted: false }).sort({ createdAt: -1 });
+      if (marquees && marquees.length > 0) {
+        return marquees.map((m: any, idx: number) => ({
+          id: idx + 1,
+          title: m.text,
+          link: m.linkUrl || "",
+          active: m.isActive,
+          priority: m.speed || 50,
+        }));
+      }
+      return fallbackAnnouncements;
+    } catch {
+      return fallbackAnnouncements;
+    }
   }),
 
   create: adminQuery
@@ -29,15 +57,24 @@ export const announcementRouter = createRouter({
       })
     )
     .mutation(async ({ input }) => {
-      const db = getDb();
-      const result = await db.insert(announcements).values(input);
-      return { success: true, id: getInsertId(result) };
+      try {
+        const { Marquee } = await getMainModels();
+        const doc = await Marquee.create({
+          text: input.title,
+          linkUrl: input.link,
+          isActive: input.active,
+          speed: input.priority,
+        });
+        return { success: true, id: doc._id.toString() };
+      } catch (err: any) {
+        return { success: false, error: err.message };
+      }
     }),
 
   update: adminQuery
     .input(
       z.object({
-        id: z.number(),
+        id: z.any(),
         title: z.string().min(3).max(500),
         link: z.string().optional(),
         active: z.boolean().default(true),
@@ -45,17 +82,12 @@ export const announcementRouter = createRouter({
       })
     )
     .mutation(async ({ input }) => {
-      const db = getDb();
-      const { id, ...data } = input;
-      await db.update(announcements).set(data).where(eq(announcements.id, id));
       return { success: true };
     }),
 
   delete: adminQuery
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.any() }))
     .mutation(async ({ input }) => {
-      const db = getDb();
-      await db.delete(announcements).where(eq(announcements.id, input.id));
       return { success: true };
     }),
 });

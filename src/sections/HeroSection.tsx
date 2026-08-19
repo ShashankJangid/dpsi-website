@@ -3,48 +3,80 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trpc } from "@/providers/trpc";
 
-const heroSlides = [
+const defaultHeroSlides = [
   {
     image: "/images/dps/slider_1.webp",
     title: "Welcome to DPS Indirapuram",
     subtitle: "Soaring High... We reach for the sky!",
-    badge: "Admissions Open 2026-27"
+    badge: "Admissions Open 2026-27",
+    buttonText: "Apply Now",
+    buttonLink: "/admissions",
   },
   {
     image: "/images/dps/slider_2.webp",
     title: "Times Education Icons 2024",
     subtitle: "Recognized as the premier CBSE school in Ghaziabad",
-    badge: "Excellence in Education"
+    badge: "Excellence in Education",
+    buttonText: "Apply Now",
+    buttonLink: "/admissions",
   },
   {
     image: "/images/dps/slider_3.webp",
     title: "State-of-the-Art AI & Robotics Lab",
     subtitle: "Fostering technological innovation and futuristic learning",
-    badge: "Next-Gen Infrastructure"
+    badge: "Next-Gen Infrastructure",
+    buttonText: "Apply Now",
+    buttonLink: "/admissions",
   },
   {
     image: "/images/dps/slider_5.webp",
     title: "Holistic Student Development",
     subtitle: "Nurturing sports, arts, academics and leadership skills",
-    badge: "Empowering Future Leaders"
-  }
+    badge: "Empowering Future Leaders",
+    buttonText: "Apply Now",
+    buttonLink: "/admissions",
+  },
 ];
 
 export default function HeroSection() {
+  const { data: cmsSliders } = trpc.cms.listSliders.useQuery();
+
+  const slides = (cmsSliders && cmsSliders.length > 0)
+    ? cmsSliders
+        .filter((s: any) => !s.isDeleted && s.isActive !== false)
+        .map((s: any) => ({
+          image: s.imageUrl,
+          title: s.title,
+          subtitle: s.subtitle || "",
+          badge: s.subtitle ? "Excellence in Education" : "Admissions Open 2026-27",
+          buttonText: s.buttonText || "Apply Now",
+          buttonLink: s.buttonLink || "/admissions",
+        }))
+    : defaultHeroSlides;
+
+  // Fallback to default if no active slides
+  const activeSlides = slides.length > 0 ? slides : defaultHeroSlides;
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    heroSlides.forEach((slide) => {
-      const img = new Image();
-      img.src = slide.image;
-    });
-  }, []);
+  // Safe slide index calculation
+  const safeSlideIndex = currentSlide % activeSlides.length;
+  const slide = activeSlides[safeSlideIndex] || defaultHeroSlides[0];
 
-  const slide = heroSlides[currentSlide];
-  const fullText = `${slide.title} — ${slide.subtitle}`;
+  useEffect(() => {
+    activeSlides.forEach((s) => {
+      if (s.image) {
+        const img = new Image();
+        img.src = s.image;
+      }
+    });
+  }, [activeSlides]);
+
+  const fullText = slide.subtitle ? `${slide.title} — ${slide.subtitle}` : slide.title;
 
   // Typewriter backspacing and re-writing visual effect
   useEffect(() => {
@@ -65,17 +97,17 @@ export default function HeroSection() {
     } else if (isDeleting && displayText.length === 0) {
       timer = setTimeout(() => {
         setIsDeleting(false);
-        setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+        setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
       }, 10);
     }
 
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, fullText]);
+  }, [displayText, isDeleting, fullText, activeSlides.length]);
 
   const handleManualSlideChange = (newIndex: number) => {
     setIsDeleting(false);
     setDisplayText("");
-    setCurrentSlide(newIndex);
+    setCurrentSlide(newIndex % activeSlides.length);
   };
 
   return (
@@ -106,8 +138,8 @@ export default function HeroSection() {
                 className="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl transition-all duration-300 text-xs shadow-md shadow-sky-600/25 cursor-pointer flex items-center gap-1"
                 asChild
               >
-                <Link to="/admissions">
-                  Apply Now <ArrowRight className="w-3.5 h-3.5" />
+                <Link to={slide.buttonLink || "/admissions"}>
+                  {slide.buttonText || "Apply Now"} <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </Button>
             </motion.div>
@@ -155,7 +187,7 @@ export default function HeroSection() {
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={slide.image}
+            key={slide.image + safeSlideIndex}
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
@@ -167,7 +199,7 @@ export default function HeroSection() {
               src={slide.image}
               alt={slide.title}
               className="w-full h-full object-cover object-center z-0 will-change-transform"
-              fetchPriority={currentSlide === 0 ? "high" : "auto"}
+              fetchPriority={safeSlideIndex === 0 ? "high" : "auto"}
               loading="eager"
               decoding="async"
             />
@@ -179,7 +211,7 @@ export default function HeroSection() {
           <motion.button
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleManualSlideChange((currentSlide - 1 + heroSlides.length) % heroSlides.length)}
+            onClick={() => handleManualSlideChange((safeSlideIndex - 1 + activeSlides.length) % activeSlides.length)}
             className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
             title="Previous Slide"
           >
@@ -188,13 +220,13 @@ export default function HeroSection() {
 
           {/* Slide Indicator Dots */}
           <div className="flex items-center gap-2 px-1">
-            {heroSlides.map((_, idx) => (
+            {activeSlides.map((_, idx) => (
               <motion.button
                 key={idx}
                 onClick={() => handleManualSlideChange(idx)}
                 animate={{
-                  width: currentSlide === idx ? 24 : 8,
-                  backgroundColor: currentSlide === idx ? "#38bdf8" : "rgba(255, 255, 255, 0.45)"
+                  width: safeSlideIndex === idx ? 24 : 8,
+                  backgroundColor: safeSlideIndex === idx ? "#38bdf8" : "rgba(255, 255, 255, 0.45)"
                 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className="h-2 rounded-full cursor-pointer shadow-xs"
@@ -206,7 +238,7 @@ export default function HeroSection() {
           <motion.button
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleManualSlideChange((currentSlide + 1) % heroSlides.length)}
+            onClick={() => handleManualSlideChange((safeSlideIndex + 1) % activeSlides.length)}
             className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
             title="Next Slide"
           >

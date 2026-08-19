@@ -10,27 +10,48 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { trpc } from "@/providers/trpc";
 
-const quickLinks = [
+const defaultQuickLinks = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   { label: "Admissions", href: "/admissions" },
   { label: "Academics", href: "/academics" },
   { label: "Facilities", href: "/facilities" },
   { label: "Gallery", href: "/gallery" },
+  { label: "Transfer Certificate (TC)", href: "/tc" },
   { label: "Contact", href: "/contact" },
 ];
 
-const resources = [
+const defaultResources = [
   { label: "SchoolsOS Portal Login", href: "https://dpsindp.schoolforschools.ai/login", external: true },
   { label: "Event Calendar", href: "/news-events" },
-  { label: "Mandatory Public Disclosure", href: "#" },
-  { label: "Careers", href: "#" },
-  { label: "Blog", href: "#" },
-  { label: "Alumni", href: "#" },
+  { label: "Mandatory Public Disclosure", href: "/about" },
+  { label: "Careers", href: "/contact" },
+  { label: "Blog", href: "/news-events" },
+  { label: "Alumni", href: "/about" },
 ];
 
 export default function Footer() {
+  const { data: dbQuickMenus } = trpc.cms.listMenus.useQuery({ location: "footer_quick" }, {
+    staleTime: 60000,
+  });
+  const { data: dbResourceMenus } = trpc.cms.listMenus.useQuery({ location: "footer_resources" }, {
+    staleTime: 60000,
+  });
+
+  const quickLinks = dbQuickMenus && dbQuickMenus.length > 0
+    ? dbQuickMenus.filter((m: any) => m.isActive).map((m: any) => ({ label: m.title, href: m.url }))
+    : defaultQuickLinks;
+
+  const resources = dbResourceMenus && dbResourceMenus.length > 0
+    ? dbResourceMenus.filter((m: any) => m.isActive).map((m: any) => ({
+        label: m.title,
+        href: m.url,
+        external: m.url.startsWith("http"),
+      }))
+    : defaultResources;
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

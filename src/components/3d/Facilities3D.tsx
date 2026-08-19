@@ -141,15 +141,44 @@ const Scene = ({ activeIndex, setActiveIndex }: { activeIndex: number; setActive
 
 export default function Facilities3D() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [webglError, setWebglError] = useState(false);
   const active = facilityData[activeIndex];
 
   return (
     <div className="relative w-full rounded-3xl overflow-hidden bg-slate-950 border border-emerald-500/30 shadow-2xl shadow-emerald-950/40">
       <div className="relative h-[480px]">
-        <Canvas camera={{ position: [0, 1.2, 8.5], fov: 48 }} dpr={[1, 2]}>
-          <Scene activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
-          <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 2} minPolarAngle={Math.PI / 3} />
-        </Canvas>
+        {!webglError ? (
+          <Canvas
+            camera={{ position: [0, 1.2, 8.5], fov: 48 }}
+            dpr={[1, 1.5]}
+            gl={{
+              powerPreference: "high-performance",
+              antialias: true,
+              alpha: true,
+            }}
+            onCreated={({ gl }) => {
+              gl.domElement.addEventListener(
+                "webglcontextlost",
+                (event) => {
+                  event.preventDefault();
+                  console.warn("WebGL Context Lost on Facilities preview. Restoring gracefully.");
+                },
+                false
+              );
+            }}
+          >
+            <Scene activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+            <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 2} minPolarAngle={Math.PI / 3} />
+          </Canvas>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center p-8 text-center bg-slate-900/90">
+            <div className="max-w-md space-y-3">
+              <h3 className="text-xl font-bold text-white">{active.label}</h3>
+              <p className="text-sm text-slate-300">{active.description}</p>
+              <img src={active.image} alt={active.label} className="w-full h-48 object-cover rounded-xl mt-4" />
+            </div>
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -171,7 +200,7 @@ export default function Facilities3D() {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 px-4 flex-wrap">
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 px-4 flex-wrap z-10">
           {facilityData.map((f, i) => (
             <button
               key={f.id}
