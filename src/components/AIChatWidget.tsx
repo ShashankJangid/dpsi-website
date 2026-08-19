@@ -100,42 +100,47 @@ export default function AIChatWidget() {
     if (!cleanText) return;
 
     const elevenLabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || "";
-    const voiceId = "MF4J4IDTRo0AxOO4dpFR"; // Requested Indian female voice
 
-    // If ElevenLabs API Key is present, stream the studio-quality voice audio
+    // If ElevenLabs API Key is present, stream real human studio-quality voice audio
     if (elevenLabsApiKey) {
-      try {
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-          method: "POST",
-          headers: {
-            "Accept": "audio/mpeg",
-            "Content-Type": "application/json",
-            "xi-api-key": elevenLabsApiKey,
-          },
-          body: JSON.stringify({
-            text: cleanText,
-            model_id: "eleven_multilingual_v2",
-            voice_settings: {
-              stability: 0.5,
-              similarity_boost: 0.8,
-              style: 0.2,
-              use_speaker_boost: true,
-            },
-          }),
-        });
+      const voiceIdsToTry = [
+        "MF4J4IDTRo0AxOO4dpFR", // User requested voice (Devi)
+        "Xb7hH8MSUJpSbSDYk0k2", // Alice - Clear, Engaging Educator (High-Res Multilingual Free & Studio tier)
+        "EXAVITQu4vr4xnSDxMaL", // Sarah - Reassuring, Warm, Confident
+      ];
 
-        if (response.ok) {
-          const blob = await response.blob();
-          const audioUrl = URL.createObjectURL(blob);
-          const audio = new Audio(audioUrl);
-          audioRef.current = audio;
-          audio.play().catch(() => {
-            // If autoplay is blocked, fall back gracefully
+      for (const vId of voiceIdsToTry) {
+        try {
+          const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}`, {
+            method: "POST",
+            headers: {
+              "Accept": "audio/mpeg",
+              "Content-Type": "application/json",
+              "xi-api-key": elevenLabsApiKey,
+            },
+            body: JSON.stringify({
+              text: cleanText,
+              model_id: "eleven_multilingual_v2",
+              voice_settings: {
+                stability: 0.55,
+                similarity_boost: 0.85,
+                style: 0.25,
+                use_speaker_boost: true,
+              },
+            }),
           });
-          return;
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const audioUrl = URL.createObjectURL(blob);
+            const audio = new Audio(audioUrl);
+            audioRef.current = audio;
+            await audio.play().catch(() => {});
+            return;
+          }
+        } catch {
+          // continue to next voice or fallback
         }
-      } catch {
-        // Fallback to browser neural TTS below
       }
     }
 
