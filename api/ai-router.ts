@@ -79,15 +79,54 @@ CONTACT:
 
 If the user asks something not covered above, say: "For this specific query, please contact us at info@dpsindirapuram.com or call +91-0120-4660000. Our staff will assist you."`;
 
+// Simple in-memory sliding window rate limiter
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(key: string, limit = 25, windowMs = 60000): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+
+  if (entry.count >= limit) {
+    return false;
+  }
+
+  entry.count++;
+  return true;
+}
+
+// Clean up stale rate limit entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of rateLimitMap.entries()) {
+    if (now > val.resetTime) {
+      rateLimitMap.delete(key);
+    }
+  }
+}, 300000);
+
 export const aiRouter = createRouter({
   chat: publicQuery
     .input(
       z.object({
-        message: z.string(),
-        history: z.array(z.object({ role: z.enum(["user", "assistant"]), text: z.string() })).optional(),
+        message: z.string().min(1, "Message cannot be empty").max(1000, "Message is too long"),
+        history: z.array(z.object({ role: z.enum(["user", "assistant"]), text: z.string().max(1500) })).optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      // Extract client identifier (IP or fallback)
+      const clientIp = ctx?.req?.headers?.get("x-forwarded-for") || ctx?.req?.headers?.get("cf-connecting-ip") || "global-client";
+      
+      if (!checkRateLimit(clientIp, 30, 60000)) {
+        return {
+          answer: "You are sending messages too quickly. Please wait a moment before asking another question.",
+        };
+      }
+
       const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || "";
 
       // Load admin-configured system prompt from MongoDB if available
@@ -105,13 +144,19 @@ export const aiRouter = createRouter({
       }
 
       try {
+        // Sanitize input to mitigate prompt injection tricks
+        const sanitizedMsg = input.message
+          .replace(/ignore\s+(all\s+)?(previous|prior)\s+instructions/gi, "")
+          .replace(/system\s+prompt\s+override/gi, "")
+          .trim();
+
         // Keep only last 6 turns for optimal speed + context accuracy
         const recentHistory = (input.history || []).slice(-6);
 
         const messagesPayload = [
           { role: "system", content: systemPrompt },
           ...recentHistory.map((h) => ({ role: h.role, content: h.text })),
-          { role: "user", content: input.message },
+          { role: "user", content: sanitizedMsg || input.message },
         ];
 
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {

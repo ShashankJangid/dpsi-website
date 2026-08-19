@@ -11,6 +11,10 @@ const fallbackGallery = [
   { id: 6, title: "Central Knowledge Hub", category: "Library", imageUrl: "/images/facilities/library.webp", featured: true },
 ];
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export const galleryRouter = createRouter({
   list: publicQuery.query(async () => {
     try {
@@ -36,9 +40,10 @@ export const galleryRouter = createRouter({
     .query(async ({ input }) => {
       try {
         const { GalleryImage } = await getGalleryModels();
+        const safeCat = escapeRegex(input.category.trim());
         const images = await GalleryImage.find({
           isDeleted: false,
-          category: { $regex: new RegExp(`^${input.category}$`, "i") },
+          category: { $regex: new RegExp(`^${safeCat}$`, "i") },
         }).sort({ createdAt: -1 });
         if (images && images.length > 0) {
           return images.map((img: any, idx: number) => ({

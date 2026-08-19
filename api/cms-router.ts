@@ -5,6 +5,10 @@ import { getMainModels, getGalleryModels, getTcModels } from "./models/cmsSchema
 import { getAdminUserModel } from "./models/adminUserSchema";
 import { convertImageToWebP } from "./utils/mediaConverter";
 
+export function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export const cmsRouter = createRouter({
   // --- ADMIN AUTH ---
   adminLogin: publicMutation
@@ -24,8 +28,9 @@ export const cmsRouter = createRouter({
         const salt = "dpsi_cms_salt_2026";
         const hash = crypto.createHash("sha256").update(input.password + salt).digest("hex");
 
+        const safeUsername = escapeRegex(input.username.trim());
         const user = await AdminUser.findOne({
-          username: { $regex: new RegExp(`^${input.username}$`, "i") },
+          username: { $regex: new RegExp(`^${safeUsername}$`, "i") },
           passwordHash: hash,
         });
 
@@ -201,6 +206,9 @@ export const cmsRouter = createRouter({
         title: z.string().optional(),
         slug: z.string().optional(),
         content: z.string().optional(),
+        category: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
         isPublished: z.boolean().optional(),
         isDeleted: z.boolean().optional(),
       })
@@ -510,7 +518,8 @@ export const cmsRouter = createRouter({
       const filter: any = { isDeleted: input?.showTrash ?? false };
 
       if (input?.search && input.search.trim() !== "") {
-        const regex = new RegExp(input.search.trim(), "i");
+        const safeSearch = escapeRegex(input.search.trim());
+        const regex = new RegExp(safeSearch, "i");
         filter.$or = [
           { admissionNumber: regex },
           { studentName: regex },
@@ -570,28 +579,7 @@ export const cmsRouter = createRouter({
       return MunRegistration.findByIdAndUpdate(id, data, { new: true });
     }),
 
-  // --- 14. UPDATE PAGE (missing earlier) ---
-  updatePage: publicMutation
-    .input(
-      z.object({
-        id: z.string(),
-        title: z.string().optional(),
-        slug: z.string().optional(),
-        content: z.string().optional(),
-        category: z.string().optional(),
-        metaTitle: z.string().optional(),
-        metaDescription: z.string().optional(),
-        isPublished: z.boolean().optional(),
-        isDeleted: z.boolean().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { Page } = await getMainModels();
-      const { id, ...data } = input;
-      return Page.findByIdAndUpdate(id, data, { new: true });
-    }),
-
-  // --- 15. UPDATE SLIDER ---
+  // --- 14. UPDATE SLIDER ---
   updateSlider: publicMutation
     .input(
       z.object({

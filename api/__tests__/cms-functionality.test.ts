@@ -1,0 +1,144 @@
+import { describe, it, expect } from "vitest";
+import { z } from "zod";
+
+// 1. TC Bulk Import Parser
+function parseBulkCsv(text: string) {
+  const lines = text.trim().split("\n").filter(l => l.trim());
+  const rows: any[] = [];
+  for (const line of lines) {
+    const parts = line.split(",").map(p => p.trim());
+    if (parts.length >= 5) {
+      rows.push({
+        admissionNumber: parts[0] || "",
+        studentName: parts[1] || "",
+        fatherName: parts[2] || "",
+        motherName: parts[3] || "",
+        classLeaving: parts[4] || "Class X",
+        dateOfIssue: parts[5] || new Date().toISOString().split("T")[0],
+        status: (["Issued", "Pending", "Cancelled"].includes(parts[6]) ? parts[6] : "Issued") as "Issued" | "Pending" | "Cancelled",
+      });
+    }
+  }
+  return rows;
+}
+
+// 2. Safe YouTube URL Extractor
+function extractYoutubeId(val: string): string {
+  try {
+    if (!val || val.trim().length === 0) return "";
+    const trimmed = val.trim();
+    if (trimmed.length === 11 && !trimmed.includes("/") && !trimmed.includes(".")) {
+      return trimmed;
+    }
+    const match = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    return match?.[1] || "";
+  } catch {
+    return "";
+  }
+}
+
+// 3. Slug generator
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s-]+/g, "-");
+}
+
+describe("CMS Functionality & Business Logic Test Suite", () => {
+  describe("TC Bulk Import CSV Parser", () => {
+    it("parses valid multi-line CSV correctly", () => {
+      const csv = [
+        "DPSI-1001, Aarav Sharma, Rajesh Sharma, Priya Sharma, Class X, 2025-03-31, Issued",
+        "DPSI-1002, Diya Patel, Suresh Patel, Anjali Patel, Class XII, 2025-04-15, Pending",
+        "DPSI-1003, Rohan Gupta, Amit Gupta, Sunita Gupta, Class IX, 2025-05-01, Cancelled",
+      ].join("\n");
+
+      const rows = parseBulkCsv(csv);
+      expect(rows).toHaveLength(3);
+      expect(rows[0].admissionNumber).toBe("DPSI-1001");
+      expect(rows[0].studentName).toBe("Aarav Sharma");
+      expect(rows[0].fatherName).toBe("Rajesh Sharma");
+      expect(rows[0].motherName).toBe("Priya Sharma");
+      expect(rows[0].classLeaving).toBe("Class X");
+      expect(rows[0].dateOfIssue).toBe("2025-03-31");
+      expect(rows[0].status).toBe("Issued");
+
+      expect(rows[1].status).toBe("Pending");
+      expect(rows[2].status).toBe("Cancelled");
+    });
+
+    it("filters out empty or incomplete lines (< 5 fields)", () => {
+      const invalidCsv = "\n   \nDPS-1, Incomplete\nDPS-2, Only, Three, Fields\n";
+      const rows = parseBulkCsv(invalidCsv);
+      expect(rows).toHaveLength(0);
+    });
+
+    it("defaults invalid status values to Issued", () => {
+      const csv = "DPSI-9999, Test Student, Father Name, Mother Name, Class VIII, 2025-01-01, InvalidStatus";
+      const rows = parseBulkCsv(csv);
+      expect(rows).toHaveLength(1);
+      expect(rows[0].status).toBe("Issued");
+    });
+  });
+
+  describe("Safe YouTube URL / ID Parser", () => {
+    it("extracts ID from standard watch URL", () => {
+      expect(extractYoutubeId("https://www.youtube.com/watch?v=dQw4w9WgXcQ")).toBe("dQw4w9WgXcQ");
+    });
+
+    it("extracts ID from youtu.be shortlink", () => {
+      expect(extractYoutubeId("https://youtu.be/dQw4w9WgXcQ")).toBe("dQw4w9WgXcQ");
+    });
+
+    it("extracts ID from embed URL", () => {
+      expect(extractYoutubeId("https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1")).toBe("dQw4w9WgXcQ");
+    });
+
+    it("handles direct 11-char ID without crash", () => {
+      expect(extractYoutubeId("dQw4w9WgXcQ")).toBe("dQw4w9WgXcQ");
+    });
+
+    it("safely returns empty string for malformed or incomplete URLs without throwing", () => {
+      expect(extractYoutubeId("")).toBe("");
+      expect(extractYoutubeId("https://google.com")).toBe("");
+      expect(extractYoutubeId("invalid-url-string")).toBe("");
+    });
+  });
+
+  describe("Slug Generator", () => {
+    it("creates URL-safe slugs", () => {
+      expect(generateSlug("Admissions Open 2026-27")).toBe("admissions-open-2026-27");
+      expect(generateSlug("Science & Technology Labs! @DPSI")).toBe("science-technology-labs-dpsi");
+      expect(generateSlug("   Multiple   Spaces   ")).toBe("multiple-spaces");
+    });
+  });
+
+  describe("Schema Validation (Zod)", () => {
+    it("validates Menu placement location enum", () => {
+      const schema = z.object({
+        location: z.enum(["header", "footer_quick", "footer_resources"]),
+      });
+
+      expect(schema.safeParse({ location: "header" }).success).toBe(true);
+      expect(schema.safeParse({ location: "footer_quick" }).success).toBe(true);
+      expect(schema.safeParse({ location: "footer_resources" }).success).toBe(true);
+      expect(schema.safeParse({ location: "sidebar" }).success).toBe(false);
+    });
+
+    it("validates Site Settings key-value pairs", () => {
+      const schema = z.object({
+        updates: z.array(z.object({ key: z.string(), value: z.string() })),
+      });
+
+      expect(schema.safeParse({
+        updates: [{ key: "contact_phone", value: "+91-0120-4660000" }]
+      }).success).toBe(true);
+
+      expect(schema.safeParse({
+        updates: [{ key: "contact_phone" }]
+      }).success).toBe(false);
+    });
+  });
+});

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   Bold,
   Italic,
@@ -27,16 +27,28 @@ export default function RichTextEditor({
   placeholder = "Write or edit rich content here...",
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const isInternalChange = useRef(false);
+
+  useEffect(() => {
+    if (editorRef.current && !isInternalChange.current) {
+      if (editorRef.current.innerHTML !== (value || "")) {
+        editorRef.current.innerHTML = value || "";
+      }
+    }
+    isInternalChange.current = false;
+  }, [value]);
 
   const executeCommand = (command: string, arg: string | undefined = undefined) => {
     document.execCommand(command, false, arg);
     if (editorRef.current) {
+      isInternalChange.current = true;
       onChange(editorRef.current.innerHTML);
     }
   };
 
   const handleInput = () => {
     if (editorRef.current) {
+      isInternalChange.current = true;
       onChange(editorRef.current.innerHTML);
     }
   };
@@ -175,7 +187,6 @@ export default function RichTextEditor({
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        dangerouslySetInnerHTML={{ __html: value }}
         className="p-4 min-h-[160px] max-h-[300px] overflow-y-auto text-sm text-slate-800 outline-none max-w-none focus:outline-none"
         data-placeholder={placeholder}
       />

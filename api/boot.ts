@@ -1,10 +1,32 @@
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { secureHeaders } from "hono/secure-headers";
+import { cors } from "hono/cors";
 import type { HttpBindings } from "@hono/node-server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./router";
 import { createContext } from "./context";
 const app = new Hono<{ Bindings: HttpBindings }>();
+
+// Security headers (HSTS, X-Content-Type-Options, X-Frame-Options, X-XSS-Protection)
+app.use(
+  secureHeaders({
+    xFrameOptions: "SAMEORIGIN",
+    xContentTypeOptions: "nosniff",
+    referrerPolicy: "strict-origin-when-cross-origin",
+  })
+);
+
+// CORS configuration
+app.use(
+  "/api/*",
+  cors({
+    origin: (origin) => origin || "*",
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "x-trpc-source"],
+    maxAge: 86400,
+  })
+);
 
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.use("/api/trpc/*", async (c) => {
