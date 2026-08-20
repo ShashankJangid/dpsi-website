@@ -819,10 +819,18 @@ export default function AdminCMS() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-xl font-bold text-slate-900">Manage Page</h2>
+                      <h2 className="text-xl font-bold text-slate-900">Manage Pages</h2>
                       <p className="text-xs text-slate-500">All Pages • Add Page • Page Trash</p>
                     </div>
-                    <Button onClick={() => setPageModal(true)} size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
+                    <Button
+                      onClick={() => {
+                        setEditingPageId(null);
+                        setPageForm({ title: "", slug: "", content: "", category: "General" });
+                        setPageModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                    >
                       <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Page
                     </Button>
                   </div>
@@ -841,19 +849,56 @@ export default function AdminCMS() {
                       <tbody className="divide-y divide-slate-100">
                         {pagesList?.map((p: any) => (
                           <tr key={p._id} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-4 py-3 font-medium text-slate-900">{p.title}</td>
-                            <td className="px-4 py-3 font-mono text-emerald-700">/{p.slug}</td>
-                            <td className="px-4 py-3 text-slate-500">{p.category}</td>
+                            <td className="px-4 py-3 font-semibold text-slate-900">{p.title}</td>
+                            <td className="px-4 py-3 font-mono text-emerald-700">
+                              <a
+                                href={`/${p.slug.replace(/^\/+/, "")}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline flex items-center gap-1 inline-flex"
+                              >
+                                /{p.slug} <ExternalLink className="w-3 h-3 text-slate-400" />
+                              </a>
+                            </td>
+                            <td className="px-4 py-3 text-slate-500">{p.category || "General"}</td>
                             <td className="px-4 py-3">
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
                                 Published
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-right">
+                            <td className="px-4 py-3 text-right space-x-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-emerald-700 hover:bg-emerald-50 h-7 px-2"
+                                title="View Live Page"
+                                onClick={() => window.open(`/${p.slug.replace(/^\/+/, "")}`, "_blank")}
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                                title="Edit Page"
+                                onClick={() => {
+                                  setEditingPageId(p._id);
+                                  setPageForm({
+                                    title: p.title || "",
+                                    slug: p.slug || "",
+                                    content: p.content || "",
+                                    category: p.category || "General",
+                                  });
+                                  setPageModal(true);
+                                }}
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 className="text-red-600 hover:bg-red-50 h-7 px-2"
+                                title="Delete Page"
                                 onClick={() => deletePage.mutate({ id: p._id })}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1008,7 +1053,15 @@ export default function AdminCMS() {
                       <h2 className="text-xl font-bold text-slate-900">Popup Notification</h2>
                       <p className="text-xs text-slate-500">Add Popup • Popup List</p>
                     </div>
-                    <Button onClick={() => setPopupModal(true)} size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
+                    <Button
+                      onClick={() => {
+                        setEditingPopup(null);
+                        setPopupForm({ title: "", content: "", imageUrl: "", linkUrl: "", showOnLoad: true, isActive: true });
+                        setPopupModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                    >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Popup
                     </Button>
                   </div>
@@ -1021,7 +1074,7 @@ export default function AdminCMS() {
                             <div className="flex items-center gap-2">
                               <h3 className="font-semibold text-slate-900 text-xs">{p.title}</h3>
                               <span
-                                className={`px-2 py-0.2 text-[9px] rounded-full font-medium ${
+                                className={`px-2 py-0.2 text-[9px] rounded font-medium ${
                                   p.isActive ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-600"
                                 }`}
                               >
@@ -1042,7 +1095,28 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
+                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                              title="Edit Popup"
+                              onClick={() => {
+                                setEditingPopup(p._id);
+                                setPopupForm({
+                                  title: p.title || "",
+                                  content: p.content || "",
+                                  imageUrl: p.imageUrl || "",
+                                  linkUrl: p.linkUrl || "",
+                                  showOnLoad: p.showOnLoad !== false,
+                                  isActive: p.isActive !== false,
+                                });
+                                setPopupModal(true);
+                              }}
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
                               className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              title="Delete Popup"
                               onClick={() => deletePopup.mutate({ id: p._id })}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1068,7 +1142,15 @@ export default function AdminCMS() {
                       <h2 className="text-xl font-bold text-slate-900">Marquee</h2>
                       <p className="text-xs text-slate-500">Add Marquee • Marquee List • Live Ticker Sync</p>
                     </div>
-                    <Button onClick={() => setMarqueeModal(true)} size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
+                    <Button
+                      onClick={() => {
+                        setEditingMarquee(null);
+                        setMarqueeForm({ text: "", linkUrl: "", speed: 50 });
+                        setMarqueeModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                    >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Marquee
                     </Button>
                   </div>
@@ -1081,14 +1163,34 @@ export default function AdminCMS() {
                             <Megaphone className="w-4 h-4 text-emerald-700 shrink-0" />
                             <p className="text-xs text-slate-900 font-medium">{m.text}</p>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteMarquee.mutate({ id: m._id })}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                              title="Edit Marquee"
+                              onClick={() => {
+                                setEditingMarquee(m._id);
+                                setMarqueeForm({
+                                  text: m.text || "",
+                                  linkUrl: m.linkUrl || "",
+                                  speed: m.speed || 50,
+                                });
+                                setMarqueeModal(true);
+                              }}
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              title="Delete Marquee"
+                              onClick={() => deleteMarquee.mutate({ id: m._id })}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
@@ -1104,7 +1206,15 @@ export default function AdminCMS() {
                       <h2 className="text-xl font-bold text-slate-900">Recent Activity</h2>
                       <p className="text-xs text-slate-500">Manage Category • Add Recent Activity • Recent Activity List</p>
                     </div>
-                    <Button onClick={() => setActivityModal(true)} size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
+                    <Button
+                      onClick={() => {
+                        setEditingActivity(null);
+                        setActivityForm({ title: "", category: "Sports", description: "", eventDate: "", imageUrl: "" });
+                        setActivityModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                    >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Activity
                     </Button>
                   </div>
@@ -1125,14 +1235,36 @@ export default function AdminCMS() {
                             <h3 className="font-semibold text-slate-900 text-xs mt-1.5">{act.title}</h3>
                             <p className="text-xs text-slate-500 mt-1 line-clamp-2">{act.description}</p>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600 hover:bg-red-50 shrink-0 h-7 px-2"
-                            onClick={() => deleteActivity.mutate({ id: act._id })}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                              title="Edit Activity"
+                              onClick={() => {
+                                setEditingActivity(act._id);
+                                setActivityForm({
+                                  title: act.title || "",
+                                  category: act.category || "General",
+                                  description: act.description || "",
+                                  eventDate: act.eventDate ? new Date(act.eventDate).toISOString().split("T")[0] : "",
+                                  imageUrl: act.imageUrl || "",
+                                });
+                                setActivityModal(true);
+                              }}
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              title="Delete Activity"
+                              onClick={() => deleteActivity.mutate({ id: act._id })}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
@@ -1148,7 +1280,15 @@ export default function AdminCMS() {
                       <h2 className="text-xl font-bold text-slate-900">Attachment / Circulars</h2>
                       <p className="text-xs text-slate-500">Add Attachment • Attachment List</p>
                     </div>
-                    <Button onClick={() => setAttachmentModal(true)} size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
+                    <Button
+                      onClick={() => {
+                        setEditingAttachment(null);
+                        setAttachmentForm({ title: "", category: "Circulars", fileUrl: "", fileName: "" });
+                        setAttachmentModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                    >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Attachment
                     </Button>
                   </div>
@@ -1172,11 +1312,30 @@ export default function AdminCMS() {
                             </td>
                             <td className="px-4 py-3 text-slate-500">{att.category}</td>
                             <td className="px-4 py-3 font-mono text-slate-600">{att.fileName}</td>
-                            <td className="px-4 py-3 text-right">
+                            <td className="px-4 py-3 text-right space-x-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                                title="Edit Attachment"
+                                onClick={() => {
+                                  setEditingAttachment(att._id);
+                                  setAttachmentForm({
+                                    title: att.title || "",
+                                    category: att.category || "Circulars",
+                                    fileUrl: att.fileUrl || "",
+                                    fileName: att.fileName || "",
+                                  });
+                                  setAttachmentModal(true);
+                                }}
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 className="text-red-600 hover:bg-red-50 h-7 px-2"
+                                title="Delete Attachment"
                                 onClick={() => deleteAttachment.mutate({ id: att._id })}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1218,7 +1377,7 @@ export default function AdminCMS() {
                             <td className="px-4 py-3 text-slate-700">{m.schoolName}<br /><span className="text-slate-500">{m.grade}</span></td>
                             <td className="px-4 py-3 text-slate-700 font-mono">{m.committeePreference1}</td>
                             <td className="px-4 py-3">
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-50 text-amber-800 border border-amber-200 font-medium">
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-amber-50 text-amber-800 border border-amber-200 font-medium">
                                 {m.status}
                               </span>
                             </td>
@@ -1243,7 +1402,15 @@ export default function AdminCMS() {
                       <h2 className="text-xl font-bold text-slate-900">Hero Banners & Sliders</h2>
                       <p className="text-xs text-slate-500">Live Homepage Slider Images • Order & Captions</p>
                     </div>
-                    <Button onClick={() => setSliderModal(true)} size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
+                    <Button
+                      onClick={() => {
+                        setEditingSlider(null);
+                        setSliderForm({ title: "", subtitle: "", imageUrl: "", buttonText: "Apply Now", buttonLink: "/admissions", order: 0 });
+                        setSliderModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                    >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Slider
                     </Button>
                   </div>
@@ -1267,14 +1434,37 @@ export default function AdminCMS() {
                               </span>
                             </div>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-8 px-2"
-                            onClick={() => deleteSlider.mutate({ id: s._id })}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-slate-600 hover:bg-slate-100 h-8 px-2"
+                              title="Edit Slider"
+                              onClick={() => {
+                                setEditingSlider(s._id);
+                                setSliderForm({
+                                  title: s.title || "",
+                                  subtitle: s.subtitle || "",
+                                  imageUrl: s.imageUrl || "",
+                                  buttonText: s.buttonText || "Apply Now",
+                                  buttonLink: s.buttonLink || "/admissions",
+                                  order: s.order || 0,
+                                });
+                                setSliderModal(true);
+                              }}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50 h-8 px-2"
+                              title="Delete Slider"
+                              onClick={() => deleteSlider.mutate({ id: s._id })}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
@@ -1631,23 +1821,79 @@ export default function AdminCMS() {
         </div>
 
         {/* LIGHT THEME MODALS */}
-        {/* MODAL: ADD PAGE */}
+        {/* MODAL: ADD / EDIT PAGE */}
         {pageModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Create New Page</h3>
-              <Input
-                placeholder="Page Title (e.g. Science Labs)"
-                value={pageForm.title}
-                onChange={(e) => setPageForm({ ...pageForm, title: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-") })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
-              <Input
-                placeholder="Slug (e.g. science-labs)"
-                value={pageForm.slug}
-                onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 font-mono text-xs"
-              />
+            <div className="bg-white border border-slate-200 rounded-xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingPageId ? "Edit Page" : "Create New Page"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setPageModal(false);
+                    setEditingPageId(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600">Page Title</label>
+                  <Input
+                    placeholder="e.g. Science Labs"
+                    value={pageForm.title}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      if (!editingPageId) {
+                        setPageForm({
+                          ...pageForm,
+                          title: newTitle,
+                          slug: newTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+                        });
+                      } else {
+                        setPageForm({ ...pageForm, title: newTitle });
+                      }
+                    }}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600">Category</label>
+                  <select
+                    value={pageForm.category || "General"}
+                    onChange={(e) => setPageForm({ ...pageForm, category: e.target.value })}
+                    className="w-full h-9 rounded-md bg-slate-50 border border-slate-200 text-slate-900 text-xs px-2.5 outline-none focus:border-emerald-600"
+                  >
+                    <option value="General">General</option>
+                    <option value="About">About</option>
+                    <option value="Academics">Academics</option>
+                    <option value="Admissions">Admissions</option>
+                    <option value="Facilities">Facilities</option>
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Campus">Campus</option>
+                    <option value="Policy">Policy</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600">URL Slug</label>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-mono text-slate-400">dpsindirapuram.com/</span>
+                  <Input
+                    placeholder="science-labs"
+                    value={pageForm.slug}
+                    onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "") })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 font-mono text-xs flex-1"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-1">
                 <label className="text-[11px] font-semibold text-slate-600">Page Content (WYSIWYG Editor)</label>
                 <RichTextEditor
@@ -1656,10 +1902,29 @@ export default function AdminCMS() {
                   placeholder="Design your page content, headings, formatting..."
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setPageModal(false)} className="text-slate-600 text-xs">Cancel</Button>
-                <Button onClick={() => createPage.mutate(pageForm)} className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
-                  Publish Page
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setPageModal(false);
+                    setEditingPageId(null);
+                  }}
+                  className="text-slate-600 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (editingPageId) {
+                      updatePage.mutate({ id: editingPageId, ...pageForm });
+                    } else {
+                      createPage.mutate(pageForm);
+                    }
+                  }}
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                >
+                  {editingPageId ? "Save Changes" : "Publish Page"}
                 </Button>
               </div>
             </div>
@@ -1669,8 +1934,16 @@ export default function AdminCMS() {
         {/* MODAL: ADD GALLERY IMAGE */}
         {galleryModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Upload Gallery Image (Cloudinary Auto-WebP)</h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">Upload Gallery Image (Cloudinary Auto-WebP)</h3>
+                <button
+                  onClick={() => setGalleryModal(false)}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
               <Input
                 placeholder="Image Title / Caption"
                 value={galleryForm.title}
@@ -1689,7 +1962,7 @@ export default function AdminCMS() {
                 <option value="Laboratories">Laboratories</option>
               </select>
 
-              <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-emerald-600 transition-colors bg-slate-50">
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-emerald-600 transition-colors bg-slate-50">
                 <Upload className="w-8 h-8 text-emerald-700 mx-auto mb-2" />
                 <p className="text-xs font-semibold text-slate-800">Select JPEG, PNG, or HEIC file</p>
                 <p className="text-[10px] text-slate-500 mt-1">Uploaded directly to Cloudinary CDN in WebP format</p>
@@ -1704,7 +1977,7 @@ export default function AdminCMS() {
                       });
                     }
                   }}
-                  className="mt-4 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer"
+                  className="mt-4 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer"
                 />
               </div>
 
@@ -1717,7 +1990,7 @@ export default function AdminCMS() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button variant="outline" onClick={() => setGalleryModal(false)} className="text-slate-600 text-xs">Cancel</Button>
                 <Button
                   disabled={!galleryForm.imageUrl || isUploading}
@@ -1731,11 +2004,25 @@ export default function AdminCMS() {
           </div>
         )}
 
-        {/* MODAL: ADD SLIDER */}
+        {/* MODAL: ADD / EDIT SLIDER */}
         {sliderModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Add Hero Slider Banner</h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingSlider ? "Edit Hero Banner" : "Add Hero Slider Banner"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setSliderModal(false);
+                    setEditingSlider(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
               <Input
                 placeholder="Slider Title (e.g. Admissions Open 2026-27)"
                 value={sliderForm.title}
@@ -1763,7 +2050,7 @@ export default function AdminCMS() {
                 />
               </div>
 
-              <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-emerald-600 transition-colors bg-slate-50">
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-emerald-600 transition-colors bg-slate-50">
                 <Upload className="w-8 h-8 text-emerald-700 mx-auto mb-2" />
                 <p className="text-xs font-semibold text-slate-800">Select Banner Image</p>
                 <p className="text-[10px] text-slate-500 mt-1">Uploaded directly to Cloudinary CDN in WebP format</p>
@@ -1778,7 +2065,7 @@ export default function AdminCMS() {
                       });
                     }
                   }}
-                  className="mt-4 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer"
+                  className="mt-4 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer"
                 />
               </div>
 
@@ -1791,14 +2078,29 @@ export default function AdminCMS() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setSliderModal(false)} className="text-slate-600 text-xs">Cancel</Button>
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSliderModal(false);
+                    setEditingSlider(null);
+                  }}
+                  className="text-slate-600 text-xs"
+                >
+                  Cancel
+                </Button>
                 <Button
                   disabled={!sliderForm.title || !sliderForm.imageUrl}
-                  onClick={() => createSlider.mutate(sliderForm)}
+                  onClick={() => {
+                    if (editingSlider) {
+                      updateSlider.mutate({ id: editingSlider, ...sliderForm });
+                    } else {
+                      createSlider.mutate(sliderForm);
+                    }
+                  }}
                   className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
                 >
-                  Save Slider
+                  {editingSlider ? "Update Slider" : "Save Slider"}
                 </Button>
               </div>
             </div>
@@ -1808,10 +2110,22 @@ export default function AdminCMS() {
         {/* MODAL: ADD / EDIT VIDEO */}
         {videoModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-lg max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">
-                {editingVideoId ? "Edit Video" : "Add Video to Gallery"}
-              </h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingVideoId ? "Edit Video" : "Add Video to Gallery"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setVideoModal(false);
+                    setEditingVideoId(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
               <Input
                 placeholder="Video Title (e.g. AI Lab Tour 2026)"
                 value={videoForm.title}
@@ -1864,7 +2178,7 @@ export default function AdminCMS() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button variant="outline" onClick={() => { setVideoModal(false); setEditingVideoId(null); setVideoForm({ title: "", category: "Events", youtubeUrl: "", thumbnailUrl: "" }); }} className="text-slate-600 text-xs">Cancel</Button>
                 <Button
                   disabled={!videoForm.title || !videoForm.youtubeUrl}
@@ -1887,10 +2201,21 @@ export default function AdminCMS() {
         {/* MODAL: ADD / EDIT MENU ITEM */}
         {menuModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">
-                {editingMenuId ? "Edit Navigation Menu Item" : "Add Navigation Menu Item"}
-              </h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingMenuId ? "Edit Navigation Menu Item" : "Add Navigation Menu Item"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setMenuModal(false);
+                    setEditingMenuId(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
               <div className="space-y-1">
                 <label className="text-[11px] font-semibold text-slate-600">Menu Title</label>
@@ -1948,7 +2273,7 @@ export default function AdminCMS() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -1983,8 +2308,17 @@ export default function AdminCMS() {
         {/* MODAL: ADD TC RECORD */}
         {tcModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Add Transfer Certificate (TC)</h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">Add Transfer Certificate (TC)</h3>
+                <button
+                  onClick={() => setTcModal(false)}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <Input
                   placeholder="Admission No. (e.g. DPSI-1082)"
@@ -2026,7 +2360,7 @@ export default function AdminCMS() {
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button variant="outline" onClick={() => setTcModal(false)} className="text-slate-600 text-xs">Cancel</Button>
                 <Button
                   disabled={!tcForm.admissionNumber || !tcForm.studentName}
@@ -2043,11 +2377,25 @@ export default function AdminCMS() {
           </div>
         )}
 
-        {/* MODAL: ADD POPUP */}
+        {/* MODAL: ADD / EDIT POPUP */}
         {popupModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Create Popup Notice</h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingPopup ? "Edit Popup Notice" : "Create Popup Notice"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setPopupModal(false);
+                    setEditingPopup(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
               <Input
                 placeholder="Popup Title"
                 value={popupForm.title}
@@ -2060,42 +2408,124 @@ export default function AdminCMS() {
                 onChange={(e) => setPopupForm({ ...popupForm, content: e.target.value })}
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setPopupModal(false)} className="text-slate-600 text-xs">Cancel</Button>
-                <Button onClick={() => createPopup.mutate(popupForm)} className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
-                  Publish Popup
+              <Input
+                placeholder="Action Link URL (Optional)"
+                value={popupForm.linkUrl}
+                onChange={(e) => setPopupForm({ ...popupForm, linkUrl: e.target.value })}
+                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+              />
+              <Input
+                placeholder="Image URL (Optional)"
+                value={popupForm.imageUrl}
+                onChange={(e) => setPopupForm({ ...popupForm, imageUrl: e.target.value })}
+                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+              />
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setPopupModal(false);
+                    setEditingPopup(null);
+                  }}
+                  className="text-slate-600 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (editingPopup) {
+                      updatePopup.mutate({ id: editingPopup, ...popupForm });
+                    } else {
+                      createPopup.mutate(popupForm);
+                    }
+                  }}
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                >
+                  {editingPopup ? "Update Popup" : "Publish Popup"}
                 </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* MODAL: ADD MARQUEE */}
+        {/* MODAL: ADD / EDIT MARQUEE */}
         {marqueeModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Add Marquee Announcement</h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingMarquee ? "Edit Marquee Announcement" : "Add Marquee Announcement"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setMarqueeModal(false);
+                    setEditingMarquee(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
               <Input
                 placeholder="Marquee Text"
                 value={marqueeForm.text}
                 onChange={(e) => setMarqueeForm({ ...marqueeForm, text: e.target.value })}
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setMarqueeModal(false)} className="text-slate-600 text-xs">Cancel</Button>
-                <Button onClick={() => createMarquee.mutate(marqueeForm)} className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
-                  Save Marquee
+              <Input
+                placeholder="Optional Target URL (e.g. /admissions)"
+                value={marqueeForm.linkUrl}
+                onChange={(e) => setMarqueeForm({ ...marqueeForm, linkUrl: e.target.value })}
+                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+              />
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMarqueeModal(false);
+                    setEditingMarquee(null);
+                  }}
+                  className="text-slate-600 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (editingMarquee) {
+                      updateMarquee.mutate({ id: editingMarquee, ...marqueeForm });
+                    } else {
+                      createMarquee.mutate(marqueeForm);
+                    }
+                  }}
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                >
+                  {editingMarquee ? "Update Marquee" : "Save Marquee"}
                 </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* MODAL: ADD ACTIVITY */}
+        {/* MODAL: ADD / EDIT ACTIVITY */}
         {activityModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Add Activity</h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingActivity ? "Edit Activity" : "Add Activity"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setActivityModal(false);
+                    setEditingActivity(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
               <Input
                 placeholder="Activity Title"
                 value={activityForm.title}
@@ -2115,25 +2545,69 @@ export default function AdminCMS() {
                 onChange={(e) => setActivityForm({ ...activityForm, description: e.target.value })}
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setActivityModal(false)} className="text-slate-600 text-xs">Cancel</Button>
-                <Button onClick={() => createActivity.mutate(activityForm)} className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
-                  Save Activity
+              <Input
+                placeholder="Image URL (Optional)"
+                value={activityForm.imageUrl}
+                onChange={(e) => setActivityForm({ ...activityForm, imageUrl: e.target.value })}
+                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+              />
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setActivityModal(false);
+                    setEditingActivity(null);
+                  }}
+                  className="text-slate-600 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (editingActivity) {
+                      updateActivity.mutate({ id: editingActivity, ...activityForm });
+                    } else {
+                      createActivity.mutate(activityForm);
+                    }
+                  }}
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                >
+                  {editingActivity ? "Update Activity" : "Save Activity"}
                 </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* MODAL: ADD ATTACHMENT */}
+        {/* MODAL: ADD / EDIT ATTACHMENT */}
         {attachmentModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900">Add Attachment / Circular</h3>
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editingAttachment ? "Edit Attachment / Circular" : "Add Attachment / Circular"}
+                </h3>
+                <button
+                  onClick={() => {
+                    setAttachmentModal(false);
+                    setEditingAttachment(null);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
               <Input
                 placeholder="Document Title"
                 value={attachmentForm.title}
                 onChange={(e) => setAttachmentForm({ ...attachmentForm, title: e.target.value })}
+                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+              />
+              <Input
+                placeholder="Category (e.g. Circulars, DateSheet, Syllabus)"
+                value={attachmentForm.category}
+                onChange={(e) => setAttachmentForm({ ...attachmentForm, category: e.target.value })}
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
               <Input
@@ -2142,10 +2616,28 @@ export default function AdminCMS() {
                 onChange={(e) => setAttachmentForm({ ...attachmentForm, fileUrl: e.target.value, fileName: e.target.value.split("/").pop() || "doc.pdf" })}
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setAttachmentModal(false)} className="text-slate-600 text-xs">Cancel</Button>
-                <Button onClick={() => createAttachment.mutate(attachmentForm)} className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm">
-                  Save Attachment
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setAttachmentModal(false);
+                    setEditingAttachment(null);
+                  }}
+                  className="text-slate-600 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (editingAttachment) {
+                      updateAttachment.mutate({ id: editingAttachment, ...attachmentForm });
+                    } else {
+                      createAttachment.mutate(attachmentForm);
+                    }
+                  }}
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                >
+                  {editingAttachment ? "Update Attachment" : "Save Attachment"}
                 </Button>
               </div>
             </div>

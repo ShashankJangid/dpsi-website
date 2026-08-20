@@ -10,6 +10,7 @@ const Facilities = lazy(() => import('./pages/Facilities'))
 const NewsEvents = lazy(() => import('./pages/NewsEvents'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const Contact = lazy(() => import('./pages/Contact'))
+const DynamicPage = lazy(() => import('./pages/DynamicPage'))
 const TransferCertificate = lazy(() => import('./pages/TransferCertificate'))
 const Admin = lazy(() => import('./pages/AdminCMS'))
 const Login = lazy(() => import('./pages/Login'))
@@ -58,6 +59,8 @@ export default function App() {
           <Route path="/transfer-certificate" element={<TransferCertificate />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/page/:slug" element={<DynamicPage />} />
+          <Route path="/:slug" element={<DynamicPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

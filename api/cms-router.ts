@@ -183,6 +183,18 @@ export const cmsRouter = createRouter({
       const { Page } = await getMainModels();
       return Page.find({ isDeleted: input?.showTrash ?? false }).sort({ createdAt: -1 });
     }),
+  getPageBySlug: publicQuery
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const { Page } = await getMainModels();
+      const cleanSlug = input.slug.replace(/^\/+/, "").trim();
+      const safeSlug = escapeRegex(cleanSlug);
+      const page = await Page.findOne({
+        slug: { $regex: new RegExp(`^${safeSlug}$`, "i") },
+        isDeleted: false,
+      });
+      return page || null;
+    }),
   createPage: publicMutation
     .input(
       z.object({

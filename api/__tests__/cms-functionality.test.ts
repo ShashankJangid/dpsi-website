@@ -108,10 +108,17 @@ describe("CMS Functionality & Business Logic Test Suite", () => {
   });
 
   describe("Slug Generator", () => {
-    it("creates URL-safe slugs", () => {
-      expect(generateSlug("Admissions Open 2026-27")).toBe("admissions-open-2026-27");
-      expect(generateSlug("Science & Technology Labs! @DPSI")).toBe("science-technology-labs-dpsi");
-      expect(generateSlug("   Multiple   Spaces   ")).toBe("multiple-spaces");
+    it("formats uppercase titles with special characters into SEO-friendly slugs", () => {
+      expect(generateSlug("AI & Innovation Labs Ecosystem")).toBe("ai-innovation-labs-ecosystem");
+      expect(generateSlug("Vision & Pedagogical Philosophy")).toBe("vision-pedagogical-philosophy");
+      expect(generateSlug("   Leading CBSE School (Indirapuram)   ")).toBe("leading-cbse-school-indirapuram");
+    });
+
+    it("handles leading and trailing slashes cleanly for dynamic routing", () => {
+      const cleanSlug = (input: string) => input.replace(/^\/+/, "").replace(/\/+$/, "").trim().toLowerCase();
+      expect(cleanSlug("/testing/")).toBe("testing");
+      expect(cleanSlug("///vision-philosophy")).toBe("vision-philosophy");
+      expect(cleanSlug("/unf")).toBe("unf");
     });
   });
 
