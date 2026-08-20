@@ -200,4 +200,57 @@ export const aiRouter = createRouter({
         return { answer: "I am having trouble connecting right now. Please call +91-0120-4660000 or email info@dpsindirapuram.com for immediate assistance." };
       }
     }),
+
+  synthesizeSpeech: publicQuery
+    .input(
+      z.object({
+        text: z.string().min(1, "Text cannot be empty").max(1200, "Text too long"),
+        voiceId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const clientIp = ctx?.req?.headers?.get("x-forwarded-for") || ctx?.req?.headers?.get("cf-connecting-ip") || "global-client";
+      if (!checkRateLimit(clientIp, 40, 60000)) {
+        return { audioBase64: null };
+      }
+
+      const apiKey = process.env.ELEVENLABS_API_KEY || process.env.VITE_ELEVENLABS_API_KEY || "";
+      if (!apiKey) {
+        return { audioBase64: null };
+      }
+
+      const voiceId = input.voiceId || "MF4J4IDTRo0AxOO4dpFR";
+
+      try {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+          method: "POST",
+          headers: {
+            Accept: "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": apiKey,
+          },
+          body: JSON.stringify({
+            text: input.text,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+              style: 0.2,
+              use_speaker_boost: true,
+            },
+          }),
+        });
+
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString("base64");
+          return { audioBase64: `data:audio/mpeg;base64,${base64}` };
+        }
+        console.error("ElevenLabs TTS status error:", response.status);
+      } catch (error) {
+        console.error("Error calling ElevenLabs API on server:", error);
+      }
+
+      return { audioBase64: null };
+    }),
 });

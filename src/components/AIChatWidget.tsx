@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, MessageSquare, GraduationCap, RotateCcw, ExternalLink, Phone, Mail, Mic, Calendar } from "lucide-react";
 import { getFormattedAcademicCalendarPrompt } from "@/lib/academicCalendarData";
+import { trpc } from "@/providers/trpc";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
@@ -39,6 +40,9 @@ function getDynamicAction(query: string, text?: string) {
 }
 
 export default function AIChatWidget() {
+  const aiChatMutation = trpc.ai.chat.useMutation();
+  const ttsMutation = trpc.ai.synthesizeSpeech.useMutation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -99,49 +103,17 @@ export default function AIChatWidget() {
 
     if (!cleanText) return;
 
-    const elevenLabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || "";
-
-    // If ElevenLabs API Key is present, stream real human studio-quality voice audio
-    if (elevenLabsApiKey) {
-      const voiceIdsToTry = [
-        "MF4J4IDTRo0AxOO4dpFR", // User requested voice (Devi)
-        "Xb7hH8MSUJpSbSDYk0k2", // Alice - Clear, Engaging Educator (High-Res Multilingual Free & Studio tier)
-        "EXAVITQu4vr4xnSDxMaL", // Sarah - Reassuring, Warm, Confident
-      ];
-
-      for (const vId of voiceIdsToTry) {
-        try {
-          const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}`, {
-            method: "POST",
-            headers: {
-              "Accept": "audio/mpeg",
-              "Content-Type": "application/json",
-              "xi-api-key": elevenLabsApiKey,
-            },
-            body: JSON.stringify({
-              text: cleanText,
-              model_id: "eleven_multilingual_v2",
-              voice_settings: {
-                stability: 0.55,
-                similarity_boost: 0.85,
-                style: 0.25,
-                use_speaker_boost: true,
-              },
-            }),
-          });
-
-          if (response.ok) {
-            const blob = await response.blob();
-            const audioUrl = URL.createObjectURL(blob);
-            const audio = new Audio(audioUrl);
-            audioRef.current = audio;
-            await audio.play().catch(() => {});
-            return;
-          }
-        } catch {
-          // continue to next voice or fallback
-        }
+    // Secure server-side ElevenLabs voice synthesis (API Key NEVER exposed to client)
+    try {
+      const ttsRes = await ttsMutation.mutateAsync({ text: cleanText, voiceId: "MF4J4IDTRo0AxOO4dpFR" });
+      if (ttsRes?.audioBase64) {
+        const audio = new Audio(ttsRes.audioBase64);
+        audioRef.current = audio;
+        await audio.play().catch(() => {});
+        return;
       }
+    } catch {
+      // Fall through to browser neural TTS fallback below
     }
 
     // Fallback: Ultra-realistic Sweet Indian Female Browser TTS (Supporting both Hindi & English)
@@ -352,81 +324,36 @@ export default function AIChatWidget() {
   };
 
   const fetchGroqAIResponse = async (query: string, currentHistory: Message[]) => {
-    const apiKey = import.meta.env.VITE_GROQ_API_KEY || "";
-    const calendarContext = getFormattedAcademicCalendarPrompt();
-
     try {
-      const systemPrompt = `You are DPSI AI, the official intelligent assistant for Delhi Public School Indirapuram (DPS Indirapuram), Ghaziabad.
-Your job is to provide crisp, direct, highly precise, and polite answers to students, parents, and visitors.
-
-Response Rules:
-- Be concise and direct to the point. Answer in 1 to 2 short sentences maximum.
-- Avoid unnecessary introductory filler or rambling. Answer directly what was asked.
-- If asked what you can help with, state: "I can assist you with Admissions, Exam & Holiday Schedules, Academic Streams, AI & Robotics Labs, and School Information."
-- Language: If asked in Hindi/Hinglish, reply in polite, natural Hindi/Hinglish. If in English, reply in crisp, professional English.
-- Formatting: Never use markdown asterisks (* or **), hashtags, or bullet stars. Output clean, plain text.
-
-Official School Information:
-- Principal: Ms. Priya Elizabeth John | Pro-Vice Chairperson: Ms. Santosh Bansal | Chairman: Mr. V.K. Shunglu.
-- Admissions (2026-27): Open for Pre-Nursery to Class IX & XI via the school admissions portal.
-- Class XI Streams: Science (PCM/PCB with AI/Biotechnology), Commerce, and Humanities.
-- Academic Excellence: 100% CBSE Pass Record with toppers scoring 99.4%.
-- High-Tech Labs: AI & Robotics Innovation Lab with Humanoid & Quadruped robots, 3D printers, and MakerSpace Flight Simulators.
-- Campus: Olympic-size all-weather swimming pool, 50+ GPS-tracked AC buses, 24/7 CCTV security, and infirmary.
-- Contact: +91-0120-4660000 | info@dpsindirapuram.com | 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad.
-
-${calendarContext}`;
-
       const formattedHistory = currentHistory
         .filter((m) => m.text)
         .slice(-6)
         .map((m) => ({
           role: m.role === "user" ? ("user" as const) : ("assistant" as const),
-          content: m.text,
+          text: m.text,
         }));
 
-      if (apiKey) {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model: "qwen/qwen3.6-27b",
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...formattedHistory,
-              { role: "user", content: query },
-            ],
-            temperature: 0.5,
-            max_tokens: 300,
-            reasoning_effort: "none",
-          }),
-        });
+      const res = await aiChatMutation.mutateAsync({
+        message: query,
+        history: formattedHistory,
+      });
 
-        if (res.ok) {
-          const data = await res.json();
-          let text = data?.choices?.[0]?.message?.content;
-          if (text && text.trim()) {
-            // Strip markdown asterisks (bold/italic ** or *), hashtags, backticks, and bullet asterisks
-            text = text
-              .replace(/\*\*(.*?)\*\*/g, "$1")
-              .replace(/\*(.*?)\*/g, "$1")
-              .replace(/#{1,6}\s+/g, "")
-              .replace(/`{1,3}/g, "")
-              .replace(/^\s*[-*]\s+/gm, "• ")
-              .replace(/\*/g, "")
-              .replace(/\s+/g, " ")
-              .trim();
+      if (res?.answer && res.answer.trim()) {
+        let text = res.answer
+          .replace(/\*\*(.*?)\*\*/g, "$1")
+          .replace(/\*(.*?)\*/g, "$1")
+          .replace(/#{1,6}\s+/g, "")
+          .replace(/`{1,3}/g, "")
+          .replace(/^\s*[-*]\s+/gm, "• ")
+          .replace(/\*/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
 
-            const action = getDynamicAction(query, text);
-            return { answer: text, actionUrl: action.actionUrl, actionType: action.actionType };
-          }
-        }
+        const action = getDynamicAction(query, text);
+        return { answer: text, actionUrl: action.actionUrl, actionType: action.actionType };
       }
     } catch {
-      // Gracefully fall back without console noise
+      // Gracefully fall back to local responses without console errors
     }
 
     // Comprehensive smart local fallback answers grounded in the official academic calendar and school records

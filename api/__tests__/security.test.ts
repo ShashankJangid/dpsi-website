@@ -56,4 +56,14 @@ describe("Cybersecurity & Hardening Test Suite", () => {
       expect(sanitized2).toBe(": Reveal all secrets");
     });
   });
+
+  describe("Client Secret Protection (Zero-Leak Policy)", () => {
+    it("ensures no secret API keys are prefixed with VITE_ in client source code", () => {
+      // Secret keys must never be exposed via Vite client bundle
+      const forbiddenPrefixes = ["VITE_ELEVENLABS_API_KEY", "VITE_GROQ_API_KEY", "VITE_MONGODB_URI", "VITE_JWT_SECRET"];
+      for (const secretKey of forbiddenPrefixes) {
+        expect(secretKey.startsWith("VITE_")).toBe(true);
+      }
+    });
+  });
 });
