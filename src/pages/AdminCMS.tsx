@@ -25,7 +25,6 @@ import {
   ShieldCheck,
   RefreshCw,
   LogOut,
-  Sparkles,
   Lock,
   User,
   Key,
@@ -41,6 +40,7 @@ import {
   ChevronDown,
   Copy,
   X,
+  Bell,
 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
@@ -68,15 +68,42 @@ type TabType =
   | "ai_settings";
 
 export default function AdminCMS() {
-  // Authentication State
+  const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem("dpsi_admin_auth") === "true";
+    return !!localStorage.getItem("dpsi_admin_token");
   });
   const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
-  const [activeTab, setActiveTab] = useState<TabType>("dashboard");
+  const [pageModal, setPageModal] = useState(false);
+  const [pageForm, setPageForm] = useState({ title: "", slug: "", content: "", category: "General" });
+
+  const [menuModal, setMenuModal] = useState(false);
+  const [menuForm, setMenuForm] = useState<{
+    title: string;
+    url: string;
+    location: "header" | "footer_quick" | "footer_resources";
+    parent: string;
+    order: number;
+  }>({
+    title: "",
+    url: "",
+    location: "header",
+    parent: "",
+    order: 0,
+  });
+
+  const [popupModal, setPopupModal] = useState(false);
+  const [popupForm, setPopupForm] = useState({
+    title: "",
+    content: "",
+    imageUrl: "",
+    linkUrl: "",
+    badgeText: "Official Notice",
+    buttonText: "Learn More",
+  });
+
   const utils = trpc.useUtils();
 
   // Queries
@@ -434,27 +461,6 @@ export default function AdminCMS() {
   });
 
   // Modal Form States
-  const [pageModal, setPageModal] = useState(false);
-  const [pageForm, setPageForm] = useState({ title: "", slug: "", category: "General", content: "" });
-
-  const [menuModal, setMenuModal] = useState(false);
-  const [menuForm, setMenuForm] = useState<{
-    title: string;
-    url: string;
-    location: "header" | "footer_quick" | "footer_resources";
-    parent: string;
-    order: number;
-  }>({
-    title: "",
-    url: "",
-    location: "header",
-    parent: "",
-    order: 0,
-  });
-
-  const [popupModal, setPopupModal] = useState(false);
-  const [popupForm, setPopupForm] = useState({ title: "", content: "", imageUrl: "", linkUrl: "" });
-
   const [marqueeModal, setMarqueeModal] = useState(false);
   const [marqueeForm, setMarqueeForm] = useState({ text: "", linkUrl: "", speed: 50 });
 
@@ -681,7 +687,7 @@ export default function AdminCMS() {
   return (
     <Layout>
       <div className="min-h-screen bg-slate-100 text-slate-900 pb-16">
-        {/* Top Header Bar matching Edunext legacy admin */}
+        {/* Top Header Bar */}
         <div className="border-b border-slate-200 bg-white shadow-sm px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
@@ -694,7 +700,7 @@ export default function AdminCMS() {
                   Admin: {localStorage.getItem("dpsi_admin_user") || "Admin"}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500">Edunext Architecture • MongoDB Multi-DB & Cloudinary CDN</p>
+              <p className="text-[11px] text-slate-500">Delhi Public School Indirapuram • Administration Portal</p>
             </div>
           </div>
 
@@ -713,69 +719,60 @@ export default function AdminCMS() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open("/", "_blank")}
-              className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs h-8 shadow-sm"
-            >
-              <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Live Site
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
               onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white text-xs h-8 ml-1 shadow-sm"
+              className="border-slate-200 bg-white hover:bg-red-50 text-red-600 hover:text-red-700 text-xs h-8 ml-1 shadow-sm"
             >
               <LogOut className="w-3.5 h-3.5 mr-1.5" /> Logout
             </Button>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left Sidebar Navigation */}
-            <div className="lg:w-64 shrink-0">
-              <div className="bg-white border border-slate-200 rounded-2xl p-2.5 space-y-1 sticky top-20 shadow-sm">
-                <div className="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  Menu Navigation
-                </div>
-                {navMenuItems.map((item) => {
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setActiveTab(item.id as TabType)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                        isActive
-                          ? "bg-emerald-700 text-white shadow-sm font-semibold"
-                          : "text-slate-700 hover:bg-slate-50 hover:text-emerald-800"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        {item.icon}
-                        <span>{item.label}</span>
-                      </div>
-                      {item.count !== null && item.count !== undefined && (
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                            isActive ? "bg-emerald-900 text-emerald-100" : "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {item.count}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            {/* Left Nav Bar */}
+            <div className="w-full lg:w-64 bg-white border border-slate-200 rounded-xl p-3 shadow-sm shrink-0">
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 py-2">
+                Menu Navigation
+              </div>
+              <div className="space-y-1">
+                {navMenuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id as TabType)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      activeTab === item.id
+                        ? "bg-emerald-800 text-white shadow-sm"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </div>
+                    {item.count !== null && item.count !== undefined && (
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                          activeTab === item.id
+                            ? "bg-emerald-950/50 text-white"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {item.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Main Content Workspace */}
-            <div className="flex-1 min-w-0">
+            {/* Right Main Body Content Panel */}
+            <div className="flex-1 w-full min-w-0">
               {/* 1. DASHBOARD */}
               {activeTab === "dashboard" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900">Dashboard Overview</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Real-time counts from MongoDB Multi-Database Collections</p>
+                    <h2 className="text-xl font-bold text-slate-900">System Overview</h2>
+                    <p className="text-xs text-slate-500">Live operational metrics & database records</p>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
@@ -813,7 +810,7 @@ export default function AdminCMS() {
                     <Card className="bg-white border-slate-200 shadow-sm">
                       <CardHeader className="p-4 pb-2">
                         <CardTitle className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-emerald-600" /> Cloudinary CDN & Auto-WebP Active
+                          <CheckCircle className="w-4 h-4 text-emerald-600" /> Cloudinary CDN & Auto-WebP Active
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-4 pt-2 text-xs text-slate-600 space-y-1.5">
@@ -1074,12 +1071,19 @@ export default function AdminCMS() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">Popup Notification</h2>
-                      <p className="text-xs text-slate-500">Add Popup • Popup List</p>
+                      <p className="text-xs text-slate-500">Customizable website modal alert with image & CTA</p>
                     </div>
                     <Button
                       onClick={() => {
                         setEditingPopup(null);
-                        setPopupForm({ title: "", content: "", imageUrl: "", linkUrl: "", showOnLoad: true, isActive: true });
+                        setPopupForm({
+                          title: "",
+                          content: "",
+                          imageUrl: "",
+                          linkUrl: "",
+                          badgeText: "Official Notice",
+                          buttonText: "Learn More",
+                        });
                         setPopupModal(true);
                       }}
                       size="sm"
@@ -1091,30 +1095,46 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {popupsList?.map((p: any) => (
-                      <Card key={p._id} className="bg-white border-slate-200 shadow-sm">
-                        <CardContent className="p-4 flex items-start justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-slate-900 text-xs">{p.title}</h3>
+                      <Card key={p._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                        <div>
+                          {p.imageUrl && (
+                            <div className="w-full h-36 bg-slate-50 border-b border-slate-100 overflow-hidden flex items-center justify-center">
+                              <img src={p.imageUrl} alt={p.title} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          <CardContent className="p-4 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                {p.badgeText || "Official Notice"}
+                              </span>
                               <span
-                                className={`px-2 py-0.2 text-[9px] rounded font-medium ${
+                                className={`px-2 py-0.5 text-[9px] rounded font-medium ${
                                   p.isActive ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-600"
                                 }`}
                               >
                                 {p.isActive ? "Active" : "Disabled"}
                               </span>
                             </div>
-                            <p className="text-xs text-slate-500 mt-1">{p.content || "No description"}</p>
-                          </div>
+                            <h3 className="font-semibold text-slate-900 text-sm leading-snug">{p.title}</h3>
+                            <p className="text-xs text-slate-500 line-clamp-3">{p.content || "No description"}</p>
+                            {p.linkUrl && (
+                              <div className="text-[11px] text-emerald-700 font-mono flex items-center gap-1 pt-1 truncate">
+                                <ExternalLink className="w-3 h-3 shrink-0" />
+                                <span className="truncate">{p.buttonText || "Button"}: {p.linkUrl}</span>
+                              </div>
+                            )}
+                          </CardContent>
+                        </div>
+                        <div className="p-4 pt-0 flex items-center justify-between border-t border-slate-100 mt-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-slate-200 text-[10px] h-7 px-2"
+                            onClick={() => togglePopup.mutate({ id: p._id, isActive: !p.isActive })}
+                          >
+                            {p.isActive ? "Disable" : "Enable"}
+                          </Button>
                           <div className="flex items-center gap-1">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-slate-200 text-[10px] h-7 px-2"
-                              onClick={() => togglePopup.mutate({ id: p._id, isActive: !p.isActive })}
-                            >
-                              {p.isActive ? "Disable" : "Enable"}
-                            </Button>
                             <Button
                               size="sm"
                               variant="ghost"
@@ -1127,8 +1147,8 @@ export default function AdminCMS() {
                                   content: p.content || "",
                                   imageUrl: p.imageUrl || "",
                                   linkUrl: p.linkUrl || "",
-                                  showOnLoad: p.showOnLoad !== false,
-                                  isActive: p.isActive !== false,
+                                  badgeText: p.badgeText || "Official Notice",
+                                  buttonText: p.buttonText || "Learn More",
                                 });
                                 setPopupModal(true);
                               }}
@@ -1145,12 +1165,12 @@ export default function AdminCMS() {
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </div>
-                        </CardContent>
+                        </div>
                       </Card>
                     ))}
                     {(!popupsList || popupsList.length === 0) && (
                       <div className="col-span-full text-center py-8 text-slate-400 text-xs bg-white rounded-xl border border-slate-200">
-                        No popups created.
+                        No popups created. Click "Add Popup" to create an announcement notice.
                       </div>
                     )}
                   </div>
@@ -2413,36 +2433,96 @@ export default function AdminCMS() {
                     setPopupModal(false);
                     setEditingPopup(null);
                   }}
-                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <Input
-                placeholder="Popup Title"
-                value={popupForm.title}
-                onChange={(e) => setPopupForm({ ...popupForm, title: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
-              <Textarea
-                placeholder="Notice Content"
-                value={popupForm.content}
-                onChange={(e) => setPopupForm({ ...popupForm, content: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
-              <Input
-                placeholder="Action Link URL (Optional)"
-                value={popupForm.linkUrl}
-                onChange={(e) => setPopupForm({ ...popupForm, linkUrl: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
-              <Input
-                placeholder="Image URL (Optional)"
-                value={popupForm.imageUrl}
-                onChange={(e) => setPopupForm({ ...popupForm, imageUrl: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
+              {/* Popup Banner Image Upload & Direct URL */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-600">Popup Banner Image (Optional)</label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Image URL or Cloudinary CDN link"
+                    value={popupForm.imageUrl}
+                    onChange={(e) => setPopupForm({ ...popupForm, imageUrl: e.target.value })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                  />
+                  <label className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-2 rounded-lg cursor-pointer flex items-center gap-1 shrink-0 border border-slate-200 font-medium">
+                    <Upload className="w-3.5 h-3.5" /> Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleMediaUpload(file, (url) => setPopupForm({ ...popupForm, imageUrl: url }));
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {popupForm.imageUrl && (
+                  <div className="mt-2 rounded-lg overflow-hidden border border-slate-200 max-h-32 bg-slate-50 flex items-center justify-center">
+                    <img src={popupForm.imageUrl} alt="Preview" className="max-h-32 object-contain" />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-600">Badge Tag (e.g. Official Notice, Admissions Open)</label>
+                <Input
+                  placeholder="Official Notice"
+                  value={popupForm.badgeText}
+                  onChange={(e) => setPopupForm({ ...popupForm, badgeText: e.target.value })}
+                  className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-600">Popup Title</label>
+                <Input
+                  placeholder="e.g. Admissions Open for Academic Session 2026-27"
+                  value={popupForm.title}
+                  onChange={(e) => setPopupForm({ ...popupForm, title: e.target.value })}
+                  className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-medium"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-600">Notice Content</label>
+                <Textarea
+                  placeholder="Enter notice description or announcements..."
+                  rows={3}
+                  value={popupForm.content}
+                  onChange={(e) => setPopupForm({ ...popupForm, content: e.target.value })}
+                  className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-semibold text-slate-600">Button Text</label>
+                  <Input
+                    placeholder="Learn More"
+                    value={popupForm.buttonText}
+                    onChange={(e) => setPopupForm({ ...popupForm, buttonText: e.target.value })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-semibold text-slate-600">Action Link URL</label>
+                  <Input
+                    placeholder="/admissions or https://..."
+                    value={popupForm.linkUrl}
+                    onChange={(e) => setPopupForm({ ...popupForm, linkUrl: e.target.value })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                  />
+                </div>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button
                   variant="outline"
@@ -2455,6 +2535,7 @@ export default function AdminCMS() {
                   Cancel
                 </Button>
                 <Button
+                  disabled={!popupForm.title}
                   onClick={() => {
                     if (editingPopup) {
                       updatePopup.mutate({ id: editingPopup, ...popupForm });

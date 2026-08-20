@@ -58,6 +58,8 @@ export interface IPopup extends Document {
   content?: string;
   imageUrl?: string;
   linkUrl?: string;
+  badgeText?: string;
+  buttonText?: string;
   showOnLoad: boolean;
   isActive: boolean;
   isDeleted: boolean;
@@ -71,6 +73,8 @@ const PopupSchema = new Schema<IPopup>(
     content: { type: String },
     imageUrl: { type: String },
     linkUrl: { type: String },
+    badgeText: { type: String, default: "Official Announcement" },
+    buttonText: { type: String, default: "Learn More" },
     showOnLoad: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },

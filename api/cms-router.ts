@@ -302,6 +302,8 @@ export const cmsRouter = createRouter({
         content: z.string().optional(),
         imageUrl: z.string().optional(),
         linkUrl: z.string().optional(),
+        badgeText: z.string().optional(),
+        buttonText: z.string().optional(),
         showOnLoad: z.boolean().default(true),
         isActive: z.boolean().default(true),
       })
@@ -795,6 +797,8 @@ export const cmsRouter = createRouter({
         content: z.string().optional(),
         imageUrl: z.string().optional(),
         linkUrl: z.string().optional(),
+        badgeText: z.string().optional(),
+        buttonText: z.string().optional(),
         showOnLoad: z.boolean().optional(),
         isActive: z.boolean().optional(),
       })
