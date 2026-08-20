@@ -199,8 +199,7 @@ export default function HeroSection() {
               src={slide.image}
               alt={slide.title}
               className="w-full h-full object-cover object-center z-0 will-change-transform"
-              fetchPriority={safeSlideIndex === 0 ? "high" : "auto"}
-              loading="eager"
+              {...(safeSlideIndex === 0 ? { fetchPriority: "high" } : {})}
               decoding="async"
             />
           </motion.div>
