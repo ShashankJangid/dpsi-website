@@ -72,8 +72,10 @@ type TabType =
   | "testimonials"
   | "leadership"
   | "facilities"
+  | "feature_cards"
   | "departments"
   | "admissions_content"
+
   | "stats_metrics"
   | "attachments"
   | "tc"
