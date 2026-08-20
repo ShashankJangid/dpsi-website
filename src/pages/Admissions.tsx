@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  CheckCircle, ChevronDown, ChevronUp, FileText, ClipboardList, CreditCard, BadgeCheck, Loader2
+  CheckCircle, ChevronDown, ChevronUp, FileText, ClipboardList, CreditCard, BadgeCheck, Loader2, HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,24 +12,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/providers/trpc";
 import Layout from "@/components/Layout";
 
-const steps = [
-  { icon: <FileText className="w-6 h-6" />, title: "Online Application", desc: "Fill out the admission form with student and parent details." },
-  { icon: <ClipboardList className="w-6 h-6" />, title: "Document Upload", desc: "Submit required documents: birth certificate, photographs, previous marksheets." },
-  { icon: <CreditCard className="w-6 h-6" />, title: "Fee Payment", desc: "Pay the registration fee securely through our online payment gateway." },
-  { icon: <BadgeCheck className="w-6 h-6" />, title: "Interaction & Assessment", desc: "Attend the student interaction session and entrance assessment." },
-  { icon: <CheckCircle className="w-6 h-6" />, title: "Admission Confirmation", desc: "Receive confirmation and complete the final admission formalities." },
-];
-
-const faqs = [
-  { q: "What is the age criteria for admission to Nursery?", a: "The child should be 3+ years as of March 31st of the admission year." },
-  { q: "What documents are required for admission?", a: "Birth certificate, passport-size photographs, previous school marksheet (if applicable), transfer certificate, and address proof." },
-  { q: "Is there an entrance examination?", a: "Yes, an age-appropriate assessment is conducted for classes I onwards to understand the child's academic readiness." },
-  { q: "What is the fee structure?", a: "Please contact our admission office or visit the school for detailed fee structure. We also offer scholarships for meritorious students." },
-  { q: "Does the school provide transportation?", a: "Yes, we have a fleet of air-conditioned buses covering major areas of Ghaziabad, Noida, and East Delhi." },
-  { q: "What is the student-teacher ratio?", a: "We maintain a healthy student-teacher ratio of 25:1 to ensure personalized attention." },
-];
+const iconMap: Record<string, React.ReactNode> = {
+  FileText: <FileText className="w-6 h-6" />,
+  ClipboardList: <ClipboardList className="w-6 h-6" />,
+  CreditCard: <CreditCard className="w-6 h-6" />,
+  BadgeCheck: <BadgeCheck className="w-6 h-6" />,
+  CheckCircle: <CheckCircle className="w-6 h-6" />,
+  HelpCircle: <HelpCircle className="w-6 h-6" />,
+};
 
 export default function Admissions() {
+  const { data: stepsList } = trpc.cms.listAdmissionSteps.useQuery();
+  const { data: faqsList } = trpc.cms.listFaqs.useQuery({ category: "Admissions" });
+
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     studentName: "",
@@ -93,32 +88,35 @@ export default function Admissions() {
         </div>
       </section>
 
-      <section className="py-20 bg-white dark:bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Admission Process</h2>
-            <div className="w-16 h-1 bg-emerald-500 mx-auto mt-3 rounded-full" />
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {steps.map((step, i) => (
-              <motion.div key={step.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <Card className="h-full text-center hover:shadow-lg transition-shadow relative">
-                  <CardContent className="p-6">
-                    <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                      {step.icon}
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                      {i + 1}
-                    </div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white mb-2">{step.title}</h3>
-                    <p className="text-xs text-muted-foreground">{step.desc}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+      {/* 100% DYNAMIC ADMISSION STEPS */}
+      {stepsList && stepsList.length > 0 && (
+        <section className="py-20 bg-white dark:bg-slate-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Admission Process</h2>
+              <div className="w-16 h-1 bg-emerald-500 mx-auto mt-3 rounded-full" />
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {stepsList.map((step: any, i: number) => (
+                <motion.div key={step._id || step.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                  <Card className="h-full text-center hover:shadow-lg transition-shadow relative border border-slate-200/80 dark:border-slate-800">
+                    <CardContent className="p-6">
+                      <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        {iconMap[step.icon || "FileText"] || <FileText className="w-6 h-6" />}
+                      </div>
+                      <div className="absolute -top-3 -right-3 w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">
+                        {step.stepNumber || i + 1}
+                      </div>
+                      <h3 className="font-semibold text-slate-900 dark:text-white mb-2">{step.title}</h3>
+                      <p className="text-xs text-muted-foreground">{step.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="py-20 bg-emerald-50 dark:bg-emerald-950/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -201,34 +199,37 @@ export default function Admissions() {
         </div>
       </section>
 
-      <section className="py-20 bg-white dark:bg-slate-900">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h2>
-            <div className="w-16 h-1 bg-emerald-500 mx-auto mt-3 rounded-full" />
-          </motion.div>
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full text-left p-5 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-900 dark:text-white pr-4">{faq.q}</span>
-                    {openFaq === i ? <ChevronUp className="w-5 h-5 text-emerald-500 shrink-0" /> : <ChevronDown className="w-5 h-5 text-emerald-500 shrink-0" />}
-                  </div>
-                  {openFaq === i && (
-                    <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="text-slate-600 dark:text-slate-300 mt-3 text-sm leading-relaxed">
-                      {faq.a}
-                    </motion.p>
-                  )}
-                </button>
-              </motion.div>
-            ))}
+      {/* 100% DYNAMIC ADMISSION FAQS */}
+      {faqsList && faqsList.length > 0 && (
+        <section className="py-20 bg-white dark:bg-slate-900">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h2>
+              <div className="w-16 h-1 bg-emerald-500 mx-auto mt-3 rounded-full" />
+            </motion.div>
+            <div className="space-y-3">
+              {faqsList.map((faq: any, i: number) => (
+                <motion.div key={faq._id || i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+                  <button
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    className="w-full text-left p-5 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-slate-900 dark:text-white pr-4">{faq.question}</span>
+                      {openFaq === i ? <ChevronUp className="w-5 h-5 text-emerald-500 shrink-0" /> : <ChevronDown className="w-5 h-5 text-emerald-500 shrink-0" />}
+                    </div>
+                    {openFaq === i && (
+                      <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="text-slate-600 dark:text-slate-300 mt-3 text-sm leading-relaxed">
+                        {faq.answer}
+                      </motion.p>
+                    )}
+                  </button>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </Layout>
   );
 }

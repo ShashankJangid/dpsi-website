@@ -2,129 +2,23 @@ import { motion } from "framer-motion";
 import { CoverflowCarousel, type CoverflowSlide } from "@/components/ui/coverflow-carousel";
 import { trpc } from "@/providers/trpc";
 
-const defaultTopperSlides: CoverflowSlide[] = [
-  {
-    src: "/images/dps/topper_siddhant.webp",
-    alt: "Siddhant Tiwari",
-    title: "Siddhant Tiwari • 99.4%",
-    subtitle: "Class X • CBSE Board Examination",
-    meta: [
-      { label: "Rank", value: "#1 Rank (Class X)" },
-      { label: "Score", value: "99.4% Aggregate" },
-      { label: "Board", value: "CBSE All India" },
-    ],
-  },
-  {
-    src: "/images/dps/topper_ansh.webp",
-    alt: "Ansh Pathak",
-    title: "Ansh Pathak • 99.4%",
-    subtitle: "Class X • CBSE Board Examination",
-    meta: [
-      { label: "Rank", value: "#1 Rank (Class X)" },
-      { label: "Score", value: "99.4% Aggregate" },
-      { label: "Board", value: "CBSE All India" },
-    ],
-  },
-  {
-    src: "/images/dps/topper_aayush.webp",
-    alt: "Aayush Jha",
-    title: "Aayush Jha • 99.2%",
-    subtitle: "Class X • CBSE Board Examination",
-    meta: [
-      { label: "Rank", value: "#2 Rank (Class X)" },
-      { label: "Score", value: "99.2% Aggregate" },
-      { label: "Board", value: "CBSE All India" },
-    ],
-  },
-  {
-    src: "/images/dps/topper_arnav.webp",
-    alt: "Arnav Jha",
-    title: "Arnav Jha • 99.2%",
-    subtitle: "Class X • CBSE Board Examination",
-    meta: [
-      { label: "Rank", value: "#2 Rank (Class X)" },
-      { label: "Score", value: "99.2% Aggregate" },
-      { label: "Board", value: "CBSE All India" },
-    ],
-  },
-  {
-    src: "/images/dps/topper_jia.webp",
-    alt: "Jia Manchanda",
-    title: "Jia Manchanda • 98.2%",
-    subtitle: "Class XII • Commerce Stream",
-    meta: [
-      { label: "Stream", value: "Commerce Top Rank" },
-      { label: "Score", value: "98.2% Aggregate" },
-      { label: "Board", value: "CBSE All India" },
-    ],
-  },
-  {
-    src: "/images/dps/topper_snigdha.webp",
-    alt: "Snigdha Shukla",
-    title: "Snigdha Shukla • 97.6%",
-    subtitle: "Class XII • Humanities Stream",
-    meta: [
-      { label: "Stream", value: "Humanities Top Rank" },
-      { label: "Score", value: "97.6% Aggregate" },
-      { label: "Board", value: "CBSE All India" },
-    ],
-  },
-  {
-    src: "/images/dps/topper_pawni.webp",
-    alt: "Pawni Srivastava",
-    title: "Pawni Srivastava • 97.2%",
-    subtitle: "Class XII • Science Stream",
-    meta: [
-      { label: "Stream", value: "Science Top Rank" },
-      { label: "Score", value: "97.2% Aggregate" },
-      { label: "Board", value: "CBSE All India" },
-    ],
-  },
-];
-
 export default function AchievementsSection() {
-  const { data: cmsActivities } = trpc.cms.listActivities.useQuery();
-  const { data: legacyAchievements } = trpc.achievements.featured.useQuery();
+  const { data: achievements, isLoading } = trpc.achievements.list.useQuery();
 
-  // Filter activities for achievement/award categories
-  const achievementActivities = cmsActivities?.filter((a: any) =>
-    !a.isDeleted &&
-    a.isPublished !== false &&
-    (
-      a.category?.toLowerCase().includes("achiev") ||
-      a.category?.toLowerCase().includes("topper") ||
-      a.category?.toLowerCase().includes("award") ||
-      a.category?.toLowerCase().includes("academic") ||
-      a.category?.toLowerCase().includes("honor")
-    )
-  );
+  const slides: CoverflowSlide[] = (achievements || []).map((ach: any) => ({
+    src: ach.imageUrl || ach.image || "/images/dps/topper_siddhant.webp",
+    alt: ach.studentName,
+    title: `${ach.studentName} • ${ach.score}`,
+    subtitle: `${ach.className || ach.class} • ${ach.exam || "CBSE Board Examination"}`,
+    meta: [
+      { label: "Rank", value: ach.rank || ach.stream || "#1 Rank" },
+      { label: "Score", value: `${ach.score} Aggregate` },
+      { label: "Year", value: ach.year || "2025-26" },
+    ],
+  }));
 
-  let slides: CoverflowSlide[] = defaultTopperSlides;
-
-  if (achievementActivities && achievementActivities.length > 0) {
-    slides = achievementActivities.map((a: any) => ({
-      src: a.imageUrl || "/images/dps/topper_siddhant.webp",
-      alt: a.title,
-      title: a.title,
-      subtitle: a.description ? (a.description.length > 60 ? a.description.slice(0, 60) + "..." : a.description) : "Academic Excellence",
-      meta: [
-        { label: "Category", value: a.category || "Academic Excellence" },
-        { label: "Date", value: new Date(a.eventDate || a.createdAt).toLocaleDateString() },
-        { label: "Recognition", value: "DPS Indirapuram" },
-      ],
-    }));
-  } else if (legacyAchievements && legacyAchievements.length > 0) {
-    slides = legacyAchievements.map((ach: any) => ({
-      src: ach.image || "/images/dps/topper_siddhant.webp",
-      alt: ach.studentName,
-      title: `${ach.studentName} • ${ach.score}`,
-      subtitle: `${ach.class} • ${ach.exam || "CBSE Board Examination"}`,
-      meta: [
-        { label: "Year", value: ach.year || "2024-25" },
-        { label: "Score", value: ach.score },
-        { label: "Board", value: "CBSE All India" },
-      ],
-    }));
+  if (!isLoading && slides.length === 0) {
+    return null;
   }
 
   return (
@@ -133,7 +27,7 @@ export default function AchievementsSection() {
       <motion.div
         animate={{
           scale: [1, 1.25, 1],
-          opacity: [0.15, 0.3, 0.15]
+          opacity: [0.15, 0.3, 0.15],
         }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         className="absolute -top-24 -right-24 w-96 h-96 bg-amber-500/20 blur-3xl pointer-events-none rounded-full"
@@ -141,7 +35,7 @@ export default function AchievementsSection() {
       <motion.div
         animate={{
           scale: [1.2, 1, 1.2],
-          opacity: [0.1, 0.25, 0.1]
+          opacity: [0.1, 0.25, 0.1],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/20 blur-3xl pointer-events-none rounded-full"
@@ -169,26 +63,28 @@ export default function AchievementsSection() {
         </motion.div>
 
         {/* 3D COVERFLOW SHOWCASE FOR TOPPERS */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          className="w-full max-w-5xl mx-auto py-2"
-        >
-          <CoverflowCarousel
-            slides={slides}
-            showCaption={true}
-            showNavigation={true}
-            showPagination={true}
-            cardWidth="clamp(180px, 26vw, 290px)"
-            rotate={42}
-            depth={0.7}
-            perspective={3.2}
-            className="py-2 text-white"
-            cardClassName="border-2 border-amber-400/50 shadow-2xl rounded-3xl bg-slate-900 ring-2 ring-amber-500/20"
-          />
-        </motion.div>
+        {slides.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="w-full max-w-5xl mx-auto py-2"
+          >
+            <CoverflowCarousel
+              slides={slides}
+              showCaption={true}
+              showNavigation={true}
+              showPagination={true}
+              cardWidth="clamp(180px, 26vw, 290px)"
+              rotate={42}
+              depth={0.7}
+              perspective={3.2}
+              className="py-2 text-white"
+              cardClassName="border-2 border-amber-400/50 shadow-2xl rounded-3xl bg-slate-900 ring-2 ring-amber-500/20"
+            />
+          </motion.div>
+        )}
       </div>
     </section>
   );

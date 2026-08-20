@@ -10,8 +10,19 @@ import LazyMap from "@/components/LazyMap";
 import { trpc } from "@/providers/trpc";
 
 export default function Contact() {
+  const { data: siteSettings } = trpc.cms.getSiteSettings.useQuery();
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+
+  const getSetting = (key: string, fallback: string) => {
+    const item = siteSettings?.find((s: any) => s.key === key);
+    return item?.value?.trim() || fallback;
+  };
+
+  const address = getSetting("contact_address", "526/1, Ahinsa Khand-II, Indirapuram, Ghaziabad, U.P. - 201014");
+  const phone = getSetting("contact_phone", "+91-0120-4660000, 4670000");
+  const email = getSetting("contact_email", "info@dpsindirapuram.com");
+  const officeHours = getSetting("office_hours", "Monday – Saturday: 8:00 AM – 3:00 PM (Second & Fourth Saturdays Closed)");
 
   const mutation = trpc.contact.create.useMutation({
     onSuccess: () => setSubmitted(true),
@@ -71,7 +82,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white">Address</h3>
-                    <p className="text-sm text-muted-foreground">526/1, Ahinsa Khand-II, Indirapuram, Ghaziabad, U.P. - 201014</p>
+                    <p className="text-sm text-muted-foreground">{address}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -80,7 +91,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white">Phone</h3>
-                    <p className="text-sm text-muted-foreground">+91-0120-4660000, 4670000</p>
+                    <p className="text-sm text-muted-foreground">{phone}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -89,7 +100,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white">Email</h3>
-                    <p className="text-sm text-muted-foreground">info@dpsindirapuram.com</p>
+                    <p className="text-sm text-muted-foreground">{email}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -98,7 +109,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white">Office Hours</h3>
-                    <p className="text-sm text-muted-foreground">Monday - Saturday: 8:00 AM - 4:00 PM</p>
+                    <p className="text-sm text-muted-foreground">{officeHours}</p>
                   </div>
                 </div>
               </div>

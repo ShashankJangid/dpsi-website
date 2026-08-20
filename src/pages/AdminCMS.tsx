@@ -41,6 +41,13 @@ import {
   Copy,
   X,
   Bell,
+  Trophy,
+  Heart,
+  UserCheck,
+  Building,
+  BookOpen,
+  HelpCircle,
+  BarChart3,
 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
@@ -61,6 +68,13 @@ type TabType =
   | "marquee"
   | "activities"
   | "sliders"
+  | "achievements"
+  | "testimonials"
+  | "leadership"
+  | "facilities"
+  | "departments"
+  | "admissions_content"
+  | "stats_metrics"
   | "attachments"
   | "tc"
   | "mun"
@@ -70,7 +84,7 @@ type TabType =
 export default function AdminCMS() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return !!localStorage.getItem("dpsi_admin_token");
+    return !!localStorage.getItem("dpsi_admin_token") || localStorage.getItem("dpsi_admin_auth") === "true";
   });
   const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
@@ -148,6 +162,30 @@ export default function AdminCMS() {
     enabled: isAuthenticated,
   });
   const { data: aiConfig, refetch: refetchAiConfig } = trpc.cms.getAiConfig.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: achievementsList, refetch: refetchAchievements } = trpc.achievements.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: testimonialsList, refetch: refetchTestimonials } = trpc.testimonials.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: leadershipList, refetch: refetchLeadership } = trpc.cms.listLeadership.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: facilitiesList, refetch: refetchFacilities } = trpc.cms.listFacilities.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: departmentsList, refetch: refetchDepartments } = trpc.cms.listDepartments.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: admissionStepsList, refetch: refetchAdmissionSteps } = trpc.cms.listAdmissionSteps.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: faqsList, refetch: refetchFaqs } = trpc.cms.listFaqs.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: statsMetricsList, refetch: refetchStatsMetrics } = trpc.stats.adminList.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
@@ -460,7 +498,273 @@ export default function AdminCMS() {
     },
   });
 
+  // --- NEW CRUD MUTATIONS FOR CMS-DRIVEN ARCHITECTURE ---
+  const createAchievement = trpc.achievements.create.useMutation({
+    onSuccess: () => {
+      toast.success("Topper / Achievement added!");
+      refetchAchievements();
+      setAchievementModal(false);
+    },
+  });
+  const updateAchievement = trpc.achievements.update.useMutation({
+    onSuccess: () => {
+      toast.success("Achievement updated!");
+      refetchAchievements();
+      setAchievementModal(false);
+      setEditingAchievementId(null);
+    },
+  });
+  const deleteAchievement = trpc.achievements.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Achievement deleted");
+      refetchAchievements();
+    },
+  });
+
+  const createTestimonial = trpc.testimonials.create.useMutation({
+    onSuccess: () => {
+      toast.success("Testimonial added!");
+      refetchTestimonials();
+      setTestimonialModal(false);
+    },
+  });
+  const updateTestimonial = trpc.testimonials.update.useMutation({
+    onSuccess: () => {
+      toast.success("Testimonial updated!");
+      refetchTestimonials();
+      setTestimonialModal(false);
+      setEditingTestimonialId(null);
+    },
+  });
+  const deleteTestimonial = trpc.testimonials.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Testimonial deleted");
+      refetchTestimonials();
+    },
+  });
+
+  const createLeadership = trpc.cms.createLeadership.useMutation({
+    onSuccess: () => {
+      toast.success("Leadership member added!");
+      refetchLeadership();
+      setLeadershipModal(false);
+    },
+  });
+  const updateLeadership = trpc.cms.updateLeadership.useMutation({
+    onSuccess: () => {
+      toast.success("Leadership member updated!");
+      refetchLeadership();
+      setLeadershipModal(false);
+      setEditingLeadershipId(null);
+    },
+  });
+  const deleteLeadership = trpc.cms.deleteLeadership.useMutation({
+    onSuccess: () => {
+      toast.success("Leadership member removed");
+      refetchLeadership();
+    },
+  });
+
+  const createFacility = trpc.cms.createFacility.useMutation({
+    onSuccess: () => {
+      toast.success("Facility added!");
+      refetchFacilities();
+      setFacilityModal(false);
+    },
+  });
+  const updateFacility = trpc.cms.updateFacility.useMutation({
+    onSuccess: () => {
+      toast.success("Facility updated!");
+      refetchFacilities();
+      setFacilityModal(false);
+      setEditingFacilityId(null);
+    },
+  });
+  const deleteFacility = trpc.cms.deleteFacility.useMutation({
+    onSuccess: () => {
+      toast.success("Facility removed");
+      refetchFacilities();
+    },
+  });
+
+  const createDepartment = trpc.cms.createDepartment.useMutation({
+    onSuccess: () => {
+      toast.success("Department added!");
+      refetchDepartments();
+      setDepartmentModal(false);
+    },
+  });
+  const updateDepartment = trpc.cms.updateDepartment.useMutation({
+    onSuccess: () => {
+      toast.success("Department updated!");
+      refetchDepartments();
+      setDepartmentModal(false);
+      setEditingDepartmentId(null);
+    },
+  });
+  const deleteDepartment = trpc.cms.deleteDepartment.useMutation({
+    onSuccess: () => {
+      toast.success("Department deleted");
+      refetchDepartments();
+    },
+  });
+
+  const createAdmissionStep = trpc.cms.createAdmissionStep.useMutation({
+    onSuccess: () => {
+      toast.success("Admission step added!");
+      refetchAdmissionSteps();
+      setAdmissionStepModal(false);
+    },
+  });
+  const updateAdmissionStep = trpc.cms.updateAdmissionStep.useMutation({
+    onSuccess: () => {
+      toast.success("Admission step updated!");
+      refetchAdmissionSteps();
+      setAdmissionStepModal(false);
+      setEditingAdmissionStepId(null);
+    },
+  });
+  const deleteAdmissionStep = trpc.cms.deleteAdmissionStep.useMutation({
+    onSuccess: () => {
+      toast.success("Admission step deleted");
+      refetchAdmissionSteps();
+    },
+  });
+
+  const createFaq = trpc.cms.createFaq.useMutation({
+    onSuccess: () => {
+      toast.success("FAQ added!");
+      refetchFaqs();
+      setFaqModal(false);
+    },
+  });
+  const updateFaq = trpc.cms.updateFaq.useMutation({
+    onSuccess: () => {
+      toast.success("FAQ updated!");
+      refetchFaqs();
+      setFaqModal(false);
+      setEditingFaqId(null);
+    },
+  });
+  const deleteFaq = trpc.cms.deleteFaq.useMutation({
+    onSuccess: () => {
+      toast.success("FAQ deleted");
+      refetchFaqs();
+    },
+  });
+
+  const createStatMetric = trpc.stats.create.useMutation({
+    onSuccess: () => {
+      toast.success("Stat metric added!");
+      refetchStatsMetrics();
+      setStatMetricModal(false);
+    },
+  });
+  const updateStatMetric = trpc.stats.update.useMutation({
+    onSuccess: () => {
+      toast.success("Stat metric updated!");
+      refetchStatsMetrics();
+      setStatMetricModal(false);
+      setEditingStatMetricId(null);
+    },
+  });
+  const deleteStatMetric = trpc.stats.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Stat metric deleted");
+      refetchStatsMetrics();
+    },
+  });
+
   // Modal Form States
+  const [achievementModal, setAchievementModal] = useState(false);
+  const [achievementForm, setAchievementForm] = useState({
+    studentName: "",
+    className: "Class X",
+    score: "",
+    exam: "CBSE Board Examination",
+    stream: "",
+    rank: "",
+    year: "2025-26",
+    imageUrl: "",
+    featured: true,
+    order: 0,
+  });
+  const [editingAchievementId, setEditingAchievementId] = useState<string | null>(null);
+
+  const [testimonialModal, setTestimonialModal] = useState(false);
+  const [testimonialForm, setTestimonialForm] = useState({
+    name: "",
+    role: "",
+    content: "",
+    avatarUrl: "",
+    rating: 5,
+    featured: true,
+    order: 0,
+  });
+  const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+
+  const [leadershipModal, setLeadershipModal] = useState(false);
+  const [leadershipForm, setLeadershipForm] = useState({
+    name: "",
+    role: "",
+    designation: "",
+    bio: "",
+    imageUrl: "",
+    category: "Management",
+    order: 0,
+  });
+  const [editingLeadershipId, setEditingLeadershipId] = useState<string | null>(null);
+
+  const [facilityModal, setFacilityModal] = useState(false);
+  const [facilityForm, setFacilityForm] = useState({
+    title: "",
+    category: "Campus",
+    description: "",
+    icon: "Microscope",
+    imageUrl: "",
+    order: 0,
+  });
+  const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
+
+  const [departmentModal, setDepartmentModal] = useState(false);
+  const [departmentForm, setDepartmentForm] = useState({
+    name: "",
+    subjects: "",
+    icon: "BookOpen",
+    color: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
+    order: 0,
+  });
+  const [editingDepartmentId, setEditingDepartmentId] = useState<string | null>(null);
+
+  const [admissionStepModal, setAdmissionStepModal] = useState(false);
+  const [admissionStepForm, setAdmissionStepForm] = useState({
+    stepNumber: 1,
+    title: "",
+    description: "",
+    icon: "FileText",
+    order: 0,
+  });
+  const [editingAdmissionStepId, setEditingAdmissionStepId] = useState<string | null>(null);
+
+  const [faqModal, setFaqModal] = useState(false);
+  const [faqForm, setFaqForm] = useState({
+    question: "",
+    answer: "",
+    category: "Admissions",
+    order: 0,
+  });
+  const [editingFaqId, setEditingFaqId] = useState<string | null>(null);
+
+  const [statMetricModal, setStatMetricModal] = useState(false);
+  const [statMetricForm, setStatMetricForm] = useState({
+    label: "",
+    value: "",
+    icon: "GraduationCap",
+    order: 0,
+    active: true,
+  });
+  const [editingStatMetricId, setEditingStatMetricId] = useState<string | null>(null);
+
   const [marqueeModal, setMarqueeModal] = useState(false);
   const [marqueeForm, setMarqueeForm] = useState({ text: "", linkUrl: "", speed: 50 });
 
@@ -594,6 +898,13 @@ export default function AdminCMS() {
     { id: "marquee", label: "Marquee Ticker", icon: <Megaphone className="w-4 h-4" />, count: null },
     { id: "activities", label: "Activities", icon: <Activity className="w-4 h-4" />, count: stats?.activities },
     { id: "sliders", label: "Home Sliders", icon: <SlidersHorizontal className="w-4 h-4" />, count: stats?.sliders },
+    { id: "achievements", label: "Academic Toppers", icon: <Trophy className="w-4 h-4" />, count: achievementsList?.length },
+    { id: "testimonials", label: "Testimonials", icon: <Heart className="w-4 h-4" />, count: testimonialsList?.length },
+    { id: "leadership", label: "Leadership & Faculty", icon: <UserCheck className="w-4 h-4" />, count: leadershipList?.length },
+    { id: "facilities", label: "Campus Facilities", icon: <Building className="w-4 h-4" />, count: facilitiesList?.length },
+    { id: "departments", label: "Departments", icon: <BookOpen className="w-4 h-4" />, count: departmentsList?.length },
+    { id: "admissions_content", label: "Admissions (Steps & FAQs)", icon: <HelpCircle className="w-4 h-4" />, count: (admissionStepsList?.length || 0) + (faqsList?.length || 0) },
+    { id: "stats_metrics", label: "Quick Stats & Counters", icon: <BarChart3 className="w-4 h-4" />, count: statsMetricsList?.length },
     { id: "attachments", label: "Attachments", icon: <Paperclip className="w-4 h-4" />, count: stats?.attachments },
     { id: "tc", label: "Transfer Certificate", icon: <Award className="w-4 h-4" />, count: stats?.transferCertificates },
     { id: "mun", label: "MUN Registration", icon: <Globe2 className="w-4 h-4" />, count: stats?.munRegistrations },
@@ -1585,13 +1896,668 @@ export default function AdminCMS() {
                 </motion.div>
               )}
 
-              {/* 13. SITE SETTINGS */}
+              {/* --- 10. ACADEMIC TOPPERS / ACHIEVEMENTS --- */}
+              {activeTab === "achievements" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Academic Toppers & Achievements</h2>
+                      <p className="text-xs text-slate-500">Manage Board Examination toppers, ranks, percentages, and student photos</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingAchievementId(null);
+                        setAchievementForm({
+                          studentName: "",
+                          className: "Class X",
+                          score: "",
+                          exam: "CBSE Board Examination",
+                          stream: "",
+                          rank: "",
+                          year: "2025-26",
+                          imageUrl: "",
+                          featured: true,
+                          order: 0,
+                        });
+                        setAchievementModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Topper
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {achievementsList?.map((ach: any) => (
+                      <Card key={ach._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                        <div>
+                          <div className="h-44 w-full overflow-hidden bg-slate-900 relative">
+                            {ach.imageUrl ? (
+                              <img src={ach.imageUrl} alt={ach.studentName} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-800 text-xs">No Photo</div>
+                            )}
+                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-amber-400 text-slate-950 font-black rounded text-[11px]">
+                              {ach.score}
+                            </div>
+                            <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-700 text-white font-bold rounded text-[10px]">
+                              {ach.className} {ach.stream ? `• ${ach.stream}` : ""}
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-bold text-slate-900 text-sm">{ach.studentName}</h3>
+                            <p className="text-xs text-emerald-600 font-semibold mt-0.5">{ach.rank || ach.exam}</p>
+                            <p className="text-[11px] text-slate-500 mt-1">Academic Year: {ach.year || "2025-26"}</p>
+                          </div>
+                        </div>
+                        <div className="p-4 pt-0 flex justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingAchievementId(ach._id);
+                              setAchievementForm({
+                                studentName: ach.studentName,
+                                className: ach.className || "Class X",
+                                score: ach.score || "",
+                                exam: ach.exam || "CBSE Board Examination",
+                                stream: ach.stream || "",
+                                rank: ach.rank || "",
+                                year: ach.year || "2025-26",
+                                imageUrl: ach.imageUrl || "",
+                                featured: ach.featured !== false,
+                                order: ach.order || 0,
+                              });
+                              setAchievementModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteAchievement.mutate({ id: ach._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    {(!achievementsList || achievementsList.length === 0) && (
+                      <div className="col-span-full text-center py-10 bg-white border border-dashed border-slate-300 rounded-lg text-slate-400 text-xs">
+                        No toppers added yet. Click "Add Topper" to add one.
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 11. TESTIMONIALS --- */}
+              {activeTab === "testimonials" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Parent & Student Testimonials</h2>
+                      <p className="text-xs text-slate-500">Manage real parent reviews, roles, ratings, and quotes displayed on the website</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingTestimonialId(null);
+                        setTestimonialForm({
+                          name: "",
+                          role: "Parent",
+                          content: "",
+                          avatarUrl: "",
+                          rating: 5,
+                          featured: true,
+                          order: 0,
+                        });
+                        setTestimonialModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Testimonial
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {testimonialsList?.map((t: any) => (
+                      <Card key={t._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-11 h-11 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                              {t.avatarUrl ? (
+                                <img src={t.avatarUrl} alt={t.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center font-bold text-slate-400 text-sm">
+                                  {t.name?.charAt(0) || "U"}
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-slate-900 text-xs">{t.name}</h3>
+                              <p className="text-[11px] text-emerald-600 font-semibold">{t.role}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-slate-600 italic line-clamp-4 leading-relaxed mb-3">"{t.content}"</p>
+                          <div className="text-amber-400 text-xs font-bold">{"★".repeat(t.rating || 5)}</div>
+                        </div>
+                        <div className="pt-3 border-t border-slate-100 flex justify-end gap-1 mt-3">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingTestimonialId(t._id);
+                              setTestimonialForm({
+                                name: t.name,
+                                role: t.role || "",
+                                content: t.content || "",
+                                avatarUrl: t.avatarUrl || "",
+                                rating: t.rating || 5,
+                                featured: t.featured !== false,
+                                order: t.order || 0,
+                              });
+                              setTestimonialModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteTestimonial.mutate({ id: t._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    {(!testimonialsList || testimonialsList.length === 0) && (
+                      <div className="col-span-full text-center py-10 bg-white border border-dashed border-slate-300 rounded-lg text-slate-400 text-xs">
+                        No testimonials added yet. Click "Add Testimonial" to add one.
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 12. LEADERSHIP & FACULTY --- */}
+              {activeTab === "leadership" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Leadership & Management</h2>
+                      <p className="text-xs text-slate-500">Manage Chairman, Vice Chairperson, Principal, and senior administration</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingLeadershipId(null);
+                        setLeadershipForm({
+                          name: "",
+                          role: "",
+                          designation: "",
+                          bio: "",
+                          imageUrl: "",
+                          category: "Management",
+                          order: 0,
+                        });
+                        setLeadershipModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Leader
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {leadershipList?.map((l: any) => (
+                      <Card key={l._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                        <div>
+                          <div className="h-48 w-full overflow-hidden bg-slate-900 relative">
+                            {l.imageUrl ? (
+                              <img src={l.imageUrl} alt={l.name} className="w-full h-full object-cover object-top" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-800 text-xs">No Photo</div>
+                            )}
+                            <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-700 text-white font-bold rounded text-[10px]">
+                              {l.category || "Management"}
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-bold text-slate-900 text-sm">{l.name}</h3>
+                            <p className="text-xs text-emerald-600 font-semibold mt-0.5">{l.role}</p>
+                            {l.bio && <p className="text-xs text-slate-500 mt-2 line-clamp-3">{l.bio}</p>}
+                          </div>
+                        </div>
+                        <div className="p-4 pt-0 flex justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingLeadershipId(l._id);
+                              setLeadershipForm({
+                                name: l.name,
+                                role: l.role || "",
+                                designation: l.designation || "",
+                                bio: l.bio || "",
+                                imageUrl: l.imageUrl || "",
+                                category: l.category || "Management",
+                                order: l.order || 0,
+                              });
+                              setLeadershipModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteLeadership.mutate({ id: l._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    {(!leadershipList || leadershipList.length === 0) && (
+                      <div className="col-span-full text-center py-10 bg-white border border-dashed border-slate-300 rounded-lg text-slate-400 text-xs">
+                        No leadership profiles added yet. Click "Add Leader" to add one.
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 13. CAMPUS FACILITIES --- */}
+              {activeTab === "facilities" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Campus Facilities & Infrastructure</h2>
+                      <p className="text-xs text-slate-500">Manage Labs, Classrooms, Sports Complex, Library, and Studios</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingFacilityId(null);
+                        setFacilityForm({
+                          title: "",
+                          category: "Campus",
+                          description: "",
+                          icon: "Microscope",
+                          imageUrl: "",
+                          order: 0,
+                        });
+                        setFacilityModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Facility
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {facilitiesList?.map((f: any) => (
+                      <Card key={f._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                        <div>
+                          <div className="h-44 w-full overflow-hidden bg-slate-900 relative">
+                            {f.imageUrl ? (
+                              <img src={f.imageUrl} alt={f.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-800 text-xs">No Photo</div>
+                            )}
+                            <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-700 text-white font-bold rounded text-[10px]">
+                              {f.category || "Campus"}
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-bold text-slate-900 text-sm">{f.title}</h3>
+                            <p className="text-xs text-slate-500 mt-1 line-clamp-3 leading-relaxed">{f.description}</p>
+                          </div>
+                        </div>
+                        <div className="p-4 pt-0 flex justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingFacilityId(f._id);
+                              setFacilityForm({
+                                title: f.title,
+                                category: f.category || "Campus",
+                                description: f.description || "",
+                                icon: f.icon || "Microscope",
+                                imageUrl: f.imageUrl || "",
+                                order: f.order || 0,
+                              });
+                              setFacilityModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteFacility.mutate({ id: f._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    {(!facilitiesList || facilitiesList.length === 0) && (
+                      <div className="col-span-full text-center py-10 bg-white border border-dashed border-slate-300 rounded-lg text-slate-400 text-xs">
+                        No facilities added yet. Click "Add Facility" to add one.
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 14. DEPARTMENTS --- */}
+              {activeTab === "departments" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Academic Departments & Disciplines</h2>
+                      <p className="text-xs text-slate-500">Manage subjects, discipline cards, and icons on the Academics page</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingDepartmentId(null);
+                        setDepartmentForm({
+                          name: "",
+                          subjects: "",
+                          icon: "BookOpen",
+                          color: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
+                          order: 0,
+                        });
+                        setDepartmentModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Department
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {departmentsList?.map((d: any) => (
+                      <Card key={d._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700 font-bold">
+                              <BookOpen className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-slate-900 text-sm">{d.name}</h3>
+                              <p className="text-[10px] text-slate-400 font-mono">Icon: {d.icon || "BookOpen"}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-slate-600 mt-2">{d.subjects}</p>
+                        </div>
+                        <div className="pt-3 border-t border-slate-100 flex justify-end gap-1 mt-3">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingDepartmentId(d._id);
+                              setDepartmentForm({
+                                name: d.name,
+                                subjects: d.subjects || "",
+                                icon: d.icon || "BookOpen",
+                                color: d.color || "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
+                                order: d.order || 0,
+                              });
+                              setDepartmentModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteDepartment.mutate({ id: d._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 15. ADMISSIONS CONTENT (STEPS & FAQS) --- */}
+              {activeTab === "admissions_content" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                  {/* Steps section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900">Admission Process Steps</h2>
+                        <p className="text-xs text-slate-500">The 5-step flow on the Admissions page</p>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setEditingAdmissionStepId(null);
+                          setAdmissionStepForm({
+                            stepNumber: (admissionStepsList?.length || 0) + 1,
+                            title: "",
+                            description: "",
+                            icon: "FileText",
+                            order: (admissionStepsList?.length || 0) + 1,
+                          });
+                          setAdmissionStepModal(true);
+                        }}
+                        size="sm"
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1" /> Add Step
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {admissionStepsList?.map((s: any) => (
+                        <Card key={s._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">
+                                {s.stepNumber}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-mono">{s.icon || "FileText"}</span>
+                            </div>
+                            <h3 className="font-bold text-slate-900 text-sm mb-1">{s.title}</h3>
+                            <p className="text-xs text-slate-600">{s.description}</p>
+                          </div>
+                          <div className="pt-3 border-t border-slate-100 flex justify-end gap-1 mt-3">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                              onClick={() => {
+                                setEditingAdmissionStepId(s._id);
+                                setAdmissionStepForm({
+                                  stepNumber: s.stepNumber || 1,
+                                  title: s.title,
+                                  description: s.description || "",
+                                  icon: s.icon || "FileText",
+                                  order: s.order || 0,
+                                });
+                                setAdmissionStepModal(true);
+                              }}
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              onClick={() => deleteAdmissionStep.mutate({ id: s._id })}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* FAQs section */}
+                  <div className="space-y-4 pt-6 border-t border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900">Frequently Asked Questions</h2>
+                        <p className="text-xs text-slate-500">Q&A items on Admissions and General FAQ sections</p>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setEditingFaqId(null);
+                          setFaqForm({
+                            question: "",
+                            answer: "",
+                            category: "Admissions",
+                            order: 0,
+                          });
+                          setFaqModal(true);
+                        }}
+                        size="sm"
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1" /> Add FAQ
+                      </Button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {faqsList?.map((faq: any) => (
+                        <div key={faq._id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4">
+                          <div className="space-y-1">
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">{faq.category || "General"}</span>
+                            <h4 className="text-xs font-bold text-slate-900">{faq.question}</h4>
+                            <p className="text-xs text-slate-600">{faq.answer}</p>
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                              onClick={() => {
+                                setEditingFaqId(faq._id);
+                                setFaqForm({
+                                  question: faq.question,
+                                  answer: faq.answer,
+                                  category: faq.category || "Admissions",
+                                  order: faq.order || 0,
+                                });
+                                setFaqModal(true);
+                              }}
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              onClick={() => deleteFaq.mutate({ id: faq._id })}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 16. QUICK STATS & COUNTERS --- */}
+              {activeTab === "stats_metrics" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Quick Stats & Metrics</h2>
+                      <p className="text-xs text-slate-500">Numerical achievement counters shown across homepage and hero sections</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingStatMetricId(null);
+                        setStatMetricForm({
+                          label: "",
+                          value: "",
+                          icon: "GraduationCap",
+                          order: 0,
+                          active: true,
+                        });
+                        setStatMetricModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Counter
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    {statsMetricsList?.map((s: any) => (
+                      <Card key={s._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between text-center">
+                        <div>
+                          <div className="text-2xl font-black text-emerald-700 mb-1">{s.value}</div>
+                          <div className="text-xs font-bold text-slate-800">{s.label}</div>
+                          <div className="text-[10px] text-slate-400 font-mono mt-1">Icon: {s.icon}</div>
+                        </div>
+                        <div className="pt-3 border-t border-slate-100 flex justify-center gap-1 mt-3">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingStatMetricId(s._id);
+                              setStatMetricForm({
+                                label: s.label,
+                                value: s.value,
+                                icon: s.icon || "GraduationCap",
+                                order: s.order || 0,
+                                active: s.active !== false,
+                              });
+                              setStatMetricModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteStatMetric.mutate({ id: s._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* 17. SITE SETTINGS */}
               {activeTab === "site_settings" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">Site Settings</h2>
-                      <p className="text-xs text-slate-500">Global School Information — Controls Contact, Social, and General Info across entire website</p>
+                      <p className="text-xs text-slate-500">Global School Information — Controls Contact, Social, Principal Quotes, and CTA Banners</p>
                     </div>
                     <Button
                       onClick={() => {
@@ -1610,20 +2576,50 @@ export default function AdminCMS() {
                     </Button>
                   </div>
 
-                  {["general", "contact", "admissions", "social"].map((group) => (
+                  {["general", "contact", "social", "principal", "cta", "admissions"].map((group) => (
                     <div key={group} className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                       <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-200">
-                        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wide">{group}</h3>
+                        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wide">{group} Settings</h3>
                       </div>
                       <div className="p-4 space-y-3">
                         {(siteSettings || []).filter((s: any) => s.group === group).map((s: any) => (
                           <div key={s.key} className="space-y-1">
                             <label className="text-[11px] font-semibold text-slate-600">{s.label}</label>
-                            <Input
-                              value={settingsEdits[s.key] !== undefined ? settingsEdits[s.key] : s.value}
-                              onChange={(e) => setSettingsEdits({ ...settingsEdits, [s.key]: e.target.value })}
-                              className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-                            />
+                            {s.key.includes("message") || s.key.includes("subtitle") ? (
+                              <Textarea
+                                rows={3}
+                                value={settingsEdits[s.key] !== undefined ? settingsEdits[s.key] : s.value}
+                                onChange={(e) => setSettingsEdits({ ...settingsEdits, [s.key]: e.target.value })}
+                                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                              />
+                            ) : (
+                              <div className="flex gap-2">
+                                <Input
+                                  value={settingsEdits[s.key] !== undefined ? settingsEdits[s.key] : s.value}
+                                  onChange={(e) => setSettingsEdits({ ...settingsEdits, [s.key]: e.target.value })}
+                                  className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                                />
+                                {s.key.includes("image") && (
+                                  <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-1 shrink-0">
+                                    <Upload className="w-3.5 h-3.5" />
+                                    <span>Upload</span>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          handleMediaUpload(file, (url) => {
+                                            setSettingsEdits({ ...settingsEdits, [s.key]: url });
+                                          });
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                )}
+                              </div>
+                            )}
                             <p className="text-[10px] text-slate-400 font-mono">{s.key}</p>
                           </div>
                         ))}
@@ -2826,6 +3822,512 @@ export default function AdminCMS() {
                   className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
                 >
                   {bulkCreateTc.isPending ? "Importing..." : `Import ${bulkPreviewRows.length} Records`}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- ACHIEVEMENTS / TOPPERS MODAL --- */}
+        {achievementModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingAchievementId ? "Edit Topper" : "Add New Topper"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setAchievementModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Student Name *</label>
+                  <Input value={achievementForm.studentName} onChange={(e) => setAchievementForm({ ...achievementForm, studentName: e.target.value })} placeholder="e.g. Aarav Sharma" className="text-xs" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Class / Grade *</label>
+                    <Input value={achievementForm.className} onChange={(e) => setAchievementForm({ ...achievementForm, className: e.target.value })} placeholder="Class X / Class XII" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Score / Percentage *</label>
+                    <Input value={achievementForm.score} onChange={(e) => setAchievementForm({ ...achievementForm, score: e.target.value })} placeholder="99.6% or AIR 14" className="text-xs" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Rank / Title</label>
+                    <Input value={achievementForm.rank} onChange={(e) => setAchievementForm({ ...achievementForm, rank: e.target.value })} placeholder="School Topper / District 1st" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Stream (Optional)</label>
+                    <Input value={achievementForm.stream} onChange={(e) => setAchievementForm({ ...achievementForm, stream: e.target.value })} placeholder="Science / Commerce / Humanities" className="text-xs" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Examination</label>
+                    <Input value={achievementForm.exam} onChange={(e) => setAchievementForm({ ...achievementForm, exam: e.target.value })} placeholder="CBSE Board Examination" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Academic Year</label>
+                    <Input value={achievementForm.year} onChange={(e) => setAchievementForm({ ...achievementForm, year: e.target.value })} placeholder="2025-26" className="text-xs" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Student Photo</label>
+                  <div className="flex gap-2">
+                    <Input value={achievementForm.imageUrl} onChange={(e) => setAchievementForm({ ...achievementForm, imageUrl: e.target.value })} placeholder="Image URL (Cloudinary CDN)" className="text-xs" />
+                    <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-1 shrink-0">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleMediaUpload(file, (url) => {
+                              setAchievementForm((prev) => ({ ...prev, imageUrl: url }));
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setAchievementModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!achievementForm.studentName || !achievementForm.score) {
+                      toast.error("Please enter student name and score");
+                      return;
+                    }
+                    if (editingAchievementId) {
+                      updateAchievement.mutate({ id: editingAchievementId, ...achievementForm });
+                    } else {
+                      createAchievement.mutate(achievementForm);
+                    }
+                  }}
+                >
+                  {editingAchievementId ? "Save Changes" : "Create Topper"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- TESTIMONIAL MODAL --- */}
+        {testimonialModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingTestimonialId ? "Edit Testimonial" : "Add Testimonial"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setTestimonialModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Author Name *</label>
+                    <Input value={testimonialForm.name} onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })} placeholder="e.g. Dr. Sunita Rao" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Role / Relation *</label>
+                    <Input value={testimonialForm.role} onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })} placeholder="Parent of Class X Student" className="text-xs" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Review / Testimonial Text *</label>
+                  <Textarea rows={4} value={testimonialForm.content} onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })} placeholder="Write parent feedback..." className="text-xs" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Star Rating (1-5)</label>
+                    <Input type="number" min={1} max={5} value={testimonialForm.rating} onChange={(e) => setTestimonialForm({ ...testimonialForm, rating: parseInt(e.target.value) || 5 })} className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Photo / Avatar</label>
+                    <div className="flex gap-2">
+                      <Input value={testimonialForm.avatarUrl} onChange={(e) => setTestimonialForm({ ...testimonialForm, avatarUrl: e.target.value })} placeholder="Avatar URL" className="text-xs" />
+                      <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-1 shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleMediaUpload(file, (url) => {
+                                setTestimonialForm((prev) => ({ ...prev, avatarUrl: url }));
+                              });
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setTestimonialModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!testimonialForm.name || !testimonialForm.content) {
+                      toast.error("Please enter author name and review text");
+                      return;
+                    }
+                    if (editingTestimonialId) {
+                      updateTestimonial.mutate({ id: editingTestimonialId, ...testimonialForm });
+                    } else {
+                      createTestimonial.mutate(testimonialForm);
+                    }
+                  }}
+                >
+                  {editingTestimonialId ? "Save Changes" : "Create Testimonial"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- LEADERSHIP MODAL --- */}
+        {leadershipModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingLeadershipId ? "Edit Leader" : "Add Leader"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setLeadershipModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Full Name *</label>
+                    <Input value={leadershipForm.name} onChange={(e) => setLeadershipForm({ ...leadershipForm, name: e.target.value })} placeholder="e.g. Ms. Priya Elizabeth John" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Role / Title *</label>
+                    <Input value={leadershipForm.role} onChange={(e) => setLeadershipForm({ ...leadershipForm, role: e.target.value })} placeholder="Principal, DPS Indirapuram" className="text-xs" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Biography / Summary</label>
+                  <Textarea rows={3} value={leadershipForm.bio} onChange={(e) => setLeadershipForm({ ...leadershipForm, bio: e.target.value })} placeholder="Short professional background..." className="text-xs" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Profile Photo</label>
+                  <div className="flex gap-2">
+                    <Input value={leadershipForm.imageUrl} onChange={(e) => setLeadershipForm({ ...leadershipForm, imageUrl: e.target.value })} placeholder="Photo URL (Cloudinary CDN)" className="text-xs" />
+                    <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-1 shrink-0">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleMediaUpload(file, (url) => {
+                              setLeadershipForm((prev) => ({ ...prev, imageUrl: url }));
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setLeadershipModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!leadershipForm.name || !leadershipForm.role) {
+                      toast.error("Please enter name and role");
+                      return;
+                    }
+                    if (editingLeadershipId) {
+                      updateLeadership.mutate({ id: editingLeadershipId, ...leadershipForm });
+                    } else {
+                      createLeadership.mutate(leadershipForm);
+                    }
+                  }}
+                >
+                  {editingLeadershipId ? "Save Changes" : "Create Leader"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- FACILITIES MODAL --- */}
+        {facilityModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingFacilityId ? "Edit Facility" : "Add Facility"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setFacilityModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Facility Title *</label>
+                    <Input value={facilityForm.title} onChange={(e) => setFacilityForm({ ...facilityForm, title: e.target.value })} placeholder="e.g. AI & Robotics Lab" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Category</label>
+                    <Input value={facilityForm.category} onChange={(e) => setFacilityForm({ ...facilityForm, category: e.target.value })} placeholder="Innovation / Labs / Sports" className="text-xs" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Description *</label>
+                  <Textarea rows={3} value={facilityForm.description} onChange={(e) => setFacilityForm({ ...facilityForm, description: e.target.value })} placeholder="Detailed description of facility and equipment..." className="text-xs" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Icon Name</label>
+                    <Input value={facilityForm.icon} onChange={(e) => setFacilityForm({ ...facilityForm, icon: e.target.value })} placeholder="Microscope / FlaskConical / Dumbbell" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Facility Photo</label>
+                    <div className="flex gap-2">
+                      <Input value={facilityForm.imageUrl} onChange={(e) => setFacilityForm({ ...facilityForm, imageUrl: e.target.value })} placeholder="Photo URL" className="text-xs" />
+                      <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-1 shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleMediaUpload(file, (url) => {
+                                setFacilityForm((prev) => ({ ...prev, imageUrl: url }));
+                              });
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setFacilityModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!facilityForm.title || !facilityForm.description) {
+                      toast.error("Please enter facility title and description");
+                      return;
+                    }
+                    if (editingFacilityId) {
+                      updateFacility.mutate({ id: editingFacilityId, ...facilityForm });
+                    } else {
+                      createFacility.mutate(facilityForm);
+                    }
+                  }}
+                >
+                  {editingFacilityId ? "Save Changes" : "Create Facility"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- DEPARTMENTS MODAL --- */}
+        {departmentModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingDepartmentId ? "Edit Department" : "Add Department"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setDepartmentModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Department Name *</label>
+                  <Input value={departmentForm.name} onChange={(e) => setDepartmentForm({ ...departmentForm, name: e.target.value })} placeholder="e.g. Science / Mathematics" className="text-xs" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Subjects / Disciplines *</label>
+                  <Input value={departmentForm.subjects} onChange={(e) => setDepartmentForm({ ...departmentForm, subjects: e.target.value })} placeholder="Physics, Chemistry, Biology, Biotechnology" className="text-xs" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Icon Name</label>
+                  <Input value={departmentForm.icon} onChange={(e) => setDepartmentForm({ ...departmentForm, icon: e.target.value })} placeholder="FlaskConical / Calculator / Cpu / Globe" className="text-xs" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setDepartmentModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!departmentForm.name || !departmentForm.subjects) {
+                      toast.error("Please enter department name and subjects");
+                      return;
+                    }
+                    if (editingDepartmentId) {
+                      updateDepartment.mutate({ id: editingDepartmentId, ...departmentForm });
+                    } else {
+                      createDepartment.mutate(departmentForm);
+                    }
+                  }}
+                >
+                  {editingDepartmentId ? "Save Changes" : "Create Department"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- ADMISSION STEP MODAL --- */}
+        {admissionStepModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingAdmissionStepId ? "Edit Step" : "Add Step"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setAdmissionStepModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Step Number</label>
+                    <Input type="number" value={admissionStepForm.stepNumber} onChange={(e) => setAdmissionStepForm({ ...admissionStepForm, stepNumber: parseInt(e.target.value) || 1 })} className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Icon Name</label>
+                    <Input value={admissionStepForm.icon} onChange={(e) => setAdmissionStepForm({ ...admissionStepForm, icon: e.target.value })} placeholder="FileText / ClipboardList / CreditCard" className="text-xs" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Step Title *</label>
+                  <Input value={admissionStepForm.title} onChange={(e) => setAdmissionStepForm({ ...admissionStepForm, title: e.target.value })} placeholder="e.g. Online Application" className="text-xs" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Description *</label>
+                  <Textarea rows={3} value={admissionStepForm.description} onChange={(e) => setAdmissionStepForm({ ...admissionStepForm, description: e.target.value })} placeholder="Instructions for this step..." className="text-xs" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setAdmissionStepModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!admissionStepForm.title || !admissionStepForm.description) {
+                      toast.error("Please enter step title and description");
+                      return;
+                    }
+                    if (editingAdmissionStepId) {
+                      updateAdmissionStep.mutate({ id: editingAdmissionStepId, ...admissionStepForm });
+                    } else {
+                      createAdmissionStep.mutate(admissionStepForm);
+                    }
+                  }}
+                >
+                  {editingAdmissionStepId ? "Save Changes" : "Create Step"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- FAQ MODAL --- */}
+        {faqModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingFaqId ? "Edit FAQ" : "Add FAQ"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setFaqModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Category</label>
+                  <Input value={faqForm.category} onChange={(e) => setFaqForm({ ...faqForm, category: e.target.value })} placeholder="Admissions / General / Transport" className="text-xs" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Question *</label>
+                  <Input value={faqForm.question} onChange={(e) => setFaqForm({ ...faqForm, question: e.target.value })} placeholder="e.g. What is the age criteria for Nursery?" className="text-xs" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Answer *</label>
+                  <Textarea rows={4} value={faqForm.answer} onChange={(e) => setFaqForm({ ...faqForm, answer: e.target.value })} placeholder="Detailed answer..." className="text-xs" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setFaqModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!faqForm.question || !faqForm.answer) {
+                      toast.error("Please enter question and answer");
+                      return;
+                    }
+                    if (editingFaqId) {
+                      updateFaq.mutate({ id: editingFaqId, ...faqForm });
+                    } else {
+                      createFaq.mutate(faqForm);
+                    }
+                  }}
+                >
+                  {editingFaqId ? "Save Changes" : "Create FAQ"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- STAT METRIC MODAL --- */}
+        {statMetricModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingStatMetricId ? "Edit Counter" : "Add Counter"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setStatMetricModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Metric Value *</label>
+                    <Input value={statMetricForm.value} onChange={(e) => setStatMetricForm({ ...statMetricForm, value: e.target.value })} placeholder="e.g. 20+ / 99.9% / 5000+" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Icon Name</label>
+                    <Input value={statMetricForm.icon} onChange={(e) => setStatMetricForm({ ...statMetricForm, icon: e.target.value })} placeholder="GraduationCap / Award / Trophy" className="text-xs" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Metric Label *</label>
+                  <Input value={statMetricForm.label} onChange={(e) => setStatMetricForm({ ...statMetricForm, label: e.target.value })} placeholder="e.g. Years of Academic Excellence" className="text-xs" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setStatMetricModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!statMetricForm.label || !statMetricForm.value) {
+                      toast.error("Please enter metric label and value");
+                      return;
+                    }
+                    if (editingStatMetricId) {
+                      updateStatMetric.mutate({ id: editingStatMetricId, ...statMetricForm });
+                    } else {
+                      createStatMetric.mutate(statMetricForm);
+                    }
+                  }}
+                >
+                  {editingStatMetricId ? "Save Changes" : "Create Counter"}
                 </Button>
               </div>
             </div>

@@ -825,4 +825,309 @@ export const cmsRouter = createRouter({
       );
       return { success: true };
     }),
+
+  // --- 26. LEADERSHIP & FACULTY ---
+  listLeadership: publicQuery.query(async () => {
+    const { Leadership } = await getMainModels();
+    return Leadership.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+  }),
+  createLeadership: publicMutation
+    .input(
+      z.object({
+        name: z.string().min(2),
+        role: z.string().min(2),
+        designation: z.string().optional(),
+        bio: z.string().optional(),
+        imageUrl: z.string().optional(),
+        order: z.number().default(0),
+        category: z.string().default("Management"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { Leadership } = await getMainModels();
+      return Leadership.create(input);
+    }),
+  updateLeadership: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string().min(2),
+        role: z.string().min(2),
+        designation: z.string().optional(),
+        bio: z.string().optional(),
+        imageUrl: z.string().optional(),
+        order: z.number().default(0),
+        category: z.string().default("Management"),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { Leadership } = await getMainModels();
+      return Leadership.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteLeadership: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { Leadership } = await getMainModels();
+      return Leadership.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
+
+  // --- 28. FACILITIES ---
+  listFacilities: publicQuery.query(async () => {
+    const { Facility } = await getMainModels();
+    return Facility.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+  }),
+  createFacility: publicMutation
+    .input(
+      z.object({
+        title: z.string().min(2),
+        category: z.string().default("Campus"),
+        description: z.string().min(5),
+        icon: z.string().default("Microscope"),
+        imageUrl: z.string().optional(),
+        order: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { Facility } = await getMainModels();
+      return Facility.create(input);
+    }),
+  updateFacility: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(2),
+        category: z.string().default("Campus"),
+        description: z.string().min(5),
+        icon: z.string().default("Microscope"),
+        imageUrl: z.string().optional(),
+        order: z.number().default(0),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { Facility } = await getMainModels();
+      return Facility.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteFacility: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { Facility } = await getMainModels();
+      return Facility.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
+
+  // --- 29. DEPARTMENTS & CURRICULUM ---
+  listDepartments: publicQuery.query(async () => {
+    const { Department } = await getMainModels();
+    return Department.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+  }),
+  createDepartment: publicMutation
+    .input(
+      z.object({
+        name: z.string().min(2),
+        subjects: z.string().min(2),
+        icon: z.string().default("BookOpen"),
+        color: z.string().default("bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400"),
+        order: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { Department } = await getMainModels();
+      return Department.create(input);
+    }),
+  updateDepartment: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string().min(2),
+        subjects: z.string().min(2),
+        icon: z.string().default("BookOpen"),
+        color: z.string().default("bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400"),
+        order: z.number().default(0),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { Department } = await getMainModels();
+      return Department.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteDepartment: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { Department } = await getMainModels();
+      return Department.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
+
+  // --- 30. ADMISSION STEPS ---
+  listAdmissionSteps: publicQuery.query(async () => {
+    const { AdmissionStep } = await getMainModels();
+    return AdmissionStep.find({ isDeleted: false, isActive: true }).sort({ stepNumber: 1 });
+  }),
+  createAdmissionStep: publicMutation
+    .input(
+      z.object({
+        stepNumber: z.number(),
+        title: z.string().min(2),
+        description: z.string().min(5),
+        icon: z.string().default("FileText"),
+        order: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { AdmissionStep } = await getMainModels();
+      return AdmissionStep.create(input);
+    }),
+  updateAdmissionStep: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        stepNumber: z.number(),
+        title: z.string().min(2),
+        description: z.string().min(5),
+        icon: z.string().default("FileText"),
+        order: z.number().default(0),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { AdmissionStep } = await getMainModels();
+      return AdmissionStep.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteAdmissionStep: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { AdmissionStep } = await getMainModels();
+      return AdmissionStep.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
+
+  // --- 31. FAQS ---
+  listFaqs: publicQuery
+    .input(z.object({ category: z.string().optional() }).optional())
+    .query(async ({ input }) => {
+      const { Faq } = await getMainModels();
+      const filter: any = { isDeleted: false, isActive: true };
+      if (input?.category) filter.category = input.category;
+      return Faq.find(filter).sort({ order: 1 });
+    }),
+  createFaq: publicMutation
+    .input(
+      z.object({
+        question: z.string().min(3),
+        answer: z.string().min(3),
+        category: z.string().default("Admissions"),
+        order: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { Faq } = await getMainModels();
+      return Faq.create(input);
+    }),
+  updateFaq: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        question: z.string().min(3),
+        answer: z.string().min(3),
+        category: z.string().default("Admissions"),
+        order: z.number().default(0),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { Faq } = await getMainModels();
+      return Faq.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteFaq: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { Faq } = await getMainModels();
+      return Faq.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
+
+  // --- 32. TIMELINE & MILESTONES ---
+  listTimeline: publicQuery.query(async () => {
+    const { TimelineItem } = await getMainModels();
+    return TimelineItem.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+  }),
+  createTimelineItem: publicMutation
+    .input(
+      z.object({
+        year: z.string().min(2),
+        title: z.string().min(2),
+        description: z.string().min(5),
+        order: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { TimelineItem } = await getMainModels();
+      return TimelineItem.create(input);
+    }),
+  updateTimelineItem: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        year: z.string().min(2),
+        title: z.string().min(2),
+        description: z.string().min(5),
+        order: z.number().default(0),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { TimelineItem } = await getMainModels();
+      return TimelineItem.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteTimelineItem: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { TimelineItem } = await getMainModels();
+      return TimelineItem.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
+
+  // --- 33. CORE VALUES ---
+  listCoreValues: publicQuery.query(async () => {
+    const { CoreValue } = await getMainModels();
+    return CoreValue.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+  }),
+  createCoreValue: publicMutation
+    .input(
+      z.object({
+        title: z.string().min(2),
+        description: z.string().min(5),
+        icon: z.string().default("Target"),
+        order: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { CoreValue } = await getMainModels();
+      return CoreValue.create(input);
+    }),
+  updateCoreValue: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(2),
+        description: z.string().min(5),
+        icon: z.string().default("Target"),
+        order: z.number().default(0),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { CoreValue } = await getMainModels();
+      return CoreValue.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteCoreValue: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { CoreValue } = await getMainModels();
+      return CoreValue.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
 });

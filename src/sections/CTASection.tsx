@@ -2,18 +2,38 @@ import { motion } from "framer-motion";
 import { Link } from "react-router";
 import { ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trpc } from "@/providers/trpc";
 
 export default function CTASection() {
+  const { data: settings } = trpc.cms.getSiteSettings.useQuery();
+
+  const getSetting = (key: string, fallback: string) => {
+    const item = settings?.find((s: any) => s.key === key);
+    return item?.value?.trim() || fallback;
+  };
+
+  const badge = getSetting("cta_badge", "Admissions Open 2026-27");
+  const title = getSetting("cta_title", "Begin Your Journey With DPS Indirapuram");
+  const subtitle = getSetting(
+    "cta_subtitle",
+    "Admissions are now open for the session 2026-27 (Pre-Nursery to Class IX & XI). Limited seats available. Enquire today and secure your child's future at Delhi NCR's top CBSE institution."
+  );
+  const buttonText = getSetting("cta_button_text", "Apply Online");
+  const buttonLink = getSetting("cta_button_link", "/admissions");
+  const phone = getSetting("contact_phone", "+91-0120-4660000, 4670000");
+  const email = getSetting("contact_email", "info@dpsindirapuram.com");
+  const address = getSetting("contact_address", "526/1, Ahinsa Khand-II, Indirapuram, Ghaziabad, U.P. - 201014");
+
   return (
     <section className="relative py-20 bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 text-white overflow-hidden">
       {/* Background patterns */}
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px]" />
-      
+
       {/* Dynamic Animated Ambient Orbs */}
       <motion.div
         animate={{
           scale: [1, 1.25, 1],
-          opacity: [0.2, 0.4, 0.2]
+          opacity: [0.2, 0.4, 0.2],
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-500/20 blur-3xl pointer-events-none rounded-full"
@@ -21,7 +41,7 @@ export default function CTASection() {
       <motion.div
         animate={{
           scale: [1.2, 1, 1.2],
-          opacity: [0.15, 0.35, 0.15]
+          opacity: [0.15, 0.35, 0.15],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         className="absolute -bottom-32 -left-32 w-96 h-96 bg-amber-500/15 blur-3xl pointer-events-none rounded-full"
@@ -36,14 +56,14 @@ export default function CTASection() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-              <span>Admissions Open 2026-27</span>
+              <span>{badge}</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-5 tracking-tight text-white leading-tight">
-              Begin Your Journey <br /> With DPS Indirapuram
+              {title}
             </h2>
             <p className="text-emerald-100/90 mb-8 text-base sm:text-lg leading-relaxed font-medium">
-              Admissions are now open for the session 2026-27 (Pre-Nursery to Class IX & XI). Limited seats available. Enquire today and secure your child's future at Delhi NCR's top CBSE institution.
+              {subtitle}
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -53,8 +73,8 @@ export default function CTASection() {
                   className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black px-7 py-3.5 rounded-2xl shadow-xl shadow-amber-950/40 cursor-pointer flex items-center gap-2 text-sm"
                   asChild
                 >
-                  <Link to="/admissions">
-                    Apply Online <ArrowRight className="w-4 h-4" />
+                  <Link to={buttonLink}>
+                    {buttonText} <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
               </motion.div>
@@ -79,7 +99,7 @@ export default function CTASection() {
             className="space-y-4"
           >
             <motion.a
-              href="tel:+9101204660000"
+              href={`tel:${phone.split(",")[0].replace(/[^0-9+]/g, "")}`}
               whileHover={{ x: 6, backgroundColor: "rgba(255, 255, 255, 0.16)" }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className="flex items-center gap-4 p-5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/15 shadow-lg cursor-pointer transition-colors block"
@@ -89,12 +109,12 @@ export default function CTASection() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-emerald-300">Direct Admission Desk</p>
-                <p className="font-extrabold text-base text-white">+91-0120-4660000, 4670000</p>
+                <p className="font-extrabold text-base text-white">{phone}</p>
               </div>
             </motion.a>
 
             <motion.a
-              href="mailto:info@dpsindirapuram.com"
+              href={`mailto:${email}`}
               whileHover={{ x: 6, backgroundColor: "rgba(255, 255, 255, 0.16)" }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className="flex items-center gap-4 p-5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/15 shadow-lg cursor-pointer transition-colors block"
@@ -104,7 +124,7 @@ export default function CTASection() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-emerald-300">Email Admissions Desk</p>
-                <p className="font-extrabold text-base text-white">info@dpsindirapuram.com</p>
+                <p className="font-extrabold text-base text-white">{email}</p>
               </div>
             </motion.a>
 
@@ -118,7 +138,7 @@ export default function CTASection() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-emerald-300">Campus Location</p>
-                <p className="font-extrabold text-base text-white">Ahinsa Khand-II, Indirapuram, Ghaziabad</p>
+                <p className="font-extrabold text-base text-white">{address}</p>
               </div>
             </motion.div>
           </motion.div>

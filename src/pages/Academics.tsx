@@ -1,17 +1,20 @@
 import { motion } from "framer-motion";
-import { BookOpen, FlaskConical, Calculator, Globe, Palette, Cpu, Activity, BarChart3 } from "lucide-react";
+import { BookOpen, FlaskConical, Calculator, Globe, Palette, Cpu, Activity, BarChart3, GraduationCap } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { trpc } from "@/providers/trpc";
 
-const departments = [
-  { icon: <FlaskConical className="w-8 h-8" />, name: "Science", subjects: "Physics, Chemistry, Biology, Biotechnology", color: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" },
-  { icon: <Calculator className="w-8 h-8" />, name: "Mathematics", subjects: "Pure Math, Applied Math, Statistics", color: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400" },
-  { icon: <Globe className="w-8 h-8" />, name: "Languages", subjects: "English, Hindi, Sanskrit, French", color: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" },
-  { icon: <Palette className="w-8 h-8" />, name: "Arts & Humanities", subjects: "History, Geography, Political Science", color: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400" },
-  { icon: <Cpu className="w-8 h-8" />, name: "Computer Science", subjects: "AI, Robotics, Programming, Data Science", color: "bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-400" },
-  { icon: <Activity className="w-8 h-8" />, name: "Physical Education", subjects: "Sports, Yoga, Health Education", color: "bg-orange-50 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400" },
-];
+const iconMap: Record<string, React.ReactNode> = {
+  FlaskConical: <FlaskConical className="w-8 h-8" />,
+  Calculator: <Calculator className="w-8 h-8" />,
+  Globe: <Globe className="w-8 h-8" />,
+  Palette: <Palette className="w-8 h-8" />,
+  Cpu: <Cpu className="w-8 h-8" />,
+  Activity: <Activity className="w-8 h-8" />,
+  BookOpen: <BookOpen className="w-8 h-8" />,
+  GraduationCap: <GraduationCap className="w-8 h-8" />,
+};
 
 const resultData = [
   { year: "2022", passRate: 98, distinction: 45 },
@@ -28,6 +31,8 @@ const streamData = [
 ];
 
 export default function Academics() {
+  const { data: departments } = trpc.cms.listDepartments.useQuery();
+
   return (
     <Layout>
       <section className="relative py-20 sm:py-24 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 text-white overflow-hidden">
@@ -131,29 +136,32 @@ export default function Academics() {
         </div>
       </section>
 
-      <section id="departments" className="py-20 bg-slate-50 dark:bg-slate-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Departments</h2>
-            <div className="w-16 h-1 bg-emerald-500 mx-auto mt-3 rounded-full" />
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {departments.map((dept, i) => (
-              <motion.div key={dept.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <Card className="hover:shadow-lg transition-shadow h-full">
-                  <CardContent className="p-6">
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${dept.color}`}>
-                      {dept.icon}
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{dept.name}</h3>
-                    <p className="text-sm text-muted-foreground">{dept.subjects}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+      {/* DYNAMIC DEPARTMENTS FROM CMS */}
+      {departments && departments.length > 0 && (
+        <section id="departments" className="py-20 bg-slate-50 dark:bg-slate-800/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Departments & Disciplines</h2>
+              <div className="w-16 h-1 bg-emerald-500 mx-auto mt-3 rounded-full" />
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {departments.map((dept: any, i: number) => (
+                <motion.div key={dept._id || dept.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                  <Card className="hover:shadow-lg transition-shadow h-full border border-slate-200/80 dark:border-slate-700">
+                    <CardContent className="p-6">
+                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${dept.color || "bg-emerald-50 text-emerald-700"}`}>
+                        {iconMap[dept.icon || "BookOpen"] || <BookOpen className="w-8 h-8" />}
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{dept.name}</h3>
+                      <p className="text-sm text-muted-foreground">{dept.subjects}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section id="results" className="py-20 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

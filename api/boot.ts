@@ -6,6 +6,11 @@ import type { HttpBindings } from "@hono/node-server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./router";
 import { createContext } from "./context";
+import { seedDatabase } from "./lib/seedDatabase";
+
+// Safe asynchronous background seeding of MongoDB defaults
+seedDatabase().catch((err) => console.warn("Seed warning:", err));
+
 const app = new Hono<{ Bindings: HttpBindings }>();
 
 // Security headers (HSTS, X-Content-Type-Options, X-Frame-Options, X-XSS-Protection)

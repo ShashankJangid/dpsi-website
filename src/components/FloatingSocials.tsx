@@ -1,39 +1,60 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Facebook, Youtube, Linkedin, Instagram, X, Globe } from "lucide-react";
-
-const socialLinks = [
-  {
-    name: "Facebook",
-    icon: <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />,
-    url: "https://www.facebook.com/DPSIndirapuramGhaziabad",
-    color: "bg-[#1877F2] hover:bg-[#166fe5]",
-  },
-  {
-    name: "Instagram",
-    icon: <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />,
-    url: "https://www.instagram.com/dps_indirapuram/",
-    color: "bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-90",
-  },
-  {
-    name: "YouTube",
-    icon: <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />,
-    url: "https://www.youtube.com/channel/UC-jQAVRh4pBXEktpml3yeIQ/videos",
-    color: "bg-[#FF0000] hover:bg-[#cc0000]",
-  },
-  {
-    name: "LinkedIn",
-    icon: <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />,
-    url: "https://www.linkedin.com/company/dpsindirapuram/",
-    color: "bg-[#0A66C2] hover:bg-[#095196]",
-  },
-];
+import { Facebook, Youtube, Linkedin, Instagram, X, Globe, Twitter } from "lucide-react";
+import { trpc } from "@/providers/trpc";
 
 export default function FloatingSocials() {
+  const { data: siteSettings } = trpc.cms.getSiteSettings.useQuery(undefined, {
+    staleTime: 60000,
+  });
+
+  const getSetting = (key: string, fallback: string) => {
+    const item = siteSettings?.find((s: any) => s.key === key);
+    return item?.value?.trim() || fallback;
+  };
+
+  const fbUrl = getSetting("social_facebook", "https://www.facebook.com/DPSIndirapuramGhaziabad");
+  const instaUrl = getSetting("social_instagram", "https://www.instagram.com/dps_indirapuram/");
+  const ytUrl = getSetting("social_youtube", "https://www.youtube.com/channel/UC-jQAVRh4pBXEktpml3yeIQ/videos");
+  const liUrl = getSetting("social_linkedin", "https://www.linkedin.com/school/dps-indirapuram/");
+  const twUrl = getSetting("social_twitter", "https://twitter.com/dps_indirapuram");
+
+  const socialLinks = [
+    {
+      name: "Facebook",
+      icon: <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />,
+      url: fbUrl,
+      color: "bg-[#1877F2] hover:bg-[#166fe5]",
+    },
+    {
+      name: "Instagram",
+      icon: <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />,
+      url: instaUrl,
+      color: "bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-90",
+    },
+    {
+      name: "YouTube",
+      icon: <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />,
+      url: ytUrl,
+      color: "bg-[#FF0000] hover:bg-[#cc0000]",
+    },
+    {
+      name: "LinkedIn",
+      icon: <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />,
+      url: liUrl,
+      color: "bg-[#0A66C2] hover:bg-[#095196]",
+    },
+    {
+      name: "Twitter",
+      icon: <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />,
+      url: twUrl,
+      color: "bg-sky-500 hover:bg-sky-600",
+    },
+  ].filter((s) => !!s.url);
+
   const [isOpen, setIsOpen] = useState(false);
   const userInteractedRef = useRef(false);
 
-  // Auto popup trigger: opens after 2.5s and automatically closes after 4.5s
   useEffect(() => {
     const openTimer = setTimeout(() => {
       if (!userInteractedRef.current) {
@@ -59,45 +80,72 @@ export default function FloatingSocials() {
   };
 
   return (
-    <div className="fixed bottom-[82px] right-4 sm:bottom-[94px] sm:right-6 z-[99998] flex flex-col items-end gap-2 pointer-events-auto">
+    <div className="fixed left-4 bottom-24 sm:bottom-8 z-40 flex flex-col items-center">
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, x: 10 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.8, x: 10 }}
-            transition={{ duration: 0.2 }}
-            className="flex flex-col gap-2 bg-gradient-to-br from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] backdrop-blur-2xl p-2.5 sm:p-3 rounded-2xl border border-white/60 shadow-2xl shadow-slate-900/25 mb-1"
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            transition={{ duration: 0.25, staggerChildren: 0.05 }}
+            className="flex flex-col gap-2 mb-3 items-center"
           >
-            {socialLinks.map((s) => (
+            {socialLinks.map((social) => (
               <motion.a
-                key={s.name}
-                href={s.url}
+                key={social.name}
+                href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.15, rotate: 4 }}
-                whileTap={{ scale: 0.95 }}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl text-white flex items-center justify-center shadow-md transition-all duration-300 ${s.color}`}
-                title={`DPS Indirapuram on ${s.name}`}
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -15 }}
+                whileHover={{ scale: 1.15, x: 4 }}
+                whileTap={{ scale: 0.9 }}
+                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white shadow-xl transition-all ${social.color}`}
+                title={social.name}
+                aria-label={`Visit our ${social.name} page`}
               >
-                {s.icon}
+                {social.icon}
               </motion.a>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Peach Ash Grey Gradient Floating Socials Button (Icon Only - Just Symbol) */}
       <motion.button
         onClick={handleToggle}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
-        className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 shadow-2xl shadow-slate-900/25 border border-white/80 backdrop-blur-2xl flex items-center justify-center transform-gpu will-change-transform hover:-translate-y-0.5 hover:shadow-slate-900/40 transition-all duration-300 cursor-pointer"
-        title="Social Media Links"
+        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-all cursor-pointer border border-white/20 ${
+          isOpen
+            ? "bg-slate-900 text-white hover:bg-slate-800"
+            : "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500"
+        }`}
+        aria-label="Toggle social links"
       >
-        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-md shrink-0">
-          {isOpen ? <X className="w-4 h-4 text-white" /> : <Globe className="w-4 h-4 text-white" />}
-        </div>
+        <AnimatePresence mode="wait">
+          {isOpen ? (
+            <motion.div
+              key="close"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <X className="w-5 h-5" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="globe"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Globe className="w-5 h-5" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.button>
     </div>
   );

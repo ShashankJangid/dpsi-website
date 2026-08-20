@@ -347,6 +347,250 @@ const AiConfigSchema = new Schema<IAiConfig>(
   { timestamps: true }
 );
 
+// --- 6. ADDITIONAL CMS STRUCTURED CONTENT MODELS (dpsi_main) ---
+
+export interface IAchievement extends Document {
+  studentName: string;
+  className: string;
+  score: string;
+  exam: string;
+  stream?: string;
+  rank?: string;
+  year: string;
+  imageUrl?: string;
+  featured: boolean;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const AchievementSchema = new Schema<IAchievement>(
+  {
+    studentName: { type: String, required: true },
+    className: { type: String, required: true },
+    score: { type: String, required: true },
+    exam: { type: String, required: true },
+    stream: { type: String },
+    rank: { type: String },
+    year: { type: String, default: "2025-26" },
+    imageUrl: { type: String },
+    featured: { type: Boolean, default: true },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface ITestimonial extends Document {
+  name: string;
+  role: string;
+  content: string;
+  avatarUrl?: string;
+  rating: number;
+  featured: boolean;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const TestimonialSchema = new Schema<ITestimonial>(
+  {
+    name: { type: String, required: true },
+    role: { type: String, required: true },
+    content: { type: String, required: true },
+    avatarUrl: { type: String },
+    rating: { type: Number, default: 5 },
+    featured: { type: Boolean, default: true },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface ILeadership extends Document {
+  name: string;
+  role: string;
+  designation?: string;
+  bio?: string;
+  imageUrl?: string;
+  order: number;
+  category: string;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const LeadershipSchema = new Schema<ILeadership>(
+  {
+    name: { type: String, required: true },
+    role: { type: String, required: true },
+    designation: { type: String },
+    bio: { type: String },
+    imageUrl: { type: String },
+    order: { type: Number, default: 0 },
+    category: { type: String, default: "Management" },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface IFacility extends Document {
+  title: string;
+  category: string;
+  description: string;
+  icon?: string;
+  imageUrl?: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const FacilitySchema = new Schema<IFacility>(
+  {
+    title: { type: String, required: true },
+    category: { type: String, default: "Campus" },
+    description: { type: String, required: true },
+    icon: { type: String, default: "Microscope" },
+    imageUrl: { type: String },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface IDepartment extends Document {
+  name: string;
+  subjects: string;
+  icon?: string;
+  color?: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const DepartmentSchema = new Schema<IDepartment>(
+  {
+    name: { type: String, required: true },
+    subjects: { type: String, required: true },
+    icon: { type: String, default: "BookOpen" },
+    color: { type: String, default: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface IAdmissionStep extends Document {
+  stepNumber: number;
+  title: string;
+  description: string;
+  icon?: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const AdmissionStepSchema = new Schema<IAdmissionStep>(
+  {
+    stepNumber: { type: Number, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    icon: { type: String, default: "FileText" },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface IFaq extends Document {
+  question: string;
+  answer: string;
+  category: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const FaqSchema = new Schema<IFaq>(
+  {
+    question: { type: String, required: true },
+    answer: { type: String, required: true },
+    category: { type: String, default: "Admissions" },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface IQuickStat extends Document {
+  label: string;
+  value: string;
+  icon?: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const QuickStatSchema = new Schema<IQuickStat>(
+  {
+    label: { type: String, required: true },
+    value: { type: String, required: true },
+    icon: { type: String, default: "GraduationCap" },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface ITimelineItem extends Document {
+  year: string;
+  title: string;
+  description: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const TimelineItemSchema = new Schema<ITimelineItem>(
+  {
+    year: { type: String, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export interface ICoreValue extends Document {
+  title: string;
+  description: string;
+  icon?: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const CoreValueSchema = new Schema<ICoreValue>(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    icon: { type: String, default: "Target" },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
 // --- MODEL GETTERS TIED TO SPECIFIC INTERNAL DATABASES ---
 
 export async function getMainModels() {
@@ -362,6 +606,16 @@ export async function getMainModels() {
     MunRegistration: conn.models.MunRegistration || conn.model<IMunRegistration>("MunRegistration", MunRegistrationSchema),
     SiteSettings: conn.models.SiteSettings || conn.model<ISiteSettings>("SiteSettings", SiteSettingsSchema),
     AiConfig: conn.models.AiConfig || conn.model<IAiConfig>("AiConfig", AiConfigSchema),
+    Achievement: conn.models.Achievement || conn.model<IAchievement>("Achievement", AchievementSchema),
+    Testimonial: conn.models.Testimonial || conn.model<ITestimonial>("Testimonial", TestimonialSchema),
+    Leadership: conn.models.Leadership || conn.model<ILeadership>("Leadership", LeadershipSchema),
+    Facility: conn.models.Facility || conn.model<IFacility>("Facility", FacilitySchema),
+    Department: conn.models.Department || conn.model<IDepartment>("Department", DepartmentSchema),
+    AdmissionStep: conn.models.AdmissionStep || conn.model<IAdmissionStep>("AdmissionStep", AdmissionStepSchema),
+    Faq: conn.models.Faq || conn.model<IFaq>("Faq", FaqSchema),
+    QuickStat: conn.models.QuickStat || conn.model<IQuickStat>("QuickStat", QuickStatSchema),
+    TimelineItem: conn.models.TimelineItem || conn.model<ITimelineItem>("TimelineItem", TimelineItemSchema),
+    CoreValue: conn.models.CoreValue || conn.model<ICoreValue>("CoreValue", CoreValueSchema),
   };
 }
 

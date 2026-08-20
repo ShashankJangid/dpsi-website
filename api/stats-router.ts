@@ -1,20 +1,42 @@
 import { z } from "zod";
 import { createRouter, publicQuery, adminQuery } from "./middleware";
-
-const fallbackStats = [
-  { id: 1, label: "Students Enrolled", value: "3,500+", icon: "GraduationCap", order: 1, active: true },
-  { id: 2, label: "CBSE Board Average", value: "88.6%", icon: "Award", order: 2, active: true },
-  { id: 3, label: "Expert Educators", value: "220+", icon: "Users", order: 3, active: true },
-  { id: 4, label: "Campus Area", value: "10 Acres", icon: "Building", order: 4, active: true },
-];
+import { getMainModels } from "./models/cmsSchemas";
 
 export const statsRouter = createRouter({
   list: publicQuery.query(async () => {
-    return fallbackStats;
+    try {
+      const { QuickStat } = await getMainModels();
+      const docs = await QuickStat.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+      return docs.map((d: any) => ({
+        id: d._id.toString(),
+        _id: d._id.toString(),
+        label: d.label,
+        value: d.value,
+        icon: d.icon || "GraduationCap",
+        order: d.order,
+        active: d.isActive,
+      }));
+    } catch {
+      return [];
+    }
   }),
 
   adminList: adminQuery.query(async () => {
-    return fallbackStats;
+    try {
+      const { QuickStat } = await getMainModels();
+      const docs = await QuickStat.find({ isDeleted: false }).sort({ order: 1 });
+      return docs.map((d: any) => ({
+        id: d._id.toString(),
+        _id: d._id.toString(),
+        label: d.label,
+        value: d.value,
+        icon: d.icon || "GraduationCap",
+        order: d.order,
+        active: d.isActive,
+      }));
+    } catch {
+      return [];
+    }
   }),
 
   create: adminQuery
@@ -22,19 +44,27 @@ export const statsRouter = createRouter({
       z.object({
         label: z.string().min(2).max(255),
         value: z.string().min(1).max(100),
-        icon: z.string().max(100).optional(),
+        icon: z.string().max(100).default("GraduationCap"),
         order: z.number().default(0),
         active: z.boolean().default(true),
       })
     )
     .mutation(async ({ input }) => {
-      return { success: true, id: 1 };
+      const { QuickStat } = await getMainModels();
+      const doc = await QuickStat.create({
+        label: input.label,
+        value: input.value,
+        icon: input.icon,
+        order: input.order,
+        isActive: input.active,
+      });
+      return { success: true, id: doc._id.toString() };
     }),
 
   update: adminQuery
     .input(
       z.object({
-        id: z.any(),
+        id: z.string(),
         label: z.string().min(2).max(255),
         value: z.string().min(1).max(100),
         icon: z.string().max(100).optional(),
@@ -43,12 +73,22 @@ export const statsRouter = createRouter({
       })
     )
     .mutation(async ({ input }) => {
+      const { QuickStat } = await getMainModels();
+      await QuickStat.findByIdAndUpdate(input.id, {
+        label: input.label,
+        value: input.value,
+        icon: input.icon,
+        order: input.order,
+        isActive: input.active,
+      });
       return { success: true };
     }),
 
   delete: adminQuery
-    .input(z.object({ id: z.any() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
+      const { QuickStat } = await getMainModels();
+      await QuickStat.findByIdAndUpdate(input.id, { isDeleted: true });
       return { success: true };
     }),
 });
