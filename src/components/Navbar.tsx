@@ -57,7 +57,16 @@ export default function Navbar() {
 
     const parents = dbMenus.filter((m: any) => !m.parent && m.isActive);
     return parents.map((p: any) => {
-      const children = dbMenus.filter((c: any) => c.parent?.toLowerCase() === p.title.toLowerCase() && c.isActive);
+      const pTitle = (p.title || "").trim().toLowerCase();
+      const pId = p._id ? p._id.toString() : "";
+      const pUrl = (p.url || "").trim().toLowerCase();
+
+      const children = dbMenus.filter((c: any) => {
+        if (!c.parent || !c.isActive) return false;
+        const cParent = c.parent.trim().toLowerCase();
+        return cParent === pTitle || cParent === pId || cParent === pUrl;
+      });
+
       return {
         label: p.title,
         href: p.url,

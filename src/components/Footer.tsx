@@ -39,6 +39,21 @@ export default function Footer() {
   const { data: dbResourceMenus } = trpc.cms.listMenus.useQuery({ location: "footer_resources" }, {
     staleTime: 60000,
   });
+  const { data: siteSettings } = trpc.cms.getSiteSettings.useQuery(undefined, {
+    staleTime: 60000,
+  });
+
+  const getSetting = (key: string, fallback: string) => {
+    const item = siteSettings?.find((s: any) => s.key === key);
+    return item?.value?.trim() || fallback;
+  };
+
+  const phone = getSetting("contact_phone", "+91-0120-4660000, 4670000");
+  const email = getSetting("contact_email", "info@dpsindirapuram.com");
+  const address = getSetting("contact_address", "526/1, Ahinsa Khand-II, Indirapuram, Ghaziabad, U.P. - 201014");
+  const fbUrl = getSetting("social_facebook", "https://www.facebook.com/DPSIndirapuramGhaziabad");
+  const ytUrl = getSetting("social_youtube", "https://www.youtube.com/channel/UC-jQAVRh4pBXEktpml3yeIQ/videos");
+  const instaUrl = getSetting("social_instagram", "https://www.instagram.com/dps_indirapuram/");
 
   const quickLinks = dbQuickMenus && dbQuickMenus.length > 0
     ? dbQuickMenus.filter((m: any) => m.isActive).map((m: any) => ({ label: m.title, href: m.url }))
@@ -75,7 +90,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://www.facebook.com/DPSIndirapuramGhaziabad"
+                href={fbUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-slate-800 hover:bg-[#1877F2] transition-colors"
@@ -84,7 +99,7 @@ export default function Footer() {
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://www.youtube.com/channel/UC-jQAVRh4pBXEktpml3yeIQ/videos"
+                href={ytUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-slate-800 hover:bg-[#FF0000] transition-colors"
@@ -102,7 +117,7 @@ export default function Footer() {
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
-                href="https://www.instagram.com/dps_indirapuram/"
+                href={instaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-slate-800 hover:bg-[#dc2743] transition-colors"
@@ -168,16 +183,16 @@ export default function Footer() {
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                 <p className="text-sm">
-                  526/1, Ahinsa Khand-II, Indirapuram, Ghaziabad, U.P. - 201014
+                  {address}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-emerald-400 shrink-0" />
-                <p className="text-sm">+91-0120-4660000, 4670000</p>
+                <p className="text-sm">{phone}</p>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-emerald-400 shrink-0" />
-                <p className="text-sm">info@dpsindirapuram.com</p>
+                <p className="text-sm">{email}</p>
               </div>
             </div>
           </div>

@@ -45,12 +45,12 @@ export default function PopupModal() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           transition={{ type: "spring", stiffness: 350, damping: 25 }}
-          className="relative max-w-lg w-full bg-slate-900 border border-emerald-500/30 rounded-3xl overflow-hidden shadow-2xl shadow-emerald-950/40 text-slate-100"
+          className="relative max-w-lg w-full bg-slate-900 border border-emerald-500/30 rounded-xl overflow-hidden shadow-2xl shadow-emerald-950/40 text-slate-100"
         >
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-3.5 right-3.5 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors"
+            className="absolute top-3.5 right-3.5 z-10 w-8 h-8 rounded-lg bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -96,7 +96,7 @@ export default function PopupModal() {
                     handleClose();
                     window.open(activePopup.linkUrl, "_blank");
                   }}
-                  className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-lg shadow-emerald-900/30 flex items-center gap-1.5"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-md shadow-emerald-900/30 flex items-center gap-1.5"
                 >
                   Learn More <ExternalLink className="w-3.5 h-3.5" />
                 </Button>

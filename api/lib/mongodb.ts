@@ -9,38 +9,55 @@ if (!MONGODB_URI) {
   console.warn("⚠️ MONGODB_URI is not set in environment variables.");
 }
 
-interface MongoConnections {
-  main: mongoose.Connection | null;
-  gallery: mongoose.Connection | null;
-  tc: mongoose.Connection | null;
+interface MongoCache {
+  connections: {
+    main: mongoose.Connection | null;
+    gallery: mongoose.Connection | null;
+    tc: mongoose.Connection | null;
+  };
+  promises: {
+    main: Promise<mongoose.Connection> | null;
+    gallery: Promise<mongoose.Connection> | null;
+    tc: Promise<mongoose.Connection> | null;
+  };
 }
 
 declare global {
-  var _mongoConnections: MongoConnections | undefined;
+  var _mongoCache: MongoCache | undefined;
 }
 
-const cached: MongoConnections = global._mongoConnections || {
-  main: null,
-  gallery: null,
-  tc: null,
+const cached: MongoCache = global._mongoCache || {
+  connections: { main: null, gallery: null, tc: null },
+  promises: { main: null, gallery: null, tc: null },
 };
 
-if (!global._mongoConnections) {
-  global._mongoConnections = cached;
+if (!global._mongoCache) {
+  global._mongoCache = cached;
 }
 
 export async function getDbConnection(dbName: "dpsi_main" | "dpsi_gallery" | "dpsi_tc"): Promise<mongoose.Connection> {
   const key = dbName === "dpsi_main" ? "main" : dbName === "dpsi_gallery" ? "gallery" : "tc";
 
-  if (cached[key] && cached[key]!.readyState === 1) {
-    return cached[key]!;
+  // 1. Return active cached connection if ready
+  if (cached.connections[key] && cached.connections[key]!.readyState === 1) {
+    return cached.connections[key]!;
+  }
+
+  // 2. Return pending connection promise if already in flight
+  if (cached.promises[key]) {
+    try {
+      const conn = await cached.promises[key]!;
+      if (conn.readyState === 1) return conn;
+    } catch {
+      cached.promises[key] = null;
+    }
   }
 
   if (!MONGODB_URI) {
     throw new Error("MONGODB_URI environment variable is missing.");
   }
 
-  // Ensure database name is cleanly injected into the URI
+  // 3. Construct database-specific URI
   let uri = MONGODB_URI.trim();
   if (uri.includes("?")) {
     const [base, query] = uri.split("?");
@@ -50,12 +67,35 @@ export async function getDbConnection(dbName: "dpsi_main" | "dpsi_gallery" | "dp
     uri = `${uri.replace(/\/+$/, "")}/${dbName}`;
   }
 
-  const conn = await mongoose.createConnection(uri, {
-    serverSelectionTimeoutMS: 10000,
+  // 4. Initiate single connection promise
+  cached.promises[key] = mongoose.createConnection(uri, {
+    serverSelectionTimeoutMS: 8000,
     connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+    minPoolSize: 1,
     tls: true,
   }).asPromise();
 
-  cached[key] = conn;
-  return conn;
+  try {
+    const conn = await cached.promises[key]!;
+    cached.connections[key] = conn;
+    cached.promises[key] = null;
+
+    conn.on("error", (err) => {
+      console.error(`MongoDB [${dbName}] connection error:`, err.message);
+    });
+
+    conn.on("disconnected", () => {
+      console.warn(`MongoDB [${dbName}] disconnected. Clearing connection cache.`);
+      cached.connections[key] = null;
+      cached.promises[key] = null;
+    });
+
+    return conn;
+  } catch (err) {
+    cached.promises[key] = null;
+    cached.connections[key] = null;
+    throw err;
+  }
 }

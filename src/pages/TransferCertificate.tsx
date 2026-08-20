@@ -42,7 +42,7 @@ export default function TransferCertificate() {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header Banner */}
           <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
               <Award className="w-4 h-4" /> Official Verification Portal
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -54,7 +54,7 @@ export default function TransferCertificate() {
           </div>
 
           {/* Search Box */}
-          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl rounded-3xl overflow-hidden p-6 sm:p-8">
+          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl rounded-xl overflow-hidden p-6 sm:p-8">
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
@@ -68,12 +68,12 @@ export default function TransferCertificate() {
                       placeholder="e.g. DPSI-1082 or Student Name"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-11 h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-base rounded-2xl"
+                      className="pl-11 h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-base rounded-lg"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="h-12 px-8 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-900/20"
+                    className="h-12 px-8 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shadow-md shadow-emerald-900/20"
                   >
                     Search TC
                   </Button>
@@ -104,14 +104,14 @@ export default function TransferCertificate() {
                       key={tc._id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                      className="p-6 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/50">
+                          <span className="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/50">
                             {tc.admissionNumber}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                             {tc.status}
                           </span>
                         </div>
@@ -128,7 +128,7 @@ export default function TransferCertificate() {
                       <div className="shrink-0 w-full sm:w-auto">
                         <Button
                           onClick={() => window.open(tc.certificatePdfUrl, "_blank")}
-                          className="w-full sm:w-auto bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2"
+                          className="w-full sm:w-auto bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center justify-center gap-2"
                         >
                           <Download className="w-4 h-4" /> Download TC PDF
                         </Button>
@@ -137,7 +137,7 @@ export default function TransferCertificate() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-white dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl">
+                <div className="text-center py-12 bg-white dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">
                   <AlertCircle className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                   <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                     No certificate found for "{searchTerm}"
