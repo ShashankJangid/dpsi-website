@@ -442,6 +442,9 @@ export interface IFacility extends Document {
   description: string;
   icon?: string;
   imageUrl?: string;
+  geometry?: string;
+  color?: string;
+  accent?: string;
   order: number;
   isActive: boolean;
   isDeleted: boolean;
@@ -454,12 +457,39 @@ const FacilitySchema = new Schema<IFacility>(
     description: { type: String, required: true },
     icon: { type: String, default: "Microscope" },
     imageUrl: { type: String },
+    geometry: { type: String, default: "torusKnot" },
+    color: { type: String, default: "#10b981" },
+    accent: { type: String, default: "#34d399" },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
+
+export interface IFeatureCard extends Document {
+  title: string;
+  description: string;
+  icon: string;
+  category?: string;
+  order: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
+const FeatureCardSchema = new Schema<IFeatureCard>(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    icon: { type: String, default: "Bot" },
+    category: { type: String, default: "Innovation" },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
 
 export interface IDepartment extends Document {
   name: string;
@@ -616,8 +646,10 @@ export async function getMainModels() {
     QuickStat: conn.models.QuickStat || conn.model<IQuickStat>("QuickStat", QuickStatSchema),
     TimelineItem: conn.models.TimelineItem || conn.model<ITimelineItem>("TimelineItem", TimelineItemSchema),
     CoreValue: conn.models.CoreValue || conn.model<ICoreValue>("CoreValue", CoreValueSchema),
+    FeatureCard: conn.models.FeatureCard || conn.model<IFeatureCard>("FeatureCard", FeatureCardSchema),
   };
 }
+
 
 export async function getGalleryModels() {
   const conn = await getDbConnection("dpsi_gallery");

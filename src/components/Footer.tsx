@@ -12,26 +12,6 @@ import {
 import { motion } from "framer-motion";
 import { trpc } from "@/providers/trpc";
 
-const defaultQuickLinks = [
-  { label: "Home", href: "/" },
-  { label: "About Us", href: "/about" },
-  { label: "Admissions", href: "/admissions" },
-  { label: "Academics", href: "/academics" },
-  { label: "Facilities", href: "/facilities" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Transfer Certificate (TC)", href: "/tc" },
-  { label: "Contact", href: "/contact" },
-];
-
-const defaultResources = [
-  { label: "SchoolsOS Portal Login", href: "https://dpsindp.schoolforschools.ai/login", external: true },
-  { label: "Event Calendar", href: "/news-events" },
-  { label: "Mandatory Public Disclosure", href: "/about" },
-  { label: "Careers", href: "/contact" },
-  { label: "Blog", href: "/news-events" },
-  { label: "Alumni", href: "/about" },
-];
-
 export default function Footer() {
   const { data: dbQuickMenus } = trpc.cms.listMenus.useQuery({ location: "footer_quick" }, {
     staleTime: 60000,
@@ -54,18 +34,26 @@ export default function Footer() {
   const fbUrl = getSetting("social_facebook", "https://www.facebook.com/DPSIndirapuramGhaziabad");
   const ytUrl = getSetting("social_youtube", "https://www.youtube.com/channel/UC-jQAVRh4pBXEktpml3yeIQ/videos");
   const instaUrl = getSetting("social_instagram", "https://www.instagram.com/dps_indirapuram/");
+  const tagline = getSetting(
+    "footer_tagline",
+    "Delhi Public School Indirapuram, established in 2003, is a premier institution under the DPS Society, committed to holistic education and excellence."
+  );
+  const copyright = getSetting(
+    "footer_copyright",
+    `Copyrights ${new Date().getFullYear()} DPS Indirapuram. All Rights Reserved.`
+  );
 
-  const quickLinks = dbQuickMenus && dbQuickMenus.length > 0
-    ? dbQuickMenus.filter((m: any) => m.isActive).map((m: any) => ({ label: m.title, href: m.url }))
-    : defaultQuickLinks;
+  const quickLinks = dbQuickMenus
+    ? dbQuickMenus.filter((m: any) => m.isActive && !m.isDeleted).map((m: any) => ({ label: m.title, href: m.url }))
+    : [];
 
-  const resources = dbResourceMenus && dbResourceMenus.length > 0
-    ? dbResourceMenus.filter((m: any) => m.isActive).map((m: any) => ({
+  const resources = dbResourceMenus
+    ? dbResourceMenus.filter((m: any) => m.isActive && !m.isDeleted).map((m: any) => ({
         label: m.title,
         href: m.url,
         external: m.url.startsWith("http"),
       }))
-    : defaultResources;
+    : [];
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -84,10 +72,9 @@ export default function Footer() {
               />
             </div>
             <p className="text-sm leading-relaxed">
-              Delhi Public School Indirapuram, established in 2003, is a premier
-              institution under the DPS Society, committed to holistic education
-              and excellence.
+              {tagline}
             </p>
+
             <div className="flex items-center gap-3 pt-2">
               <a
                 href={fbUrl}
@@ -128,52 +115,56 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Quick Links
-            </h4>
-            <ul className="space-y-2.5">
-              {quickLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-sm hover:text-emerald-400 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Resources
-            </h4>
-            <ul className="space-y-2.5">
-              {resources.map((link) => (
-                <li key={link.label}>
-                  {link.external ? (
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
+          {quickLinks.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+                Quick Links
+              </h4>
+              <ul className="space-y-2.5">
+                {quickLinks.map((link) => (
+                  <li key={link.label}>
                     <Link
                       to={link.href}
                       className="text-sm hover:text-emerald-400 transition-colors"
                     >
                       {link.label}
                     </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {resources.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+                Resources
+              </h4>
+              <ul className="space-y-2.5">
+                {resources.map((link) => (
+                  <li key={link.label}>
+                    {link.external ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        className="text-sm hover:text-emerald-400 transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div>
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
@@ -202,7 +193,7 @@ export default function Footer() {
       <div className="border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
-            Copyrights {new Date().getFullYear()} DPS Indirapuram. All Rights Reserved.
+            {copyright}
           </p>
           <motion.button
             whileHover={{ scale: 1.1 }}

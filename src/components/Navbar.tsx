@@ -103,6 +103,20 @@ export default function Navbar() {
   const { data: dbMarquees } = trpc.cms.listMarquees.useQuery(undefined, {
     staleTime: 60000,
   });
+  const { data: siteSettings } = trpc.cms.getSiteSettings.useQuery(undefined, {
+    staleTime: 60000,
+  });
+
+  const getSetting = (key: string, fallback: string) => {
+    const item = siteSettings?.find((s: any) => s.key === key);
+    return item?.value?.trim() || fallback;
+  };
+
+  const phone = getSetting("contact_phone", "+91-0120-4660000, 4670000");
+  const email = getSetting("contact_email", "INFO@DPSINDIRAPURAM.COM");
+  const affiliationNo = getSetting("cbse_affiliation_no", "2130663");
+  const schoolCode = getSetting("school_code", "60297");
+  const tagline = getSetting("school_tagline", "ADMISSIONS OPEN FOR SESSION 2026-27");
 
   const activeMarquees = dbMarquees?.filter((m: any) => m.isActive && !m.isDeleted);
 
@@ -126,22 +140,17 @@ export default function Navbar() {
                 <>
                   <span className="inline-flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                    ADMISSIONS OPEN FOR SESSION 2026-27 (PRE-NURSERY TO CLASS IX & XI)
+                    {tagline.toUpperCase()}
                   </span>
                   <span>•</span>
-                  <span className="text-amber-300 font-bold">
-                    CBSE CLASS XII & X BOARD RESULTS DECLARED — TOP SCORE 99.4%
-                  </span>
+                  <span>CBSE AFFILIATION NO: {affiliationNo} | SCHOOL CODE: {schoolCode}</span>
                   <span>•</span>
-                  <span>TIMES EDUCATION ICONS 2024 AWARD WINNER</span>
-                  <span>•</span>
-                  <span>CBSE AFFILIATION NO: 2130647 | SCHOOL CODE: 60287</span>
-                  <span>•</span>
-                  <span>CALL US: +91-0120-4660000, 4670000 | EMAIL: INFO@DPSINDIRAPURAM.COM</span>
+                  <span>CALL US: {phone} | EMAIL: {email.toUpperCase()}</span>
                 </>
               )}
             </div>
           </div>
+
           <div className="hidden lg:flex items-center gap-3 text-[11px] font-bold text-white shrink-0">
             <motion.a
               whileHover={{ scale: 1.05 }}

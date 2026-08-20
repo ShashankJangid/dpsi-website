@@ -713,7 +713,40 @@ export default function AdminCMS() {
     category: "Management",
     order: 0,
   });
-  const [editingLeadershipId, setEditingLeadershipId] = useState<string | null>(null);
+  const { data: featureCardsList, refetch: refetchFeatureCards } = trpc.cms.listFeatureCards.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const createFeatureCard = trpc.cms.createFeatureCard.useMutation({
+    onSuccess: () => {
+      toast.success("3D Feature Card added!");
+      refetchFeatureCards();
+      setFeatureCardModal(false);
+    },
+  });
+  const updateFeatureCard = trpc.cms.updateFeatureCard.useMutation({
+    onSuccess: () => {
+      toast.success("3D Feature Card updated!");
+      refetchFeatureCards();
+      setFeatureCardModal(false);
+      setEditingFeatureCardId(null);
+    },
+  });
+  const deleteFeatureCard = trpc.cms.deleteFeatureCard.useMutation({
+    onSuccess: () => {
+      toast.success("3D Feature Card removed");
+      refetchFeatureCards();
+    },
+  });
+
+  const [featureCardModal, setFeatureCardModal] = useState(false);
+  const [featureCardForm, setFeatureCardForm] = useState({
+    title: "",
+    description: "",
+    icon: "Bot",
+    category: "AI Innovation Lab",
+    order: 0,
+  });
+  const [editingFeatureCardId, setEditingFeatureCardId] = useState<string | null>(null);
 
   const [facilityModal, setFacilityModal] = useState(false);
   const [facilityForm, setFacilityForm] = useState({
@@ -722,9 +755,13 @@ export default function AdminCMS() {
     description: "",
     icon: "Microscope",
     imageUrl: "",
+    geometry: "torusKnot",
+    color: "#10b981",
+    accent: "#34d399",
     order: 0,
   });
   const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
+
 
   const [departmentModal, setDepartmentModal] = useState(false);
   const [departmentForm, setDepartmentForm] = useState({
@@ -902,7 +939,9 @@ export default function AdminCMS() {
     { id: "testimonials", label: "Testimonials", icon: <Heart className="w-4 h-4" />, count: testimonialsList?.length },
     { id: "leadership", label: "Leadership & Faculty", icon: <UserCheck className="w-4 h-4" />, count: leadershipList?.length },
     { id: "facilities", label: "Campus Facilities", icon: <Building className="w-4 h-4" />, count: facilitiesList?.length },
+    { id: "feature_cards", label: "3D Feature Cards", icon: <Cpu className="w-4 h-4" />, count: featureCardsList?.length },
     { id: "departments", label: "Departments", icon: <BookOpen className="w-4 h-4" />, count: departmentsList?.length },
+
     { id: "admissions_content", label: "Admissions (Steps & FAQs)", icon: <HelpCircle className="w-4 h-4" />, count: (admissionStepsList?.length || 0) + (faqsList?.length || 0) },
     { id: "stats_metrics", label: "Quick Stats & Counters", icon: <BarChart3 className="w-4 h-4" />, count: statsMetricsList?.length },
     { id: "attachments", label: "Attachments", icon: <Paperclip className="w-4 h-4" />, count: stats?.attachments },
@@ -2218,6 +2257,11 @@ export default function AdminCMS() {
                             <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-700 text-white font-bold rounded text-[10px]">
                               {f.category || "Campus"}
                             </div>
+                            {f.geometry && (
+                              <div className="absolute top-2 right-2 px-2 py-0.5 bg-slate-950/80 border border-emerald-400/40 text-emerald-300 font-mono text-[10px] rounded">
+                                3D: {f.geometry}
+                              </div>
+                            )}
                           </div>
                           <div className="p-4">
                             <h3 className="font-bold text-slate-900 text-sm">{f.title}</h3>
@@ -2237,6 +2281,9 @@ export default function AdminCMS() {
                                 description: f.description || "",
                                 icon: f.icon || "Microscope",
                                 imageUrl: f.imageUrl || "",
+                                geometry: f.geometry || "torusKnot",
+                                color: f.color || "#10b981",
+                                accent: f.accent || "#34d399",
                                 order: f.order || 0,
                               });
                               setFacilityModal(true);
@@ -2258,6 +2305,88 @@ export default function AdminCMS() {
                     {(!facilitiesList || facilitiesList.length === 0) && (
                       <div className="col-span-full text-center py-10 bg-white border border-dashed border-slate-300 rounded-lg text-slate-400 text-xs">
                         No facilities added yet. Click "Add Facility" to add one.
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 13B. 3D FEATURE CARDS (Home 2) --- */}
+              {activeTab === "feature_cards" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">3D Robotics & Tech Feature Cards</h2>
+                      <p className="text-xs text-slate-500">Manage interactive 3D highlight cards displayed on Home 2</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingFeatureCardId(null);
+                        setFeatureCardForm({
+                          title: "",
+                          description: "",
+                          icon: "Bot",
+                          category: "AI Innovation Lab",
+                          order: (featureCardsList?.length || 0) + 1,
+                        });
+                        setFeatureCardModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Feature Card
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {featureCardsList?.map((card: any) => (
+                      <Card key={card._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="px-2 py-0.5 bg-sky-100 text-sky-800 font-bold rounded text-[10px] uppercase">
+                              Icon: {card.icon}
+                            </span>
+                            <span className="text-xs text-slate-400 font-mono">Order: #{card.order}</span>
+                          </div>
+                          <h3 className="font-bold text-slate-900 text-base">{card.title}</h3>
+                          <p className="text-xs text-slate-600 leading-relaxed">{card.description}</p>
+                          {card.category && (
+                            <p className="text-[11px] text-slate-400 italic">Category: {card.category}</p>
+                          )}
+                        </div>
+                        <div className="flex justify-end gap-1 pt-3 border-t border-slate-100 mt-3">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingFeatureCardId(card._id);
+                              setFeatureCardForm({
+                                title: card.title,
+                                description: card.description || "",
+                                icon: card.icon || "Bot",
+                                category: card.category || "AI Innovation Lab",
+                                order: card.order || 0,
+                              });
+                              setFeatureCardModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteFeatureCard.mutate({ id: card._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                    {(!featureCardsList || featureCardsList.length === 0) && (
+                      <div className="col-span-full text-center py-10 bg-white border border-dashed border-slate-300 rounded-lg text-slate-400 text-xs">
+                        No 3D feature cards configured. Click "Add Feature Card" to create one.
                       </div>
                     )}
                   </div>
@@ -4117,6 +4246,56 @@ export default function AdminCMS() {
                     </div>
                   </div>
                 </div>
+                <div className="grid grid-cols-3 gap-3">
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">3D Geometry</label>
+                    <select
+                      value={facilityForm.geometry}
+                      onChange={(e) => setFacilityForm({ ...facilityForm, geometry: e.target.value })}
+                      className="w-full h-9 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    >
+                      <option value="torusKnot">Torus Knot (3D Ring)</option>
+                      <option value="icosahedron">Icosahedron (20-sided)</option>
+                      <option value="dodecahedron">Dodecahedron (12-sided)</option>
+                      <option value="octahedron">Octahedron (8-sided)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Primary Color</label>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <input
+                        type="color"
+                        value={facilityForm.color}
+                        onChange={(e) => setFacilityForm({ ...facilityForm, color: e.target.value })}
+                        className="w-8 h-8 rounded border border-slate-300 cursor-pointer p-0.5"
+                      />
+                      <Input
+                        value={facilityForm.color}
+                        onChange={(e) => setFacilityForm({ ...facilityForm, color: e.target.value })}
+                        placeholder="#10b981"
+                        className="text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Glow Accent</label>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <input
+                        type="color"
+                        value={facilityForm.accent}
+                        onChange={(e) => setFacilityForm({ ...facilityForm, accent: e.target.value })}
+                        className="w-8 h-8 rounded border border-slate-300 cursor-pointer p-0.5"
+                      />
+                      <Input
+                        value={facilityForm.accent}
+                        onChange={(e) => setFacilityForm({ ...facilityForm, accent: e.target.value })}
+                        placeholder="#34d399"
+                        className="text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <Button variant="outline" size="sm" onClick={() => setFacilityModal(false)}>Cancel</Button>
@@ -4141,6 +4320,80 @@ export default function AdminCMS() {
             </div>
           </div>
         )}
+
+        {/* --- 3D FEATURE CARD MODAL (Home 2) --- */}
+        {featureCardModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-slate-900">{editingFeatureCardId ? "Edit 3D Feature Card" : "Add 3D Feature Card"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setFeatureCardModal(false)}><X className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Card Title *</label>
+                    <Input value={featureCardForm.title} onChange={(e) => setFeatureCardForm({ ...featureCardForm, title: e.target.value })} placeholder="e.g. Humanoid Robotics" className="text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Sub-Badge / Category</label>
+                    <Input value={featureCardForm.category} onChange={(e) => setFeatureCardForm({ ...featureCardForm, category: e.target.value })} placeholder="AI Innovation Lab" className="text-xs" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">Description / Subtitle *</label>
+                  <Textarea rows={2} value={featureCardForm.description} onChange={(e) => setFeatureCardForm({ ...featureCardForm, description: e.target.value })} placeholder="Brief 1-2 sentence description..." className="text-xs" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Card Icon *</label>
+                    <select
+                      value={featureCardForm.icon}
+                      onChange={(e) => setFeatureCardForm({ ...featureCardForm, icon: e.target.value })}
+                      className="w-full h-9 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    >
+                      <option value="Bot">Bot (Robotics & AI)</option>
+                      <option value="Cpu">Cpu (MakerSpace & Tech)</option>
+                      <option value="Rocket">Rocket (Next-Gen Curriculum)</option>
+                      <option value="Sparkles">Sparkles (Innovation)</option>
+                      <option value="Code">Code (Programming)</option>
+                      <option value="GraduationCap">GraduationCap (Academics)</option>
+                      <option value="Laptop">Laptop (Digital Learning)</option>
+                      <option value="Microscope">Microscope (Science & Research)</option>
+                      <option value="Atom">Atom (Physics & STEM)</option>
+                      <option value="Globe">Globe (Global Citizenship)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Display Order</label>
+                    <Input type="number" value={featureCardForm.order} onChange={(e) => setFeatureCardForm({ ...featureCardForm, order: parseInt(e.target.value) || 0 })} placeholder="1" className="text-xs" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setFeatureCardModal(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                  onClick={() => {
+                    if (!featureCardForm.title || !featureCardForm.description) {
+                      toast.error("Please enter title and description");
+                      return;
+                    }
+                    if (editingFeatureCardId) {
+                      updateFeatureCard.mutate({ id: editingFeatureCardId, ...featureCardForm });
+                    } else {
+                      createFeatureCard.mutate(featureCardForm);
+                    }
+                  }}
+                >
+                  {editingFeatureCardId ? "Save Changes" : "Create Feature Card"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* --- DEPARTMENTS MODAL --- */}
         {departmentModal && (

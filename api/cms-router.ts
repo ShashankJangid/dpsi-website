@@ -886,6 +886,9 @@ export const cmsRouter = createRouter({
         description: z.string().min(5),
         icon: z.string().default("Microscope"),
         imageUrl: z.string().optional(),
+        geometry: z.string().optional(),
+        color: z.string().optional(),
+        accent: z.string().optional(),
         order: z.number().default(0),
       })
     )
@@ -902,6 +905,9 @@ export const cmsRouter = createRouter({
         description: z.string().min(5),
         icon: z.string().default("Microscope"),
         imageUrl: z.string().optional(),
+        geometry: z.string().optional(),
+        color: z.string().optional(),
+        accent: z.string().optional(),
         order: z.number().default(0),
         isActive: z.boolean().optional(),
       })
@@ -917,6 +923,7 @@ export const cmsRouter = createRouter({
       const { Facility } = await getMainModels();
       return Facility.findByIdAndUpdate(input.id, { isDeleted: true });
     }),
+
 
   // --- 29. DEPARTMENTS & CURRICULUM ---
   listDepartments: publicQuery.query(async () => {
@@ -1130,4 +1137,48 @@ export const cmsRouter = createRouter({
       const { CoreValue } = await getMainModels();
       return CoreValue.findByIdAndUpdate(input.id, { isDeleted: true });
     }),
+
+  // --- 34. 3D FEATURE CARDS (Home2) ---
+  listFeatureCards: publicQuery.query(async () => {
+    const { FeatureCard } = await getMainModels();
+    return FeatureCard.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+  }),
+  createFeatureCard: publicMutation
+    .input(
+      z.object({
+        title: z.string().min(2),
+        description: z.string().min(5),
+        icon: z.string().default("Bot"),
+        category: z.string().optional(),
+        order: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { FeatureCard } = await getMainModels();
+      return FeatureCard.create(input);
+    }),
+  updateFeatureCard: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(2),
+        description: z.string().min(5),
+        icon: z.string().default("Bot"),
+        category: z.string().optional(),
+        order: z.number().default(0),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const { FeatureCard } = await getMainModels();
+      return FeatureCard.findByIdAndUpdate(id, data, { new: true });
+    }),
+  deleteFeatureCard: publicMutation
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const { FeatureCard } = await getMainModels();
+      return FeatureCard.findByIdAndUpdate(input.id, { isDeleted: true });
+    }),
 });
+

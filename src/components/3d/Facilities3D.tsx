@@ -5,36 +5,17 @@ import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, ChevronRight } from "lucide-react";
 
-const facilityData = [
-  {
-    id: "ai",
-    label: "AI & Robotics Lab",
-    description: "Next-gen AI research center with humanoid robotics, 3D printing, and holographic workstations.",
-    color: "#10b981",
-    accent: "#34d399",
-    image: "/images/facilities/ai_robotics_lab.webp",
-    geometry: "torusKnot"
-  },
+import { trpc } from "@/providers/trpc";
 
-  {
-    id: "smart",
-    label: "Next-Gen Smart Classrooms",
-    description: "Interactive learning environments equipped with AR/VR pods and curved glass touchboards.",
-    color: "#047857",
-    accent: "#a7f3d0",
-    image: "/images/facilities/smart_classroom.webp",
-    geometry: "icosahedron"
-  },
-  {
-    id: "aquatic",
-    label: "Sports & Aquatic Complex",
-    description: "Olympic-standard swimming arena, multi-sport indoor courts, and FIFA-standard turf fields.",
-    color: "#065f46",
-    accent: "#f59e0b",
-    image: "/images/facilities/swimming_pool.webp",
-    geometry: "dodecahedron"
-  }
-];
+interface FacilityItem {
+  id: string;
+  label: string;
+  description: string;
+  color: string;
+  accent: string;
+  image: string;
+  geometry: string;
+}
 
 const FacilityMesh = ({
   facility,
@@ -42,11 +23,12 @@ const FacilityMesh = ({
   isActive,
   onClick
 }: {
-  facility: typeof facilityData[0];
+  facility: FacilityItem;
   position: [number, number, number];
   isActive: boolean;
   onClick: () => void;
 }) => {
+
   const meshRef = useRef<THREE.Mesh>(null);
   const geomRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
@@ -117,7 +99,15 @@ const FacilityMesh = ({
   );
 };
 
-const Scene = ({ activeIndex, setActiveIndex }: { activeIndex: number; setActiveIndex: (i: number) => void }) => {
+const Scene = ({
+  facilities,
+  activeIndex,
+  setActiveIndex
+}: {
+  facilities: FacilityItem[];
+  activeIndex: number;
+  setActiveIndex: (i: number) => void;
+}) => {
   return (
     <>
       <ambientLight intensity={0.8} />
@@ -126,11 +116,11 @@ const Scene = ({ activeIndex, setActiveIndex }: { activeIndex: number; setActive
       <pointLight position={[10, -5, 5]} intensity={1} color="#f59e0b" />
       <Sparkles count={120} scale={10} size={3} speed={0.4} color="#34d399" />
 
-      {facilityData.map((f, i) => (
+      {facilities.map((f, i) => (
         <FacilityMesh
           key={f.id}
           facility={f}
-          position={[(i - 1.5) * 2.7, 0, 0]}
+          position={[(i - (facilities.length - 1) / 2) * 2.7, 0, 0]}
           isActive={activeIndex === i}
           onClick={() => setActiveIndex(i)}
         />
@@ -140,9 +130,38 @@ const Scene = ({ activeIndex, setActiveIndex }: { activeIndex: number; setActive
 };
 
 export default function Facilities3D() {
+  const { data: dbFacilities, isLoading } = trpc.cms.listFacilities.useQuery(undefined, {
+    staleTime: 60000,
+  });
   const [activeIndex, setActiveIndex] = useState(0);
-  const [webglError, setWebglError] = useState(false);
-  const active = facilityData[activeIndex];
+  const [webglError] = useState(false);
+
+  const facilities: FacilityItem[] = (dbFacilities || [])
+    .filter((f: any) => f.isActive && !f.isDeleted)
+    .map((f: any, i: number) => ({
+      id: f._id,
+      label: f.title,
+      description: f.description,
+      color: f.color || (i === 0 ? "#10b981" : i === 1 ? "#047857" : "#065f46"),
+      accent: f.accent || (i === 0 ? "#34d399" : i === 1 ? "#a7f3d0" : "#f59e0b"),
+      image: f.imageUrl || "/images/facilities/ai_robotics_lab.webp",
+      geometry: f.geometry || (i % 3 === 0 ? "torusKnot" : i % 3 === 1 ? "icosahedron" : "dodecahedron"),
+    }));
+
+  if (!isLoading && facilities.length === 0) {
+    return null;
+  }
+
+  const safeIndex = facilities.length > 0 ? activeIndex % facilities.length : 0;
+  const active = facilities[safeIndex];
+
+  if (!active) {
+    return (
+      <div className="w-full h-80 bg-slate-900 animate-pulse rounded-3xl flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-emerald-400/20 border-t-emerald-400 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full rounded-3xl overflow-hidden bg-slate-950 border border-emerald-500/30 shadow-2xl shadow-emerald-950/40">
@@ -167,7 +186,7 @@ export default function Facilities3D() {
               );
             }}
           >
-            <Scene activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+            <Scene facilities={facilities} activeIndex={safeIndex} setActiveIndex={setActiveIndex} />
             <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 2} minPolarAngle={Math.PI / 3} />
           </Canvas>
         ) : (
@@ -201,12 +220,12 @@ export default function Facilities3D() {
         </AnimatePresence>
 
         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 px-4 flex-wrap z-10">
-          {facilityData.map((f, i) => (
+          {facilities.map((f, i) => (
             <button
               key={f.id}
               onClick={() => setActiveIndex(i)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
-                activeIndex === i
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer ${
+                safeIndex === i
                   ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xl shadow-emerald-600/40 scale-105"
                   : "bg-slate-900/80 text-slate-300 border border-slate-700/60 hover:bg-slate-800 hover:text-white"
               }`}

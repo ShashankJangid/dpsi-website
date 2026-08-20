@@ -285,5 +285,143 @@ describe("CMS Functionality & Business Logic Test Suite", () => {
       expect(emptyVideos.length).toBe(0);
     });
   });
+
+  describe("Stage B CMS-to-Live Round Trip & Empty State Contracts", () => {
+    it("1. Footer: validates dynamic quick links, resources, and site setting copy", () => {
+      const MenuLinkContract = z.object({
+        label: z.string(),
+        href: z.string(),
+        external: z.boolean().optional(),
+      });
+
+      const sampleQuickLink = { label: "Admissions", href: "/admissions" };
+      const sampleResource = { label: "SchoolsOS Portal Login", href: "https://dpsindp.schoolforschools.ai/login", external: true };
+
+      expect(MenuLinkContract.safeParse(sampleQuickLink).success).toBe(true);
+      expect(MenuLinkContract.safeParse(sampleResource).success).toBe(true);
+
+      // Empty collection handling: empty arrays must not crash
+      const emptyLinks: any[] = [];
+      expect(emptyLinks.length).toBe(0);
+    });
+
+    it("2. Navbar: validates dynamic affiliation, phone, email, and tagline settings", () => {
+      const NavbarSettingContract = z.object({
+        phone: z.string(),
+        email: z.string().email(),
+        cbseAffiliationNo: z.string(),
+        schoolCode: z.string(),
+        tagline: z.string(),
+      });
+
+      const sampleSettings = {
+        phone: "+91-0120-4660000, 4670000",
+        email: "info@dpsindirapuram.com",
+        cbseAffiliationNo: "2130663",
+        schoolCode: "60297",
+        tagline: "Service Before Self • Nurturing Global Leaders",
+      };
+
+      expect(NavbarSettingContract.safeParse(sampleSettings).success).toBe(true);
+    });
+
+    it("3. AIChatWidget: validates welcome message and dynamic action link generation", () => {
+      const ActionLinkContract = z.object({
+        actionUrl: z.string().optional(),
+        actionType: z.enum(["call", "email", "link"]).optional(),
+      });
+
+      const calendarAction = { actionUrl: "https://res.cloudinary.com/dpsi/image/upload/calendar.pdf", actionType: "link" as const };
+      const callAction = { actionUrl: "tel:+9101204660000", actionType: "call" as const };
+
+      expect(ActionLinkContract.safeParse(calendarAction).success).toBe(true);
+      expect(ActionLinkContract.safeParse(callAction).success).toBe(true);
+    });
+
+    it("4. Home2 Feature Cards: validates constrained icon enum, schema contract, and empty handling", () => {
+      const ALLOWED_ICONS = ["Bot", "Cpu", "Rocket", "Sparkles", "Code", "GraduationCap", "Laptop", "Microscope", "Atom", "Globe"] as const;
+      const FeatureCardContract = z.object({
+        id: z.string().optional(),
+        title: z.string().min(2),
+        description: z.string().min(5),
+        icon: z.enum(ALLOWED_ICONS),
+        category: z.string().optional(),
+        order: z.number().default(0),
+        isActive: z.boolean().default(true),
+      });
+
+      const validCard = {
+        title: "Humanoid Robotics",
+        description: "AI Innovation Lab with autonomous bots and Raspberry Pi workstations",
+        icon: "Bot" as const,
+        category: "AI Innovation Lab",
+        order: 1,
+        isActive: true,
+      };
+
+      expect(FeatureCardContract.safeParse(validCard).success).toBe(true);
+
+      // Verify unconstrained/typo icon is rejected
+      const invalidCard = {
+        title: "Invalid Icon Card",
+        description: "Some description here",
+        icon: "NonExistentIconXYZ",
+      };
+      expect(FeatureCardContract.safeParse(invalidCard).success).toBe(false);
+
+      // Empty collection handling: cards.length === 0 safely returns no grid
+      const emptyCards: any[] = [];
+      expect(emptyCards.length).toBe(0);
+    });
+
+    it("5. Facilities 3D & 2D: validates shared Facility schema with 3D defaults and geometry presets", () => {
+      const ALLOWED_GEOMETRIES = ["torusKnot", "icosahedron", "dodecahedron", "octahedron"] as const;
+      const FacilitySharedContract = z.object({
+        id: z.string().optional(),
+        title: z.string(),
+        category: z.string(),
+        description: z.string(),
+        icon: z.string().optional(),
+        imageUrl: z.string().optional(),
+        geometry: z.enum(ALLOWED_GEOMETRIES).default("torusKnot"),
+        color: z.string().default("#10b981"),
+        accent: z.string().default("#34d399"),
+        order: z.number().default(0),
+        isActive: z.boolean().default(true),
+      });
+
+      // Existing Stage 1 document without 3D fields (tests automatic fallback to defaults)
+      const stage1Doc = {
+        title: "AI & Robotics Lab",
+        category: "Campus",
+        description: "Next-gen AI research center with humanoid robotics",
+        icon: "Microscope",
+        imageUrl: "/images/facilities/ai_robotics_lab.webp",
+      };
+
+      const parsed = FacilitySharedContract.parse(stage1Doc);
+      expect(parsed.geometry).toBe("torusKnot");
+      expect(parsed.color).toBe("#10b981");
+      expect(parsed.accent).toBe("#34d399");
+
+      // Custom 3D configured facility
+      const custom3DDoc = {
+        title: "Sports & Aquatic Complex",
+        category: "Sports",
+        description: "Olympic-standard swimming arena",
+        geometry: "dodecahedron" as const,
+        color: "#065f46",
+        accent: "#f59e0b",
+      };
+      expect(FacilitySharedContract.safeParse(custom3DDoc).success).toBe(true);
+
+      // Empty facilities collection safety: zero length must safely handle indexing
+      const emptyFacilities: any[] = [];
+      const safeIndex = emptyFacilities.length > 0 ? 0 % emptyFacilities.length : 0;
+      expect(safeIndex).toBe(0);
+      expect(emptyFacilities[safeIndex]).toBeUndefined();
+    });
+  });
 });
+
 

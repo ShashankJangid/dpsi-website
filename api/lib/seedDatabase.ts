@@ -43,11 +43,13 @@ export async function seedDatabase() {
       { key: "principal_message_p2", value: "With over two decades of educational leadership, our state-of-the-art facilities, dedicated educators, and holistic curricula ensure that every student thrives with confidence, character, and intellect.", label: "Principal Message (Paragraph 2)", group: "principal" },
       { key: "cta_badge", value: "Admissions Open 2026-27", label: "CTA Badge", group: "cta" },
       { key: "cta_title", value: "Ready to Shape Your Child's Bright Future?", label: "CTA Title", group: "cta" },
-      { key: "cta_subtitle", value: "Join the DPS Indirapuram family and empower your child with world-class education, futuristic technology, and holistic values.", label: "CTA Subtitle", group: "cta" },
-      { key: "cta_button_text", value: "Apply for Admission", label: "CTA Button Text", group: "cta" },
       { key: "cta_button_link", value: "/admissions", label: "CTA Button Link", group: "cta" },
       { key: "footer_copyright", value: "© 2026 Delhi Public School Indirapuram. All rights reserved.", label: "Footer Copyright", group: "general" },
+      { key: "footer_tagline", value: "Delhi Public School Indirapuram, established in 2003, is a premier institution under the DPS Society, committed to holistic education and excellence.", label: "Footer Tagline", group: "general" },
+      { key: "chat_welcome_message", value: "Hello! I am DPSI AI. I can assist you with Admissions, Exam Schedules, Vacations, Academic Streams, and Campus Facilities.", label: "AI Chat Welcome Message", group: "ai" },
+      { key: "calendar_pdf_url", value: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf", label: "Academic Calendar PDF URL", group: "ai" },
     ];
+
 
     for (const s of defaultSettings) {
       await SiteSettings.findOneAndUpdate(
@@ -530,7 +532,40 @@ export async function seedDatabase() {
         },
       ]);
     }
+
+    // 13. 3D FEATURE CARDS (Home2)
+    const { FeatureCard } = await getMainModels();
+    const featureCardCount = await FeatureCard.countDocuments({ isDeleted: false });
+    if (featureCardCount === 0) {
+      await FeatureCard.insertMany([
+        {
+          title: "Humanoid Robotics",
+          description: "AI Innovation Lab with autonomous bots and Raspberry Pi workstations",
+          icon: "Bot",
+          category: "AI Innovation Lab",
+          order: 1,
+          isActive: true,
+        },
+        {
+          title: "MakerSpace Lab",
+          description: "Flight Simulators, 3D Printers & Design Thinking Studio",
+          icon: "Cpu",
+          category: "Flight Simulators & D&T",
+          order: 2,
+          isActive: true,
+        },
+        {
+          title: "Next-Gen Curriculum",
+          description: "STEAM Pedagogy, Experiential Learning & Global Skill Modules",
+          icon: "Rocket",
+          category: "STEAM & Experiential Learning",
+          order: 3,
+          isActive: true,
+        },
+      ]);
+    }
   } catch (error) {
     console.warn("MongoDB Auto-Seeding warning:", error);
   }
 }
+

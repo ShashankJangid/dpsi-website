@@ -21,20 +21,24 @@ interface Message {
   actionType?: "call" | "email" | "link";
 }
 
-// Dynamic Action Helper for Action Buttons - only shown when explicitly requested/relevant
-function getDynamicAction(query: string, text?: string) {
+// Dynamic Action Helper for Action Buttons - dynamically configured from CMS SiteSettings
+function getDynamicAction(query: string, text?: string, settings?: { calendarPdfUrl?: string; phone?: string; email?: string }) {
   const q = (query + " " + (text || "")).toLowerCase();
+  const calUrl = settings?.calendarPdfUrl || "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf";
+  const phone = settings?.phone || "+9101204660000";
+  const email = settings?.email || "info@dpsindirapuram.com";
+
   if (q.includes("calendar link") || q.includes("download calendar") || q.includes("academic calendar pdf") || q.includes("schedule pdf")) {
-    return { actionUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf", actionType: "link" as const };
+    return { actionUrl: calUrl, actionType: "link" as const };
   }
   if (q.includes("how to apply") || q.includes("admission link") || q.includes("registration link") || q.includes("admission portal") || q.includes("admission form")) {
-    return { actionUrl: "https://www.dpsindirapuram.com/page/admission-procedure", actionType: "link" as const };
+    return { actionUrl: "/admissions", actionType: "link" as const };
   }
   if (q.includes("contact number") || q.includes("phone number") || q.includes("call school") || q.includes("phone no")) {
-    return { actionUrl: "tel:+9101204660000", actionType: "call" as const };
+    return { actionUrl: `tel:${phone.replace(/[^0-9+]/g, "")}`, actionType: "call" as const };
   }
   if (q.includes("email id") || q.includes("email address") || q.includes("send email")) {
-    return { actionUrl: "mailto:info@dpsindirapuram.com", actionType: "email" as const };
+    return { actionUrl: `mailto:${email}`, actionType: "email" as const };
   }
   return { actionUrl: undefined, actionType: undefined };
 }
@@ -42,6 +46,22 @@ function getDynamicAction(query: string, text?: string) {
 export default function AIChatWidget() {
   const aiChatMutation = trpc.ai.chat.useMutation();
   const ttsMutation = trpc.ai.synthesizeSpeech.useMutation();
+  const { data: siteSettings } = trpc.cms.getSiteSettings.useQuery(undefined, {
+    staleTime: 60000,
+  });
+
+  const getSetting = (key: string, fallback: string) => {
+    const item = siteSettings?.find((s: any) => s.key === key);
+    return item?.value?.trim() || fallback;
+  };
+
+  const welcomeMessage = getSetting(
+    "chat_welcome_message",
+    "Hello! I am DPSI AI. I can assist you with Admissions, Exam Schedules, Vacations, Academic Streams, and Campus Facilities."
+  );
+  const calendarPdfUrl = getSetting("calendar_pdf_url", "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf");
+  const phone = getSetting("contact_phone", "+91-0120-4660000");
+  const email = getSetting("contact_email", "info@dpsindirapuram.com");
 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -49,10 +69,26 @@ export default function AIChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Hello! I am DPSI AI. I can assist you with Admissions, Exam Schedules, Vacations, Academic Streams, and Campus Facilities.",
+      text: welcomeMessage,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     }
   ]);
+
+  // Update initial greeting when site settings load
+  useEffect(() => {
+    if (welcomeMessage) {
+      setMessages(prev => {
+        if (prev.length === 1 && prev[0].role === "assistant") {
+          return [{
+            ...prev[0],
+            text: welcomeMessage,
+          }];
+        }
+        return prev;
+      });
+    }
+  }, [welcomeMessage]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -349,7 +385,7 @@ export default function AIChatWidget() {
           .replace(/\s+/g, " ")
           .trim();
 
-        const action = getDynamicAction(query, text);
+        const action = getDynamicAction(query, text, { calendarPdfUrl, phone, email });
         return { answer: text, actionUrl: action.actionUrl, actionType: action.actionType };
       }
     } catch {
@@ -358,7 +394,8 @@ export default function AIChatWidget() {
 
     // Comprehensive smart local fallback answers grounded in the official academic calendar and school records
     const lower = query.toLowerCase();
-    const fallbackAction = getDynamicAction(query, "");
+    const fallbackAction = getDynamicAction(query, "", { calendarPdfUrl, phone, email });
+
 
     if (lower.includes("calendar") || lower.includes("academic year") || lower.includes("schedule")) {
       return {
