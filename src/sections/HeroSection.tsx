@@ -5,8 +5,21 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/providers/trpc";
 
+const DEFAULT_HERO_SLIDES = [
+  {
+    image: "/images/dps/slider_1.webp",
+    title: "Delhi Public School Indirapuram",
+    subtitle: "Premier CBSE School in Ghaziabad",
+    badge: "Admissions Open 2026-27",
+    buttonText: "Apply Now",
+    buttonLink: "/admissions",
+  },
+];
+
 export default function HeroSection() {
-  const { data: cmsSliders, isLoading } = trpc.cms.listSliders.useQuery();
+  const { data: cmsSliders } = trpc.cms.listSliders.useQuery(undefined, {
+    staleTime: 60000,
+  });
 
   const activeSlides = (cmsSliders && cmsSliders.length > 0)
     ? cmsSliders
@@ -19,7 +32,7 @@ export default function HeroSection() {
           buttonText: s.buttonText || "Apply Now",
           buttonLink: s.buttonLink || "/admissions",
         }))
-    : [];
+    : DEFAULT_HERO_SLIDES;
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [displayText, setDisplayText] = useState("");
@@ -27,7 +40,7 @@ export default function HeroSection() {
 
   // Safe slide index calculation
   const safeSlideIndex = activeSlides.length > 0 ? currentSlide % activeSlides.length : 0;
-  const slide = activeSlides[safeSlideIndex];
+  const slide = activeSlides[safeSlideIndex] || DEFAULT_HERO_SLIDES[0];
 
   useEffect(() => {
     activeSlides.forEach((s) => {
@@ -39,6 +52,7 @@ export default function HeroSection() {
   }, [activeSlides]);
 
   const fullText = slide ? (slide.subtitle ? `${slide.title} — ${slide.subtitle}` : slide.title) : "";
+
 
   // Typewriter backspacing and re-writing visual effect
   useEffect(() => {
@@ -74,17 +88,10 @@ export default function HeroSection() {
     setCurrentSlide(newIndex % activeSlides.length);
   };
 
-  if (!isLoading && activeSlides.length === 0) {
+  if (activeSlides.length === 0) {
     return null;
   }
 
-  if (!slide) {
-    return (
-      <div className="w-full h-96 bg-slate-900 animate-pulse flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-sky-400/20 border-t-sky-400 rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="w-full flex flex-col bg-slate-50">
@@ -175,9 +182,11 @@ export default function HeroSection() {
               src={slide.image}
               alt={slide.title}
               className="w-full h-full object-cover object-center z-0 will-change-transform"
-              {...(safeSlideIndex === 0 ? { fetchPriority: "high" } : {})}
+              loading={safeSlideIndex === 0 ? "eager" : "lazy"}
               decoding="async"
+              {...(safeSlideIndex === 0 ? { fetchPriority: "high" } : {})}
             />
+
           </motion.div>
         </AnimatePresence>
 

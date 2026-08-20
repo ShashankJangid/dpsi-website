@@ -218,7 +218,10 @@ export default function Navbar() {
                 src="/images/dps/logo.webp"
                 alt="DPS Indirapuram Logo"
                 className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300"
+                loading="eager"
+                decoding="async"
               />
+
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1 xl:gap-2" onMouseLeave={() => setHoveredLink(null)}>
