@@ -5,45 +5,10 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/providers/trpc";
 
-const defaultHeroSlides = [
-  {
-    image: "/images/dps/slider_1.webp",
-    title: "Welcome to DPS Indirapuram",
-    subtitle: "Soaring High... We reach for the sky!",
-    badge: "Admissions Open 2026-27",
-    buttonText: "Apply Now",
-    buttonLink: "/admissions",
-  },
-  {
-    image: "/images/dps/slider_2.webp",
-    title: "Times Education Icons 2024",
-    subtitle: "Recognized as the premier CBSE school in Ghaziabad",
-    badge: "Excellence in Education",
-    buttonText: "Apply Now",
-    buttonLink: "/admissions",
-  },
-  {
-    image: "/images/dps/slider_3.webp",
-    title: "State-of-the-Art AI & Robotics Lab",
-    subtitle: "Fostering technological innovation and futuristic learning",
-    badge: "Next-Gen Infrastructure",
-    buttonText: "Apply Now",
-    buttonLink: "/admissions",
-  },
-  {
-    image: "/images/dps/slider_5.webp",
-    title: "Holistic Student Development",
-    subtitle: "Nurturing sports, arts, academics and leadership skills",
-    badge: "Empowering Future Leaders",
-    buttonText: "Apply Now",
-    buttonLink: "/admissions",
-  },
-];
-
 export default function HeroSection() {
-  const { data: cmsSliders } = trpc.cms.listSliders.useQuery();
+  const { data: cmsSliders, isLoading } = trpc.cms.listSliders.useQuery();
 
-  const slides = (cmsSliders && cmsSliders.length > 0)
+  const activeSlides = (cmsSliders && cmsSliders.length > 0)
     ? cmsSliders
         .filter((s: any) => !s.isDeleted && s.isActive !== false)
         .map((s: any) => ({
@@ -54,18 +19,15 @@ export default function HeroSection() {
           buttonText: s.buttonText || "Apply Now",
           buttonLink: s.buttonLink || "/admissions",
         }))
-    : defaultHeroSlides;
-
-  // Fallback to default if no active slides
-  const activeSlides = slides.length > 0 ? slides : defaultHeroSlides;
+    : [];
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Safe slide index calculation
-  const safeSlideIndex = currentSlide % activeSlides.length;
-  const slide = activeSlides[safeSlideIndex] || defaultHeroSlides[0];
+  const safeSlideIndex = activeSlides.length > 0 ? currentSlide % activeSlides.length : 0;
+  const slide = activeSlides[safeSlideIndex];
 
   useEffect(() => {
     activeSlides.forEach((s) => {
@@ -76,10 +38,11 @@ export default function HeroSection() {
     });
   }, [activeSlides]);
 
-  const fullText = slide.subtitle ? `${slide.title} — ${slide.subtitle}` : slide.title;
+  const fullText = slide ? (slide.subtitle ? `${slide.title} — ${slide.subtitle}` : slide.title) : "";
 
   // Typewriter backspacing and re-writing visual effect
   useEffect(() => {
+    if (!slide || activeSlides.length === 0) return;
     let timer: NodeJS.Timeout;
 
     if (!isDeleting && displayText.length < fullText.length) {
@@ -102,13 +65,26 @@ export default function HeroSection() {
     }
 
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, fullText, activeSlides.length]);
+  }, [displayText, isDeleting, fullText, activeSlides.length, slide]);
 
   const handleManualSlideChange = (newIndex: number) => {
+    if (activeSlides.length === 0) return;
     setIsDeleting(false);
     setDisplayText("");
     setCurrentSlide(newIndex % activeSlides.length);
   };
+
+  if (!isLoading && activeSlides.length === 0) {
+    return null;
+  }
+
+  if (!slide) {
+    return (
+      <div className="w-full h-96 bg-slate-900 animate-pulse flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-sky-400/20 border-t-sky-400 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col bg-slate-50">

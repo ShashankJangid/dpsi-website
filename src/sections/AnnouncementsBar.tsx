@@ -4,24 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Megaphone } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
-const defaultAnnouncements = [
-  {
-    id: "def-ann-1",
-    title: "Registrations Open for Academic Session 2026-27 (Pre-Nursery to Class XI)",
-    link: "/admissions",
-  },
-  {
-    id: "def-ann-2",
-    title: "DPS Indirapuram Ranked #1 CBSE School in Ghaziabad by Times Education Icons",
-    link: "/about",
-  },
-  {
-    id: "def-ann-3",
-    title: "Annual DPSI Inter-School MUN 2026 Registration Portal Is Now Live",
-    link: "/news-events",
-  },
-];
-
 export default function AnnouncementsBar() {
   const { data: cmsMarquees } = trpc.cms.listMarquees.useQuery();
   const { data: legacyAnnouncements } = trpc.announcements.list.useQuery();
@@ -30,7 +12,7 @@ export default function AnnouncementsBar() {
   const dynamicMarquees = cmsMarquees
     ?.filter((m: any) => !m.isDeleted && m.isActive !== false)
     ?.map((m: any) => ({
-      id: m._id,
+      id: m._id?.toString() || m._id,
       title: m.text,
       link: m.linkUrl || "",
     }));
@@ -39,11 +21,11 @@ export default function AnnouncementsBar() {
     ? dynamicMarquees
     : (legacyAnnouncements && legacyAnnouncements.length > 0)
     ? legacyAnnouncements.map((a: any) => ({
-        id: a.id,
+        id: a.id || a._id,
         title: a.title,
         link: a.link || "",
       }))
-    : defaultAnnouncements;
+    : [];
 
   useEffect(() => {
     if (!items.length) return;
@@ -56,7 +38,8 @@ export default function AnnouncementsBar() {
   if (!items.length) return null;
 
   const safeIndex = currentIndex % items.length;
-  const current = items[safeIndex] || defaultAnnouncements[0];
+  const current = items[safeIndex];
+  if (!current) return null;
 
   return (
     <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 text-white py-2 px-4 relative overflow-hidden shadow-xs">

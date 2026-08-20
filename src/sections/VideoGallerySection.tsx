@@ -3,30 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
-const defaultVideos = [
-  {
-    id: "Nn2K8b2JQn0",
-    title: "India's First Advanced AI & Robotics Lab | DPS Indirapuram",
-    url: "https://www.youtube.com/embed/Nn2K8b2JQn0?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/Nn2K8b2JQn0/hqdefault.jpg",
-    isDirectVideo: false,
-  },
-  {
-    id: "UDcIVb8OpNw",
-    title: "DPS Indirapuram — Annual Cultural Celebration & Excellence",
-    url: "https://www.youtube.com/embed/UDcIVb8OpNw?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/UDcIVb8OpNw/hqdefault.jpg",
-    isDirectVideo: false,
-  },
-  {
-    id: "89P74IV5k9M",
-    title: "DPS Indirapuram — Holistic School Campus & Achievements",
-    url: "https://www.youtube.com/embed/89P74IV5k9M?autoplay=1&rel=0",
-    thumbnail: "https://img.youtube.com/vi/89P74IV5k9M/hqdefault.jpg",
-    isDirectVideo: false,
-  },
-];
-
 function extractYoutubeInfo(url: string) {
   if (!url) return null;
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
@@ -40,7 +16,7 @@ function extractYoutubeInfo(url: string) {
 }
 
 export default function VideoGallerySection() {
-  const { data: cmsVideos } = trpc.cms.listVideos.useQuery();
+  const { data: cmsVideos, isLoading } = trpc.cms.listVideos.useQuery();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -61,14 +37,23 @@ export default function VideoGallerySection() {
         id: v._id,
         title: v.title,
         url: v.videoUrl || "",
-        thumbnail: v.thumbnailUrl || "/images/facilities/auditorium.webp",
+        thumbnail: v.thumbnailUrl || "",
         isDirectVideo: !!v.videoUrl,
       };
     });
 
-  const videos = (dynamicVideos && dynamicVideos.length > 0) ? dynamicVideos : defaultVideos;
-  const safeIndex = currentIndex % videos.length;
-  const activeVideo = videos[safeIndex] || defaultVideos[0];
+  const videos = dynamicVideos || [];
+
+  if (!isLoading && videos.length === 0) {
+    return null;
+  }
+
+  const safeIndex = videos.length > 0 ? currentIndex % videos.length : 0;
+  const activeVideo = videos[safeIndex];
+
+  if (!activeVideo) {
+    return null;
+  }
 
   const handlePrev = () => {
     setIsPlaying(false);

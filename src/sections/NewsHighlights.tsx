@@ -1,48 +1,21 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router";
-import { ArrowRight, Clock, User } from "lucide-react";
+import { ArrowRight, Clock, User, Newspaper } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/providers/trpc";
 
-const defaultNewsItems = [
-  {
-    id: "default-1",
-    title: "India's First Advanced AI & Robotics Innovation Lab Inaugurated at DPS Indirapuram",
-    category: "Innovation",
-    excerpt: "DPS Indirapuram sets a new benchmark in holistic and future-ready technology education with state-of-the-art humanoid robotics and IoT labs.",
-    image: "/images/facilities/ai_robotics_lab.webp",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "default-2",
-    title: "Times Education Icons 2024: DPS Indirapuram Crowned Premier CBSE School",
-    category: "Awards",
-    excerpt: "Recognized for exceptional academic pedagogy, outstanding faculty standards, and national-level board examination toppers.",
-    image: "/images/dps/slider_2.webp",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "default-3",
-    title: "Annual Cultural Extravaganza & Inter-School MUN 2026 Registration Open",
-    category: "Events",
-    excerpt: "Inviting delegates and students from across India for intellectual debates, diplomacy forums, and artistic celebrations.",
-    image: "/images/facilities/auditorium.webp",
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export default function NewsHighlights() {
-  const { data: cmsActivities } = trpc.cms.listActivities.useQuery();
+  const { data: cmsActivities, isLoading } = trpc.cms.listActivities.useQuery();
   const { data: legacyNews } = trpc.news.featured.useQuery();
 
   const dynamicActivities = cmsActivities
     ?.filter((a: any) => !a.isDeleted && a.isPublished !== false)
     ?.map((a: any) => ({
-      id: a._id,
+      id: a._id?.toString() || a._id,
       title: a.title,
       category: a.category || "Campus Update",
       excerpt: a.description,
-      image: a.imageUrl || "/images/facilities/ai_robotics_lab.webp",
+      image: a.imageUrl || "",
       createdAt: a.eventDate || a.createdAt || new Date().toISOString(),
     }));
 
@@ -54,10 +27,14 @@ export default function NewsHighlights() {
         title: n.title,
         category: n.category || "News",
         excerpt: n.excerpt || n.content?.slice(0, 120),
-        image: n.image || "/images/facilities/ai_robotics_lab.webp",
+        image: n.image || "",
         createdAt: n.createdAt,
       }))
-    : defaultNewsItems;
+    : [];
+
+  if (!isLoading && displayNews.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-24 bg-slate-50 dark:bg-slate-900 relative overflow-hidden">
@@ -106,14 +83,20 @@ export default function NewsHighlights() {
               className="h-full"
             >
               <Card className="overflow-hidden rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-800/90 hover:shadow-2xl hover:border-emerald-500/40 transition-all duration-300 group cursor-pointer h-full flex flex-col">
-                <div className="relative h-52 overflow-hidden bg-slate-900">
-                  <img
-                    src={item.image || `https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&q=80`}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                <div className="relative h-52 overflow-hidden bg-slate-900 flex items-center justify-center">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-800 to-slate-900 flex items-center justify-center p-6 text-center">
+                      <Newspaper className="w-10 h-10 text-emerald-300/60" />
+                    </div>
+                  )}
                   <div className="absolute top-3.5 left-3.5">
                     <span className="px-3 py-1 bg-emerald-700/90 backdrop-blur-md text-white text-xs font-bold rounded-full shadow-md">
                       {item.category || "News"}
