@@ -4,7 +4,7 @@ import { getGalleryModels } from "./models/cmsSchemas";
 
 const fallbackGallery = [
   { id: 1, title: "AI & Robotics Innovation Lab", category: "Labs", imageUrl: "/images/facilities/ai_robotics_lab.webp", featured: true },
-  { id: 2, title: "Quantum Science Lab", category: "Labs", imageUrl: "/images/facilities/quantum_science_lab.webp", featured: true },
+  { id: 2, title: "Modern Science Laboratories", category: "Labs", imageUrl: "/images/facilities/science_lab.webp", featured: true },
   { id: 3, title: "Interactive Smart Classroom", category: "Campus", imageUrl: "/images/facilities/smart_classroom.webp", featured: true },
   { id: 4, title: "Olympic Aquatic Center", category: "Sports", imageUrl: "/images/facilities/swimming_pool.webp", featured: true },
   { id: 5, title: "Multi-Sport Athletics Arena", category: "Sports", imageUrl: "/images/facilities/sports_complex.webp", featured: true },

@@ -19,8 +19,8 @@ const coverflowSlides: CoverflowSlide[] = [
     ],
   },
   {
-    src: "/images/facilities/quantum_science_lab.webp",
-    alt: "Quantum & Modern Science Laboratories",
+    src: "/images/facilities/science_lab.webp",
+    alt: "Modern Science Laboratories",
     title: "State-of-the-Art Science Labs",
     subtitle: "Physics, Chemistry & Biology Research Laboratories",
     meta: [
@@ -101,7 +101,7 @@ const categories = ["All", "Labs", "Sports", "Library", "Events", "Campus"];
 
 const defaultGalleryItems = [
   { id: 1, title: "AI & Robotics Innovation Lab", category: "Labs", imageUrl: "/images/facilities/ai_robotics_lab.webp" },
-  { id: 2, title: "State-of-the-Art Science Research Lab", category: "Labs", imageUrl: "/images/facilities/quantum_science_lab.webp" },
+  { id: 2, title: "State-of-the-Art Science Research Lab", category: "Labs", imageUrl: "/images/facilities/science_lab.webp" },
   { id: 3, title: "Interactive 4K Smart Classroom", category: "Campus", imageUrl: "/images/facilities/smart_classroom.webp" },
   { id: 4, title: "Olympic Aquatic Center", category: "Sports", imageUrl: "/images/facilities/swimming_pool.webp" },
   { id: 5, title: "Multi-Sport Athletics Arena", category: "Sports", imageUrl: "/images/facilities/sports_complex.webp" },

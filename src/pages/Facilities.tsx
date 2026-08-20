@@ -6,7 +6,7 @@ import Facilities3D from "@/components/3d/Facilities3D";
 
 const facilities = [
   { icon: <Microscope className="w-8 h-8" />, title: "Futuristic AI & Robotics Lab", desc: "Next-gen AI/ML research center equipped with humanoid robots, Arduino/Raspberry Pi workstations, 3D printers, and expert mentors.", image: "/images/facilities/ai_robotics_lab.webp" },
-  { icon: <FlaskConical className="w-8 h-8" />, title: "Quantum Science Lab (Upcoming)", desc: "Upcoming next-generation research laboratory planned with laser optics, digital micro-analysis, and modern safety systems.", image: "/images/facilities/quantum_science_lab.webp", isUpcoming: true },
+  { icon: <FlaskConical className="w-8 h-8" />, title: "Advanced Science Laboratories", desc: "State-of-the-art Physics, Chemistry, and Biology laboratories equipped with modern precision apparatus and safety systems.", image: "/images/facilities/science_lab.webp" },
   { icon: <Wifi className="w-8 h-8" />, title: "Next-Gen Smart Classrooms", desc: "Equipped with interactive digital touchboards, ergonomic learning pods, and high-speed gigabit connectivity.", image: "/images/facilities/smart_classroom.webp" },
   { icon: <Dumbbell className="w-8 h-8" />, title: "Sports & Aquatic Complex", desc: "Olympic-size swimming pool, basketball courts, cricket ground, athletics track, and indoor badminton courts.", image: "/images/facilities/swimming_pool.webp" },
   { icon: <BookOpen className="w-8 h-8" />, title: "Digital Knowledge Library", desc: "A vast repository of 50,000+ books, digital archives, e-journals, and quiet reading spaces for focused study.", image: "/images/facilities/library.webp" },

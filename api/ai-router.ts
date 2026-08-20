@@ -47,7 +47,7 @@ ADMISSIONS:
 
 FACILITIES:
 - AI & Robotics Innovation Lab: 3D printers, humanoid robot kits, Arduino, Raspberry Pi, 40 seats
-- Quantum Science Laboratories: Physics, Chemistry, Biology (advanced equipment)
+- Science Laboratories: Advanced Physics, Chemistry, and Biology laboratories equipped with modern apparatus
 - Mathematics & Data Science Lab: 50 computers with specialized software
 - Digital Library: 20,000+ books, 500+ e-journals, digital research terminals
 - Auditorium: 1,200-seat AC fully equipped performing arts auditorium
