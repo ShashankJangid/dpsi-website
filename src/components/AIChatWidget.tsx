@@ -141,7 +141,7 @@ export default function AIChatWidget() {
 
     // Secure server-side ElevenLabs voice synthesis (API Key NEVER exposed to client)
     try {
-      const ttsRes = await ttsMutation.mutateAsync({ text: cleanText, voiceId: "MF4J4IDTRo0AxOO4dpFR" });
+      const ttsRes = await ttsMutation.mutateAsync({ text: cleanText, voiceId: "Xb7hH8MSUJpSbSDYk0k2" });
       if (ttsRes?.audioBase64) {
         const audio = new Audio(ttsRes.audioBase64);
         audioRef.current = audio;
@@ -151,6 +151,7 @@ export default function AIChatWidget() {
     } catch {
       // Fall through to browser neural TTS fallback below
     }
+
 
     // Fallback: Ultra-realistic Sweet Indian Female Browser TTS (Supporting both Hindi & English)
     if (!("speechSynthesis" in window)) return;
@@ -517,20 +518,19 @@ export default function AIChatWidget() {
       }
     };
 
-    const [isDragging, setIsDragging] = useState(false);
-
     return (
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[99999] pointer-events-auto font-sans">
-        <AnimatePresence>
-          {isOpen && (
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[99999] pointer-events-none font-sans flex flex-col items-end justify-end">
+        <AnimatePresence mode="wait">
+          {isOpen ? (
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.94 }}
+              key="dpsi-ai-chat-window"
+              initial={{ opacity: 0, y: 16, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -16, scale: 0.96 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="w-[340px] sm:w-[385px] h-[500px] max-h-[82vh] bg-gradient-to-b from-[#fce7f3] via-[#e2e8f0] to-[#047857] backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-slate-900/25 flex flex-col overflow-hidden mb-3 text-slate-900 relative max-w-[94vw]"
+              exit={{ opacity: 0, y: 16, scale: 0.95 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="w-[340px] sm:w-[385px] h-[520px] max-h-[82vh] bg-gradient-to-b from-[#fce7f3] via-[#e2e8f0] to-[#047857] backdrop-blur-2xl border border-white/80 rounded-[28px] shadow-2xl shadow-slate-900/30 flex flex-col overflow-hidden text-slate-900 relative max-w-[94vw] pointer-events-auto"
             >
-              {/* Peach Ash Grey Silk Ambient Wavy Mesh Orbs */}
+              {/* Ambient Silk Wave Orbs */}
               <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#fed7aa]/35 blur-3xl pointer-events-none" />
               <div className="absolute top-1/3 left-0 w-64 h-64 rounded-full bg-[#cbd5e1]/50 blur-3xl pointer-events-none" />
               <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#fecdd3]/35 blur-3xl pointer-events-none" />
@@ -638,7 +638,7 @@ export default function AIChatWidget() {
                   </motion.div>
                 ))}
 
-                {/* Instant Audio Wave / Glowing Orb Loading Animation */}
+                {/* Instant Audio Wave / Thinking Animation */}
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -674,7 +674,7 @@ export default function AIChatWidget() {
                       key={i}
                       onClick={() => handleSend(chip.query)}
                       disabled={isTyping}
-                      className="w-full px-2 py-1.5 rounded-xl bg-white/90 hover:bg-white border border-white/80 text-slate-800 font-bold text-[11px] truncate transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:border-sky-400 disabled:opacity-50"
+                      className="w-full px-2 py-1.5 rounded-xl bg-white/90 hover:bg-white border border-white/80 text-slate-800 font-bold text-[11px] truncate transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:border-sky-400 disabled:opacity-50 cursor-pointer"
                     >
                       {chip.icon}
                       <span className="truncate">{chip.label}</span>
@@ -734,47 +734,38 @@ export default function AIChatWidget() {
                   <button
                     type="submit"
                     disabled={!input.trim() || isTyping}
-                    className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#10b981] to-[#00c6ff] text-white flex items-center justify-center transition-all disabled:opacity-40 shrink-0 shadow-sm"
+                    className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#10b981] to-[#00c6ff] text-white flex items-center justify-center transition-all disabled:opacity-40 shrink-0 shadow-sm cursor-pointer"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </form>
             </motion.div>
+          ) : (
+            /* Floating Trigger Button - Firmly Fixed Anchor without Layout Shift */
+            <motion.button
+              key="dpsi-ai-trigger-button"
+              onClick={() => setIsOpen(true)}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl cursor-pointer pointer-events-auto select-none transition-shadow hover:shadow-emerald-500/20"
+              title="Click to open DPSI AI Assistant"
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 pointer-events-none">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-left pr-1 pointer-events-none">
+                <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
+                <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
+              </div>
+            </motion.button>
           )}
         </AnimatePresence>
-
-        {/* Floating Trigger Button - Fixed Anchor with Smooth Spring Snap */}
-        {!isOpen && (
-          <motion.button
-            drag
-            dragSnapToOrigin={true}
-            dragElastic={0.15}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={() => {
-              setTimeout(() => setIsDragging(false), 50);
-            }}
-            onClick={() => {
-              if (!isDragging) setIsOpen(true);
-            }}
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-[#fce7f3] via-[#e2e8f0] to-[#ffedd5] text-slate-900 font-bold text-xs shadow-2xl shadow-slate-900/30 border border-white/90 backdrop-blur-2xl cursor-pointer relative select-none touch-none"
-            title="Click to open DPSI AI Assistant"
-          >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0072ff] to-[#00c6ff] flex items-center justify-center text-white shadow-md shrink-0 pointer-events-none">
-              <Bot className="w-4 h-4 text-white" />
-            </div>
-            <div className="text-left pr-1 pointer-events-none">
-              <p className="font-extrabold text-slate-900 text-xs leading-none">DPSI AI</p>
-              <p className="text-[10px] text-slate-600 font-medium leading-none mt-1">Ask Anything</p>
-            </div>
-          </motion.button>
-        )}
       </div>
     );
   }
+

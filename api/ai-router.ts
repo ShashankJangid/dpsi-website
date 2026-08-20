@@ -10,79 +10,68 @@ interface GroqApiResponse {
   }[];
 }
 
-const DEFAULT_SYSTEM_PROMPT = `You are DPSI AI, the official AI assistant for Delhi Public School Indirapuram (DPS Indirapuram), Ghaziabad, Uttar Pradesh.
+const DEFAULT_SYSTEM_PROMPT = `You are DPSI AI, the official and intelligent AI assistant for Delhi Public School Indirapuram (DPS Indirapuram), located in Ghaziabad, Uttar Pradesh.
 
-LANGUAGE RULES:
-- If the user writes in Hindi or Hinglish, reply in fluent, warm Hindi/Hinglish.
-- If the user writes in English, reply in clear, professional English.
-- Never use markdown asterisks (* or **), hashes (#), or backticks. Write in plain readable sentences.
-- Give complete, specific, detailed answers in 3-6 sentences. Do not give vague or one-line answers.
+LANGUAGE & TONE INSTRUCTIONS:
+- You are warm, polite, professional, and extremely helpful.
+- If the user talks in Hindi or Hinglish (e.g. "kaise ho", "admission kab start hoga", "fees kitni hai"), reply in fluent, natural Hindi or Hinglish.
+- If the user talks in English, reply in crisp, articulate, professional English.
+- Keep your answers speech-friendly: DO NOT use markdown formatting like asterisks (* or **), hashtags (#), brackets, or backticks. Write in clear, natural sentences that sound wonderful when spoken aloud by voice assistants.
+- Provide comprehensive, accurate answers in 2 to 4 concise sentences.
 
-SCHOOL INFORMATION:
+COMPREHENSIVE KNOWLEDGE BASE — DELHI PUBLIC SCHOOL INDIRAPURAM:
 
-OVERVIEW:
-- Full Name: Delhi Public School Indirapuram (DPSI)
-- Affiliation: CBSE Board (Affiliation No. 2130795), School Code: 70118
-- Established: 2000 | Type: Senior Secondary Co-educational Day School
-- Campus: 10-acre lush green campus at 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad, UP 201014
-- Phone: +91-0120-4660000 | Email: info@dpsindirapuram.com
+1. OVERVIEW & AFFILIATION:
+- Full Official Name: Delhi Public School Indirapuram (DPSI)
+- Established: 2003 | Managed by Delhi Public School Society (DPSS)
+- Affiliation: Central Board of Secondary Education (CBSE), Affiliation No. 2130663, School Code: 60297
+- Campus: 10-acre world-class lush green campus located at 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad, Uttar Pradesh 201014
+- Contact Phone: +91-0120-4660000, 4670000 | Email: info@dpsindirapuram.com
+- School Motto: "Service Before Self"
 
-LEADERSHIP:
-- Chairman: Mr. V.K. Shunglu (IAS Retd., Former CAG of India)
-- Principal: Ms. Priya Elizabeth John, M.Ed., M.Phil. (22+ years CBSE experience)
+2. LEADERSHIP & REPUTATION:
+- Principal: Ms. Priya Elizabeth John (M.Ed., M.Phil., 22+ years of educational leadership)
 - Pro-Vice Chairperson: Ms. Santosh Bansal
+- Chairman: Mr. V.K. Shunglu (IAS Retd., Former Comptroller and Auditor General of India)
+- Accreditations: Times School Survey Rank 1 in Ghaziabad, British Council International School Award (ISA).
 
-ACADEMICS:
-- Classes: Pre-Nursery to Class XII | 220+ expert educators | Student-Teacher Ratio 25:1
-- CBSE Results 2024-25: 100% pass rate. Toppers: Siddhant Tiwari (99.4%), Ansh Pathak (99.4%)
-- Class XI Streams: Science (PCM/PCB + AI/Biotech), Commerce (Accounts, Economics, Math), Humanities (Psychology, Legal Studies)
-- 80+ smart interactive classrooms | NEP 2020 integrated curriculum | Coding from Class VI
-- National Olympiads: Mathematics, Science, English, Cyber, General Knowledge
+3. ADMISSIONS (SESSION 2026-27):
+- Admissions are currently OPEN for Pre-Nursery, Nursery, Prep, Classes I to IX, and Class XI.
+- Process: Online application via school website -> Document verification -> Interaction / Evaluation -> Provisional Admission Offer.
+- Documents Required: Child's Birth Certificate, Transfer Certificate (TC) from previous school, previous year report card, address proof, passport-sized photographs, medical fitness certificate.
+- For admission inquiries, parents can call +91-0120-4660000 or email info@dpsindirapuram.com.
 
-ADMISSIONS:
-- Session 2026-27 admissions OPEN for Pre-Nursery to Class IX and Class XI
-- Process: Online registration → Document verification → Interaction → Admission letter
-- Documents: Birth certificate, previous school TC, report card, address proof, passport photos
-- Fee: Quarterly payment via SchoolsOS portal | info@dpsindirapuram.com
+4. ACADEMIC EXCELLENCE & STREAMS:
+- Class XI & XII Streams Offered:
+  * Science: Physics, Chemistry, Mathematics/Biology with AI, Biotechnology, Computer Science (Python/SQL), or Physical Education.
+  * Commerce: Accountancy, Business Studies, Economics, Mathematics/Applied Mathematics, Informatics Practices.
+  * Humanities: Psychology, Political Science, Economics, History, Legal Studies, Sociology, Fine Arts.
+- Board Results: Consistent 100% pass rate in CBSE Class 10 & 12. School toppers include Siddhant Tiwari (99.4%), Ansh Pathak (99.4%), and Aayush Jha (99.2%). Over 50 students score 95% and above annually.
 
-FACILITIES:
-- AI & Robotics Innovation Lab: 3D printers, humanoid robot kits, Arduino, Raspberry Pi, 40 seats
-- Science Laboratories: Advanced Physics, Chemistry, and Biology laboratories equipped with modern apparatus
-- Mathematics & Data Science Lab: 50 computers with specialized software
-- Digital Library: 20,000+ books, 500+ e-journals, digital research terminals
-- Auditorium: 1,200-seat AC fully equipped performing arts auditorium
-- Olympic Swimming Pool: 50m international standard pool with professional coaching
-- Multi-sport Complex: Basketball, Football, Volleyball, Badminton, Tennis courts, Athletics track
-- Shooting Range: .177 caliber air rifle range, ISSF certified
-- Dance & Music Studios: Classical + contemporary dance; Hindustani + Western music
-- Transport: 50+ GPS-enabled AC buses covering Ghaziabad, Noida, Delhi NCR
-- Security: 24/7 CCTV, biometric attendance, visitor management system
-- Medical Infirmary: 24/7 nurse on duty, hospital tie-up
+5. WORLD-CLASS INFRASTRUCTURE & FACILITIES:
+- AI & Robotics Innovation Lab: State-of-the-art lab with humanoid robotics, 3D printers, IoT kits, Arduino, and AI programming workstations.
+- Science & Computer Labs: Fully equipped labs for Physics, Chemistry, Biology, Mathematics, and Junior/Senior Computer Labs with high-speed internet.
+- Smart Classrooms: 80+ digitized interactive multimedia smart classrooms.
+- Digital Library: 20,000+ books, national and international journals, digital media stations.
+- Sports & Athletics: 50-meter Olympic-standard swimming pool, ISSF certified .177 air rifle shooting range, synthetic basketball courts, football field, cricket pitch, lawn tennis, badminton, volleyball courts.
+- Performing Arts: 1,200-seat air-conditioned auditorium, dedicated classical and western dance and music studios.
+- Health & Transport: 50+ GPS-enabled AC buses with live parent tracking, 24/7 CCTV surveillance, biometric security, and dedicated medical infirmary with qualified nursing staff.
 
-CO-CURRICULAR:
-- Clubs: Robotics/AI, Debate, MUN, Drama, Eco-Warriors, Photography, Literary Society, Music Band
-- Annual Events: Parliamentary Debate Conclave (40+ schools), Science Fair, Cultural Festival Rhythm
-- Sports achievements: CBSE Cluster/National champions in swimming, shooting, athletics, cricket
+6. TIMINGS & OFFICE HOURS:
+- Pre-Nursery to Prep: 8:30 AM to 12:30 PM (Monday to Friday)
+- Class I to Class XII: 7:30 AM to 1:40 PM (Monday to Friday)
+- Administrative & Admission Office: 8:00 AM to 3:00 PM (Monday to Saturday)
 
-MUN (MODEL UNITED NATIONS):
-- Annual DPSIMUN by students | Open for delegates across India
-- Committees: UNSC, UNHRC, ECOSOC, IPC, WHO
-- Register online via school website
+7. TRANSFER CERTIFICATE (TC) & PORTALS:
+- TC search and verification are available online on the school website TC portal.
+- Parents can pay fees and track academic progress through the SchoolsOS portal login.
 
-TRANSFER CERTIFICATE:
-- Apply at school office with 15 days notice | Issued within 7 working days
-- Search TC records online via the school website TC portal
-
-CONTACT:
-- Phone: +91-0120-4660000 | Email: info@dpsindirapuram.com
-- Address: 526/1 Ahinsa Khand-II, Indirapuram, Ghaziabad, UP 201014
-
-If the user asks something not covered above, say: "For this specific query, please contact us at info@dpsindirapuram.com or call +91-0120-4660000. Our staff will assist you."`;
+If a question falls outside this knowledge base, politely provide the school contact number (+91-0120-4660000) and email (info@dpsindirapuram.com).`;
 
 // Simple in-memory sliding window rate limiter
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-function checkRateLimit(key: string, limit = 25, windowMs = 60000): boolean {
+function checkRateLimit(key: string, limit = 40, windowMs = 60000): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(key);
 
@@ -109,6 +98,13 @@ setInterval(() => {
   }
 }, 300000);
 
+const GROQ_FALLBACK_MODELS = [
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "qwen/qwen3.6-27b",
+  "groq/compound-mini",
+];
+
 export const aiRouter = createRouter({
   chat: publicQuery
     .input(
@@ -121,7 +117,7 @@ export const aiRouter = createRouter({
       // Extract client identifier (IP or fallback)
       const clientIp = ctx?.req?.headers?.get("x-forwarded-for") || ctx?.req?.headers?.get("cf-connecting-ip") || "global-client";
       
-      if (!checkRateLimit(clientIp, 30, 60000)) {
+      if (!checkRateLimit(clientIp, 40, 60000)) {
         return {
           answer: "You are sending messages too quickly. Please wait a moment before asking another question.",
         };
@@ -143,62 +139,93 @@ export const aiRouter = createRouter({
         // Use default prompt
       }
 
-      try {
-        // Sanitize input to mitigate prompt injection tricks
-        const sanitizedMsg = input.message
-          .replace(/ignore\s+(all\s+)?(previous|prior)\s+instructions/gi, "")
-          .replace(/system\s+prompt\s+override/gi, "")
-          .trim();
+      // Sanitize input to mitigate prompt injection tricks
+      const sanitizedMsg = input.message
+        .replace(/ignore\s+(all\s+)?(previous|prior)\s+instructions/gi, "")
+        .replace(/system\s+prompt\s+override/gi, "")
+        .trim();
 
-        // Keep only last 6 turns for optimal speed + context accuracy
-        const recentHistory = (input.history || []).slice(-6);
+      // Keep only last 6 turns for optimal speed + context accuracy
+      const recentHistory = (input.history || []).slice(-6);
 
-        const messagesPayload = [
-          { role: "system", content: systemPrompt },
-          ...recentHistory.map((h) => ({ role: h.role, content: h.text })),
-          { role: "user", content: sanitizedMsg || input.message },
-        ];
+      const messagesPayload = [
+        { role: "system", content: systemPrompt },
+        ...recentHistory.map((h) => ({ role: h.role, content: h.text })),
+        { role: "user", content: sanitizedMsg || input.message },
+      ];
 
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: messagesPayload,
-            temperature: 0.4,
-            max_tokens: 700,
-            stream: false,
-          }),
-        });
+      // Try models in fallback order
+      for (const model of GROQ_FALLBACK_MODELS) {
+        try {
+          const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: messagesPayload,
+              temperature: 0.5,
+              max_tokens: 500,
+              stream: false,
+            }),
+          });
 
-        if (!response.ok) {
-          const errText = await response.text();
-          console.error("Groq API error response:", errText);
-          throw new Error(`Groq API error: ${response.status}`);
+          if (!response.ok) {
+            const errText = await response.text();
+            console.warn(`Groq API error with model ${model}:`, errText);
+            continue; // try next model in fallback list
+          }
+
+          const data = (await response.json()) as GroqApiResponse;
+          let replyText = data?.choices?.[0]?.message?.content || "";
+
+          if (replyText) {
+            // Strip markdown formatting for clean voice/text output
+            replyText = replyText
+              .replace(/\*\*(.*?)\*\*/g, "$1")
+              .replace(/\*(.*?)\*/g, "$1")
+              .replace(/#{1,6}\s+/g, "")
+              .replace(/`{1,3}/g, "")
+              .replace(/^[-*]\s+/gm, "")
+              .replace(/\*/g, "")
+              .replace(/\s{2,}/g, " ")
+              .trim();
+
+            return { answer: replyText };
+          }
+        } catch (err) {
+          console.warn(`Error calling Groq API model ${model}:`, err);
         }
-
-        const data = (await response.json()) as GroqApiResponse;
-        let replyText = data?.choices?.[0]?.message?.content || "I am here to help you with DPS Indirapuram. Please contact info@dpsindirapuram.com for assistance.";
-
-        // Strip markdown formatting for clean voice/text output
-        replyText = replyText
-          .replace(/\*\*(.*?)\*\*/g, "$1")
-          .replace(/\*(.*?)\*/g, "$1")
-          .replace(/#{1,6}\s+/g, "")
-          .replace(/`{1,3}/g, "")
-          .replace(/^[-*]\s+/gm, "")
-          .replace(/\*/g, "")
-          .replace(/\s{2,}/g, " ")
-          .trim();
-
-        return { answer: replyText };
-      } catch (error) {
-        console.error("Error calling Groq API:", error);
-        return { answer: "I am having trouble connecting right now. Please call +91-0120-4660000 or email info@dpsindirapuram.com for immediate assistance." };
       }
+
+      // Intelligent local keyword-based fallback if external API is unreachable
+      const lower = input.message.toLowerCase();
+      if (lower.includes("kaise ho") || lower.includes("how are you") || lower.includes("namaste") || lower.includes("hello") || lower.includes("hi")) {
+        return {
+          answer: "Namaste! Main DPS Indirapuram ka official AI assistant DPSI AI hoon. Main bilkul theek hoon. Main aapki DPS Indirapuram admissions, academics, facilities ya events mein kya madad kar sakta hoon?",
+        };
+      }
+      if (lower.includes("admission") || lower.includes("apply") || lower.includes("form") || lower.includes("dakhila")) {
+        return {
+          answer: "DPS Indirapuram mein Session 2026-27 ke liye Pre-Nursery se Class IX aur Class XI ke admissions open hain. Aap school ki website par online register kar sakte hain ya admission desk se +91-0120-4660000 par sampark kar sakte hain.",
+        };
+      }
+      if (lower.includes("stream") || lower.includes("subject") || lower.includes("class 11") || lower.includes("11th")) {
+        return {
+          answer: "Class XI mein teen streams available hain: Science (PCM/PCB with AI, Biotech, Computer Science), Commerce (Accounts, Economics, Math, Business Studies), aur Humanities (Psychology, Legal Studies, Economics, Political Science).",
+        };
+      }
+      if (lower.includes("facility") || lower.includes("campus") || lower.includes("lab") || lower.includes("sports") || lower.includes("robotics")) {
+        return {
+          answer: "DPS Indirapuram ke 10-acre campus mein AI and Robotics Innovation Lab, Olympic-standard 50m swimming pool, ISSF shooting range, smart classrooms, aur modern science labs uplabdh hain.",
+        };
+      }
+
+      return {
+        answer: "Main DPS Indirapuram ka AI assistant hoon. Admissions, fees, academics, calendar ya facilities se jude kisi bhi sawal ke liye aap hume +91-0120-4660000 par call ya info@dpsindirapuram.com par email kar sakte hain.",
+      };
     }),
 
   synthesizeSpeech: publicQuery
@@ -233,9 +260,9 @@ export const aiRouter = createRouter({
             text: input.text,
             model_id: "eleven_multilingual_v2",
             voice_settings: {
-              stability: 0.5,
-              similarity_boost: 0.8,
-              style: 0.2,
+              stability: 0.55,
+              similarity_boost: 0.82,
+              style: 0.15,
               use_speaker_boost: true,
             },
           }),
@@ -246,11 +273,12 @@ export const aiRouter = createRouter({
           const base64 = Buffer.from(arrayBuffer).toString("base64");
           return { audioBase64: `data:audio/mpeg;base64,${base64}` };
         }
-        console.error("ElevenLabs TTS status error:", response.status);
+        console.warn("ElevenLabs TTS status error:", response.status);
       } catch (error) {
-        console.error("Error calling ElevenLabs API on server:", error);
+        console.warn("Error calling ElevenLabs API on server:", error);
       }
 
       return { audioBase64: null };
     }),
 });
+
