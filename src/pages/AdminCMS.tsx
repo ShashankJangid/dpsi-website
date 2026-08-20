@@ -40,6 +40,7 @@ import {
   ChevronUp,
   ChevronDown,
   Copy,
+  X,
 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
