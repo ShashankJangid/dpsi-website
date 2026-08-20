@@ -48,7 +48,9 @@ import {
   BookOpen,
   HelpCircle,
   BarChart3,
+  Cpu,
 } from "lucide-react";
+
 import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
