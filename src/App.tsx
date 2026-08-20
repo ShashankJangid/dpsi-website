@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router'
+import ErrorBoundary from './components/ErrorBoundary'
 
 const Home = lazy(() => import('./pages/Home'))
 const Home2 = lazy(() => import('./pages/Home2'))
@@ -42,7 +43,7 @@ function PageLoader() {
 
 export default function App() {
   return (
-    <>
+    <ErrorBoundary fallbackTitle="Application Interface Notice">
       <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -64,6 +65,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-    </>
+    </ErrorBoundary>
   )
 }

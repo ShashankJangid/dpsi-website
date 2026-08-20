@@ -506,6 +506,28 @@ export default function AdminCMS() {
   const [aiModelEdit, setAiModelEdit] = useState("llama-3.3-70b-versatile");
   const [aiTempEdit, setAiTempEdit] = useState(0.4);
 
+  const safeIsoDate = (val: any) => {
+    if (!val) return "";
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return "";
+      return d.toISOString().split("T")[0];
+    } catch {
+      return "";
+    }
+  };
+
+  const safeFormatDate = (val: any) => {
+    if (!val) return "N/A";
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return "N/A";
+      return d.toLocaleDateString();
+    } catch {
+      return "N/A";
+    }
+  };
+
   const parseBulkCsv = (text: string) => {
     const lines = text.trim().split("\n").filter(l => l.trim());
     const rows: any[] = [];
@@ -518,7 +540,7 @@ export default function AdminCMS() {
           fatherName: parts[2] || "",
           motherName: parts[3] || "",
           classLeaving: parts[4] || "Class X",
-          dateOfIssue: parts[5] || new Date().toISOString().split("T")[0],
+          dateOfIssue: safeIsoDate(parts[5]) || new Date().toISOString().split("T")[0],
           status: (["Issued", "Pending", "Cancelled"].includes(parts[6]) ? parts[6] : "Issued") as "Issued" | "Pending" | "Cancelled",
         });
       }
@@ -1014,9 +1036,9 @@ export default function AdminCMS() {
                             <td className="px-4 py-3 font-medium text-slate-900">{tc.studentName}</td>
                             <td className="px-4 py-3 text-slate-600">{tc.fatherName}</td>
                             <td className="px-4 py-3 text-slate-500">{tc.classLeaving}</td>
-                            <td className="px-4 py-3 text-slate-500">{new Date(tc.dateOfIssue).toLocaleDateString()}</td>
+                            <td className="px-4 py-3 text-slate-500">{safeFormatDate(tc.dateOfIssue)}</td>
                             <td className="px-4 py-3">
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
                                 {tc.status}
                               </span>
                             </td>
@@ -1247,7 +1269,7 @@ export default function AdminCMS() {
                                   title: act.title || "",
                                   category: act.category || "General",
                                   description: act.description || "",
-                                  eventDate: act.eventDate ? new Date(act.eventDate).toISOString().split("T")[0] : "",
+                                  eventDate: safeIsoDate(act.eventDate),
                                   imageUrl: act.imageUrl || "",
                                 });
                                 setActivityModal(true);
@@ -1823,7 +1845,7 @@ export default function AdminCMS() {
         {/* LIGHT THEME MODALS */}
         {/* MODAL: ADD / EDIT PAGE */}
         {pageModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
@@ -1933,7 +1955,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD GALLERY IMAGE */}
         {galleryModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">Upload Gallery Image (Cloudinary Auto-WebP)</h3>
@@ -2006,7 +2028,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD / EDIT SLIDER */}
         {sliderModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
@@ -2200,7 +2222,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD / EDIT MENU ITEM */}
         {menuModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
@@ -2307,7 +2329,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD TC RECORD */}
         {tcModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">Add Transfer Certificate (TC)</h3>
@@ -2379,7 +2401,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD / EDIT POPUP */}
         {popupModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
@@ -2450,7 +2472,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD / EDIT MARQUEE */}
         {marqueeModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
@@ -2509,7 +2531,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD / EDIT ACTIVITY */}
         {activityModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
@@ -2581,7 +2603,7 @@ export default function AdminCMS() {
 
         {/* MODAL: ADD / EDIT ATTACHMENT */}
         {attachmentModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
