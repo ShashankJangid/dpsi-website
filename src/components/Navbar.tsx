@@ -55,14 +55,14 @@ export default function Navbar() {
   const dynamicNavLinks = (() => {
     if (!dbMenus || dbMenus.length === 0) return navLinks;
 
-    const parents = dbMenus.filter((m: any) => !m.parent && m.isActive);
+    const parents = dbMenus.filter((m: any) => (!m.parent || m.parent.trim() === "" || m.parent === "None") && m.isActive !== false);
     return parents.map((p: any) => {
       const pTitle = (p.title || "").trim().toLowerCase();
       const pId = p._id ? p._id.toString() : "";
       const pUrl = (p.url || "").trim().toLowerCase();
 
       const children = dbMenus.filter((c: any) => {
-        if (!c.parent || !c.isActive) return false;
+        if (!c.parent || c.parent.trim() === "" || c.parent === "None" || c.isActive === false) return false;
         const cParent = c.parent.trim().toLowerCase();
         return cParent === pTitle || cParent === pId || cParent === pUrl;
       });
@@ -118,7 +118,7 @@ export default function Navbar() {
   const schoolCode = getSetting("school_code", "60297");
   const tagline = getSetting("school_tagline", "ADMISSIONS OPEN FOR SESSION 2026-27");
 
-  const activeMarquees = dbMarquees?.filter((m: any) => m.isActive && !m.isDeleted);
+  const activeMarquees = dbMarquees?.filter((m: any) => m.isActive !== false && !m.isDeleted);
 
   return (
     <>
@@ -129,14 +129,35 @@ export default function Navbar() {
               {activeMarquees && activeMarquees.length > 0 ? (
                 activeMarquees.map((m: any, idx: number) => (
                   <React.Fragment key={m._id || idx}>
-                    <span className="inline-flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                      {m.text}
+                    <span
+                      className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md text-xs font-semibold"
+                      style={{
+                        color: m.textColor || "#ffffff",
+                        backgroundColor: m.bgColor || "transparent",
+                      }}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full animate-ping shrink-0"
+                        style={{ backgroundColor: m.textColor || "#fbbf24" }}
+                      />
+                      {m.badgeText && (
+                        <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-black/25">
+                          {m.badgeText}
+                        </span>
+                      )}
+                      {m.linkUrl ? (
+                        <a href={m.linkUrl} className="hover:underline">
+                          {m.text}
+                        </a>
+                      ) : (
+                        <span>{m.text}</span>
+                      )}
                     </span>
-                    <span>•</span>
+                    <span className="text-emerald-400/50">•</span>
                   </React.Fragment>
                 ))
               ) : (
+
                 <>
                   <span className="inline-flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />

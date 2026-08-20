@@ -336,12 +336,33 @@ export const cmsRouter = createRouter({
         text: z.string(),
         linkUrl: z.string().optional(),
         speed: z.number().default(50),
+        textColor: z.string().default("#10b981"),
+        bgColor: z.string().default("#047857"),
+        badgeText: z.string().default("Notice"),
         isActive: z.boolean().default(true),
       })
     )
     .mutation(async ({ input }) => {
       const { Marquee } = await getMainModels();
       return Marquee.create(input);
+    }),
+  updateMarquee: publicMutation
+    .input(
+      z.object({
+        id: z.string(),
+        text: z.string().optional(),
+        linkUrl: z.string().optional(),
+        speed: z.number().optional(),
+        textColor: z.string().optional(),
+        bgColor: z.string().optional(),
+        badgeText: z.string().optional(),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { Marquee } = await getMainModels();
+      const { id, ...data } = input;
+      return Marquee.findByIdAndUpdate(id, data, { new: true });
     }),
   toggleMarquee: publicMutation
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
@@ -355,6 +376,7 @@ export const cmsRouter = createRouter({
       const { Marquee } = await getMainModels();
       return Marquee.findByIdAndUpdate(input.id, { isDeleted: true });
     }),
+
 
   // --- 7. RECENT ACTIVITIES ---
   listActivities: publicQuery.query(async () => {
@@ -634,22 +656,6 @@ export const cmsRouter = createRouter({
       return Activity.findByIdAndUpdate(id, data, { new: true });
     }),
 
-  // --- 17. UPDATE MARQUEE ---
-  updateMarquee: publicMutation
-    .input(
-      z.object({
-        id: z.string(),
-        text: z.string().optional(),
-        linkUrl: z.string().optional(),
-        speed: z.number().optional(),
-        isActive: z.boolean().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { Marquee } = await getMainModels();
-      const { id, ...data } = input;
-      return Marquee.findByIdAndUpdate(id, data, { new: true });
-    }),
 
   // --- 18. UPDATE ATTACHMENT ---
   updateAttachment: publicMutation

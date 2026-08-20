@@ -15,6 +15,9 @@ export default function AnnouncementsBar() {
       id: m._id?.toString() || m._id,
       title: m.text,
       link: m.linkUrl || "",
+      bgColor: m.bgColor,
+      textColor: m.textColor,
+      badgeText: m.badgeText,
     }));
 
   const items = (dynamicMarquees && dynamicMarquees.length > 0)
@@ -24,6 +27,9 @@ export default function AnnouncementsBar() {
         id: a.id || a._id,
         title: a.title,
         link: a.link || "",
+        bgColor: undefined,
+        textColor: undefined,
+        badgeText: undefined,
       }))
     : [];
 
@@ -42,13 +48,19 @@ export default function AnnouncementsBar() {
   if (!current) return null;
 
   return (
-    <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 text-white py-2 px-4 relative overflow-hidden shadow-xs">
+    <div
+      className="py-2 px-4 relative overflow-hidden shadow-xs transition-colors duration-500"
+      style={{
+        backgroundColor: current.bgColor || "#047857",
+        color: current.textColor || "#ffffff",
+      }}
+    >
       <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
         <motion.div
           animate={{ rotate: [0, -10, 10, -5, 0] }}
           transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
         >
-          <Megaphone className="w-4 h-4 shrink-0 text-amber-200" />
+          <Megaphone className="w-4 h-4 shrink-0 opacity-80" />
         </motion.div>
         
         <AnimatePresence mode="wait">
@@ -59,8 +71,15 @@ export default function AnnouncementsBar() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
             className="flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-wide text-center"
+            style={{ color: current.textColor || "#ffffff" }}
           >
+            {current.badgeText && (
+              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-black/20 shrink-0">
+                {current.badgeText}
+              </span>
+            )}
             <span>{current.title}</span>
+
             {current.link && (
               <Link
                 to={current.link}

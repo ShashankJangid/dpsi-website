@@ -300,6 +300,15 @@ export default function AdminCMS() {
       toast.success("Marquee alert added!");
       refetchMarquees();
       setMarqueeModal(false);
+      setEditingMarquee(null);
+    },
+  });
+  const updateMarquee = trpc.cms.updateMarquee.useMutation({
+    onSuccess: () => {
+      toast.success("Marquee alert updated!");
+      refetchMarquees();
+      setMarqueeModal(false);
+      setEditingMarquee(null);
     },
   });
   const deleteMarquee = trpc.cms.deleteMarquee.useMutation({
@@ -308,6 +317,7 @@ export default function AdminCMS() {
       refetchMarquees();
     },
   });
+
 
   const createActivity = trpc.cms.createActivity.useMutation({
     onSuccess: () => {
@@ -454,14 +464,6 @@ export default function AdminCMS() {
     },
   });
 
-  const updateMarquee = trpc.cms.updateMarquee.useMutation({
-    onSuccess: () => {
-      toast.success("Marquee updated!");
-      refetchMarquees();
-      setMarqueeModal(false);
-      setEditingMarquee(null);
-    },
-  });
 
   const updateAttachment = trpc.cms.updateAttachment.useMutation({
     onSuccess: () => {
@@ -807,7 +809,15 @@ export default function AdminCMS() {
   const [editingStatMetricId, setEditingStatMetricId] = useState<string | null>(null);
 
   const [marqueeModal, setMarqueeModal] = useState(false);
-  const [marqueeForm, setMarqueeForm] = useState({ text: "", linkUrl: "", speed: 50 });
+  const [marqueeForm, setMarqueeForm] = useState({
+    text: "",
+    linkUrl: "",
+    speed: 50,
+    textColor: "#10b981",
+    bgColor: "#047857",
+    badgeText: "Announcement",
+  });
+
 
   const [activityModal, setActivityModal] = useState(false);
   const [activityForm, setActivityForm] = useState({ title: "", category: "Academics", description: "", imageUrl: "" });
@@ -958,128 +968,140 @@ export default function AdminCMS() {
   // 🔒 LIGHT LOGIN VIEW
   if (!isAuthenticated) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl shadow-slate-200/60 relative overflow-hidden"
-          >
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-600/20 text-white">
-                <Lock className="w-8 h-8" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl shadow-slate-200/60 relative overflow-hidden"
+        >
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-600/20 text-white">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">DPSI Admin Portal</h2>
+            <p className="text-sm text-slate-500 mt-1">Delhi Public School Indirapuram CMS</p>
+          </div>
+
+          {loginError && (
+            <div className="mb-6 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{loginError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700">Username</label>
+              <div className="relative">
+                <User className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
+                <Input
+                  type="text"
+                  required
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  placeholder="Admin"
+                  className="pl-10 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-emerald-600 focus:bg-white"
+                />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">DPSI Admin Portal</h2>
-              <p className="text-sm text-slate-500 mt-1">Delhi Public School Indirapuram CMS</p>
             </div>
 
-            {loginError && (
-              <div className="mb-6 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{loginError}</span>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700">Password</label>
+              <div className="relative">
+                <Key className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
+                <Input
+                  type="password"
+                  required
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="pl-10 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-emerald-600 focus:bg-white"
+                />
               </div>
-            )}
-
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700">Username</label>
-                <div className="relative">
-                  <User className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
-                  <Input
-                    type="text"
-                    required
-                    value={adminUsername}
-                    onChange={(e) => setAdminUsername(e.target.value)}
-                    placeholder="Admin"
-                    className="pl-10 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-emerald-600 focus:bg-white"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700">Password</label>
-                <div className="relative">
-                  <Key className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
-                  <Input
-                    type="password"
-                    required
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    className="pl-10 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-emerald-600 focus:bg-white"
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={adminLoginMutation.isPending}
-                className="w-full mt-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
-              >
-                {adminLoginMutation.isPending ? (
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Sign In to CMS <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-              <p className="text-xs text-slate-400">
-                Authorized Personnel Only • DPS Indirapuram IT Cell
-              </p>
             </div>
-          </motion.div>
-        </div>
-      </Layout>
+
+            <Button
+              type="submit"
+              disabled={adminLoginMutation.isPending}
+              className="w-full mt-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+            >
+              {adminLoginMutation.isPending ? (
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  Sign In to CMS <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-400">
+              Authorized Personnel Only • DPS Indirapuram IT Cell
+            </p>
+          </div>
+        </motion.div>
+      </div>
     );
   }
 
   // 🔓 LIGHT THEME AUTHENTICATED DASHBOARD
   return (
-    <Layout>
-      <div className="min-h-screen bg-slate-100 text-slate-900 pb-16">
-        {/* Top Header Bar */}
-        <div className="border-b border-slate-200 bg-white shadow-sm px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-base text-slate-900">DPS Indirapuram CMS</h1>
-                <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full">
-                  Admin: {localStorage.getItem("dpsi_admin_user") || "Admin"}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500">Delhi Public School Indirapuram • Administration Portal</p>
-            </div>
+    <div className="min-h-screen bg-slate-100 text-slate-900 pb-16">
+      {/* Dedicated Top Header Bar */}
+      <div className="border-b border-slate-200 bg-white shadow-sm px-6 py-3 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
+            <ShieldCheck className="w-5 h-5" />
           </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                refetchStats();
-                toast.success("Database synced with MongoDB!");
-              }}
-              className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs h-8 shadow-sm"
-            >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Sync DB
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="border-slate-200 bg-white hover:bg-red-50 text-red-600 hover:text-red-700 text-xs h-8 ml-1 shadow-sm"
-            >
-              <LogOut className="w-3.5 h-3.5 mr-1.5" /> Logout
-            </Button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="font-bold text-base text-slate-900">DPS Indirapuram CMS</h1>
+              <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full">
+                Admin: {localStorage.getItem("dpsi_admin_user") || "Admin"}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500">Live Management Portal • Real-time MongoDB Cloud Sync</p>
           </div>
         </div>
+
+        <div className="flex items-center gap-2">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors border border-slate-200"
+          >
+            <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+            <span>View Website</span>
+          </a>
+          <Button
+            onClick={() => {
+              refetchStats();
+              refetchPages();
+              refetchMenus();
+              refetchPopups();
+              refetchMarquees();
+              refetchGallery();
+              toast.success("Database synchronized successfully!");
+            }}
+            variant="outline"
+            size="sm"
+            className="text-xs border-slate-200 text-slate-700 hover:bg-slate-50"
+          >
+            <RefreshCw className="w-3.5 h-3.5 mr-1" /> Sync DB
+          </Button>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            size="sm"
+            className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+          >
+            <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
+          </Button>
+        </div>
+      </div>
+
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -1534,15 +1556,22 @@ export default function AdminCMS() {
               {/* 6. MARQUEE */}
               {activeTab === "marquee" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-xl font-bold text-slate-900">Marquee</h2>
-                      <p className="text-xs text-slate-500">Add Marquee • Marquee List • Live Ticker Sync</p>
+                      <h2 className="text-xl font-bold text-slate-900">Marquee Ticker & Announcements</h2>
+                      <p className="text-xs text-slate-500">Live Website Ticker • Custom Colors • Speed & Links</p>
                     </div>
                     <Button
                       onClick={() => {
                         setEditingMarquee(null);
-                        setMarqueeForm({ text: "", linkUrl: "", speed: 50 });
+                        setMarqueeForm({
+                          text: "",
+                          linkUrl: "",
+                          speed: 50,
+                          textColor: "#10b981",
+                          bgColor: "#047857",
+                          badgeText: "Announcement",
+                        });
                         setMarqueeModal(true);
                       }}
                       size="sm"
@@ -1552,36 +1581,122 @@ export default function AdminCMS() {
                     </Button>
                   </div>
 
-                  <div className="space-y-2.5">
+                  {/* Live Marquee Preview Simulator */}
+                  {marqueesList && marqueesList.filter((m: any) => m.isActive !== false).length > 0 && (
+                    <div className="bg-slate-900 rounded-xl p-3 text-white border border-slate-800 shadow-sm overflow-hidden">
+                      <div className="flex items-center gap-2 mb-1.5 text-[10px] uppercase font-bold text-slate-400">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Live Marquee Simulator Preview</span>
+                      </div>
+                      <div className="overflow-hidden whitespace-nowrap py-1 bg-black/40 rounded-lg px-3 flex items-center gap-6">
+                        {marqueesList
+                          .filter((m: any) => m.isActive !== false)
+                          .map((m: any) => (
+                            <span
+                              key={m._id}
+                              className="inline-flex items-center gap-2 text-xs font-semibold px-2.5 py-1 rounded-md transition-all shrink-0"
+                              style={{
+                                backgroundColor: m.bgColor || "#047857",
+                                color: m.textColor || "#ffffff",
+                              }}
+                            >
+                              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-black/25">
+                                {m.badgeText || "Notice"}
+                              </span>
+                              <span>{m.text}</span>
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
                     {marqueesList?.map((m: any) => (
-                      <Card key={m._id} className="bg-white border-slate-200 shadow-sm">
-                        <CardContent className="p-3.5 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Megaphone className="w-4 h-4 text-emerald-700 shrink-0" />
-                            <p className="text-xs text-slate-900 font-medium">{m.text}</p>
+                      <Card key={m._id} className="bg-white border-slate-200 shadow-sm hover:border-slate-300 transition-all">
+                        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                            {/* Color Visual Badge Indicator */}
+                            <div
+                              className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center shadow-xs border border-black/10"
+                              style={{
+                                backgroundColor: m.bgColor || "#047857",
+                                color: m.textColor || "#ffffff",
+                              }}
+                              title={`Background: ${m.bgColor || "#047857"} | Text: ${m.textColor || "#ffffff"}`}
+                            >
+                              <Megaphone className="w-4 h-4" />
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  className="text-[10px] font-bold uppercase px-2 py-0.5 rounded shadow-2xs"
+                                  style={{
+                                    backgroundColor: m.bgColor || "#047857",
+                                    color: m.textColor || "#ffffff",
+                                  }}
+                                >
+                                  {m.badgeText || "Announcement"}
+                                </span>
+                                <span
+                                  className={`px-2 py-0.5 text-[9px] rounded font-medium ${
+                                    m.isActive !== false
+                                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                      : "bg-slate-100 text-slate-500"
+                                  }`}
+                                >
+                                  {m.isActive !== false ? "Live Active" : "Disabled"}
+                                </span>
+                                {m.linkUrl && (
+                                  <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1 truncate">
+                                    <ExternalLink className="w-3 h-3 text-emerald-600" />
+                                    {m.linkUrl}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-900 font-medium mt-1 leading-snug">{m.text}</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
+
+                          <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
+                            {/* Color Swatch Indicators */}
+                            <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-slate-50 rounded-lg border border-slate-200 text-[10px] text-slate-500 font-mono mr-1">
+                              <span
+                                className="w-3 h-3 rounded-full border border-black/20"
+                                style={{ backgroundColor: m.bgColor || "#047857" }}
+                                title={`Background: ${m.bgColor || "#047857"}`}
+                              />
+                              <span
+                                className="w-3 h-3 rounded-full border border-black/20"
+                                style={{ backgroundColor: m.textColor || "#10b981" }}
+                                title={`Text: ${m.textColor || "#10b981"}`}
+                              />
+                            </div>
+
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
-                              title="Edit Marquee"
+                              className="text-slate-600 hover:bg-slate-100 h-8 px-2.5 text-xs"
+                              title="Edit Marquee & Colors"
                               onClick={() => {
                                 setEditingMarquee(m._id);
                                 setMarqueeForm({
                                   text: m.text || "",
                                   linkUrl: m.linkUrl || "",
                                   speed: m.speed || 50,
+                                  textColor: m.textColor || "#10b981",
+                                  bgColor: m.bgColor || "#047857",
+                                  badgeText: m.badgeText || "Notice",
                                 });
                                 setMarqueeModal(true);
                               }}
                             >
-                              <Edit className="w-3.5 h-3.5" />
+                              <Edit className="w-3.5 h-3.5 mr-1 text-emerald-700" /> Edit
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              className="text-red-600 hover:bg-red-50 h-8 px-2"
                               title="Delete Marquee"
                               onClick={() => deleteMarquee.mutate({ id: m._id })}
                             >
@@ -1591,9 +1706,15 @@ export default function AdminCMS() {
                         </CardContent>
                       </Card>
                     ))}
+                    {(!marqueesList || marqueesList.length === 0) && (
+                      <div className="text-center py-10 text-slate-400 text-xs bg-white rounded-xl border border-slate-200">
+                        No marquee announcements created yet. Click "Add Marquee" to create one with custom colors.
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
+
 
               {/* 7. RECENT ACTIVITY */}
               {activeTab === "activities" && (
@@ -2906,8 +3027,10 @@ export default function AdminCMS() {
                           <th className="px-4 py-3">Location</th>
                           <th className="px-4 py-3">Parent Menu</th>
                           <th className="px-4 py-3">Order</th>
+                          <th className="px-4 py-3">Status</th>
                           <th className="px-4 py-3 text-right">Actions</th>
                         </tr>
+
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {menusList
@@ -3424,15 +3547,24 @@ export default function AdminCMS() {
 
               {menuForm.location === "header" && (
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600">Parent Menu (Optional for Dropdowns)</label>
-                  <Input
-                    placeholder="e.g. About or Academics (leave empty for main level)"
+                  <label className="text-[11px] font-semibold text-slate-600">Parent Menu (For Dropdowns)</label>
+                  <select
                     value={menuForm.parent}
                     onChange={(e) => setMenuForm({ ...menuForm, parent: e.target.value })}
-                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-                  />
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg p-2 text-xs"
+                  >
+                    <option value="">None (Top-Level Navigation Tab)</option>
+                    {menusList
+                      ?.filter((m: any) => m.location === "header" && !m.parent && m._id !== editingMenuId)
+                      .map((p: any) => (
+                        <option key={p._id} value={p.title}>
+                          Inside: {p.title} (Dropdown Item)
+                        </option>
+                      ))}
+                  </select>
                 </div>
               )}
+
 
               <div className="space-y-1">
                 <label className="text-[11px] font-semibold text-slate-600">Display Order</label>
@@ -3700,18 +3832,131 @@ export default function AdminCMS() {
                 </button>
               </div>
 
-              <Input
-                placeholder="Marquee Text"
-                value={marqueeForm.text}
-                onChange={(e) => setMarqueeForm({ ...marqueeForm, text: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
-              <Input
-                placeholder="Optional Target URL (e.g. /admissions)"
-                value={marqueeForm.linkUrl}
-                onChange={(e) => setMarqueeForm({ ...marqueeForm, linkUrl: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
+              {/* Live Preview Box */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600">Live Preview</label>
+                <div
+                  className="p-3 rounded-xl border border-black/10 flex items-center justify-between gap-3 shadow-xs transition-colors"
+                  style={{
+                    backgroundColor: marqueeForm.bgColor || "#047857",
+                    color: marqueeForm.textColor || "#ffffff",
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-black/25">
+                      {marqueeForm.badgeText || "Notice"}
+                    </span>
+                    <span className="text-xs font-semibold">
+                      {marqueeForm.text || "Your announcement text will display here..."}
+                    </span>
+                  </div>
+                  <Megaphone className="w-4 h-4 shrink-0 opacity-80" />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600">Marquee Announcement Text *</label>
+                <Input
+                  placeholder="e.g. ADMISSIONS OPEN FOR SESSION 2026–27"
+                  value={marqueeForm.text}
+                  onChange={(e) => setMarqueeForm({ ...marqueeForm, text: e.target.value })}
+                  className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600">Badge Label (Short)</label>
+                  <Input
+                    placeholder="Notice, Admissions, Alert"
+                    value={marqueeForm.badgeText}
+                    onChange={(e) => setMarqueeForm({ ...marqueeForm, badgeText: e.target.value })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600">Optional Target Link</label>
+                  <Input
+                    placeholder="/admissions or https://..."
+                    value={marqueeForm.linkUrl}
+                    onChange={(e) => setMarqueeForm({ ...marqueeForm, linkUrl: e.target.value })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Color Presets */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-600">Theme Color Presets</label>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {[
+                    { label: "Emerald", bg: "#047857", text: "#ffffff" },
+                    { label: "Amber", bg: "#b45309", text: "#fef3c7" },
+                    { label: "Navy", bg: "#1e3a8a", text: "#dbeafe" },
+                    { label: "Crimson", bg: "#9f1239", text: "#ffe4e6" },
+                    { label: "Purple", bg: "#581c87", text: "#f3e8ff" },
+                    { label: "Slate", bg: "#0f172a", text: "#f8fafc" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() =>
+                        setMarqueeForm({
+                          ...marqueeForm,
+                          bgColor: preset.bg,
+                          textColor: preset.text,
+                        })
+                      }
+                      className="p-1.5 rounded-lg border text-center transition-all hover:scale-105"
+                      style={{
+                        backgroundColor: preset.bg,
+                        color: preset.text,
+                        borderColor: marqueeForm.bgColor === preset.bg ? "#000000" : "transparent",
+                      }}
+                    >
+                      <span className="text-[10px] font-bold block">{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Color Pickers */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600">Custom Background Color</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={marqueeForm.bgColor || "#047857"}
+                      onChange={(e) => setMarqueeForm({ ...marqueeForm, bgColor: e.target.value })}
+                      className="w-8 h-8 rounded-lg border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0"
+                    />
+                    <Input
+                      value={marqueeForm.bgColor || "#047857"}
+                      onChange={(e) => setMarqueeForm({ ...marqueeForm, bgColor: e.target.value })}
+                      className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono uppercase"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600">Custom Text / Font Color</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={marqueeForm.textColor || "#ffffff"}
+                      onChange={(e) => setMarqueeForm({ ...marqueeForm, textColor: e.target.value })}
+                      className="w-8 h-8 rounded-lg border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0"
+                    />
+                    <Input
+                      value={marqueeForm.textColor || "#ffffff"}
+                      onChange={(e) => setMarqueeForm({ ...marqueeForm, textColor: e.target.value })}
+                      className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono uppercase"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button
                   variant="outline"
@@ -3724,6 +3969,7 @@ export default function AdminCMS() {
                   Cancel
                 </Button>
                 <Button
+                  disabled={!marqueeForm.text.trim()}
                   onClick={() => {
                     if (editingMarquee) {
                       updateMarquee.mutate({ id: editingMarquee, ...marqueeForm });
@@ -3739,6 +3985,7 @@ export default function AdminCMS() {
             </div>
           </div>
         )}
+
 
         {/* MODAL: ADD / EDIT ACTIVITY */}
         {activityModal && (
@@ -4591,6 +4838,7 @@ export default function AdminCMS() {
           </div>
         )}
       </div>
-    </Layout>
   );
 }
+
+

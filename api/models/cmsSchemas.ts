@@ -88,6 +88,9 @@ export interface IMarquee extends Document {
   text: string;
   linkUrl?: string;
   speed: number;
+  textColor?: string;
+  bgColor?: string;
+  badgeText?: string;
   isActive: boolean;
   isDeleted: boolean;
 }
@@ -97,11 +100,15 @@ const MarqueeSchema = new Schema<IMarquee>(
     text: { type: String, required: true },
     linkUrl: { type: String },
     speed: { type: Number, default: 50 },
+    textColor: { type: String, default: "#10b981" },
+    bgColor: { type: String, default: "#047857" },
+    badgeText: { type: String, default: "Notice" },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
+
 
 export interface IActivity extends Document {
   title: string;
