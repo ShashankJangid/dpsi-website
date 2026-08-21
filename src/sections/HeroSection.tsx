@@ -37,11 +37,14 @@ export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [direction, setDirection] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Safe slide index calculation
   const safeSlideIndex = activeSlides.length > 0 ? currentSlide % activeSlides.length : 0;
   const slide = activeSlides[safeSlideIndex] || DEFAULT_HERO_SLIDES[0];
 
+  // Preload all slider images into memory
   useEffect(() => {
     activeSlides.forEach((s) => {
       if (s.image) {
@@ -53,8 +56,7 @@ export default function HeroSection() {
 
   const fullText = slide ? (slide.subtitle ? `${slide.title} — ${slide.subtitle}` : slide.title) : "";
 
-
-  // Typewriter backspacing and re-writing visual effect
+  // Snappy Typewriter Effect (Fast 15ms typing, smooth transitions)
   useEffect(() => {
     if (!slide || activeSlides.length === 0) return;
     let timer: NodeJS.Timeout;
@@ -62,18 +64,19 @@ export default function HeroSection() {
     if (!isDeleting && displayText.length < fullText.length) {
       timer = setTimeout(() => {
         setDisplayText(fullText.slice(0, displayText.length + 1));
-      }, 40);
+      }, 15);
     } else if (!isDeleting && displayText.length === fullText.length) {
       timer = setTimeout(() => {
         setIsDeleting(true);
-      }, 2600);
+      }, 2200);
     } else if (isDeleting && displayText.length > 0) {
       timer = setTimeout(() => {
         setDisplayText(fullText.slice(0, displayText.length - 1));
-      }, 20);
+      }, 10);
     } else if (isDeleting && displayText.length === 0) {
       timer = setTimeout(() => {
         setIsDeleting(false);
+        setDirection(1);
         setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
       }, 10);
     }
@@ -81,8 +84,9 @@ export default function HeroSection() {
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, fullText, activeSlides.length, slide]);
 
-  const handleManualSlideChange = (newIndex: number) => {
+  const handleManualSlideChange = (newIndex: number, newDir: number = 1) => {
     if (activeSlides.length === 0) return;
+    setDirection(newDir);
     setIsDeleting(false);
     setDisplayText("");
     setCurrentSlide(newIndex % activeSlides.length);
@@ -92,9 +96,12 @@ export default function HeroSection() {
     return null;
   }
 
-
   return (
-    <div className="w-full flex flex-col bg-slate-50">
+    <div
+      className="w-full flex flex-col bg-slate-50"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       {/* SEPARATE TEXT BAR ABOVE IMAGE WITH TYPEWRITER BACKSPACE & REWRITE EFFECT (LIGHT THEME) */}
       <div className="relative z-30 bg-gradient-to-r from-sky-100 via-white to-blue-50 text-slate-900 border-b border-sky-200/80 py-3.5 sm:py-4 px-4 sm:px-8 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
@@ -140,7 +147,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* FULL UNBLOCKED HERO IMAGE SLIDER BELOW THE BAR */}
+      {/* FULL UNBLOCKED HERO IMAGE SLIDER BELOW THE BAR (SEAMLESS OVERLAPPING CROSSFADE — NO EMPTY SPACE) */}
       <section className="relative min-h-[50vh] sm:min-h-[65vh] lg:min-h-[75vh] overflow-hidden bg-slate-950">
         {/* Subtle Ambient Floating Glow Orbs */}
         <motion.div
@@ -168,13 +175,14 @@ export default function HeroSection() {
           className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-sky-500/20 blur-3xl pointer-events-none z-10"
         />
 
-        <AnimatePresence mode="wait">
+        {/* Overlapping Concurrent Crossfade (Zero Black Gaps) */}
+        <AnimatePresence initial={false}>
           <motion.div
             key={slide.image + safeSlideIndex}
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="absolute inset-0 flex items-center justify-center bg-slate-950 overflow-hidden"
           >
             {/* 100% Unblocked Banner Image displayed in full natural color */}
@@ -186,7 +194,6 @@ export default function HeroSection() {
               decoding="async"
               {...(safeSlideIndex === 0 ? { fetchPriority: "high" } : {})}
             />
-
           </motion.div>
         </AnimatePresence>
 
@@ -195,7 +202,7 @@ export default function HeroSection() {
           <motion.button
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleManualSlideChange((safeSlideIndex - 1 + activeSlides.length) % activeSlides.length)}
+            onClick={() => handleManualSlideChange((safeSlideIndex - 1 + activeSlides.length) % activeSlides.length, -1)}
             className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
             title="Previous Slide"
           >
@@ -207,7 +214,7 @@ export default function HeroSection() {
             {activeSlides.map((_, idx) => (
               <motion.button
                 key={idx}
-                onClick={() => handleManualSlideChange(idx)}
+                onClick={() => handleManualSlideChange(idx, idx > safeSlideIndex ? 1 : -1)}
                 animate={{
                   width: safeSlideIndex === idx ? 24 : 8,
                   backgroundColor: safeSlideIndex === idx ? "#38bdf8" : "rgba(255, 255, 255, 0.45)"
@@ -222,7 +229,7 @@ export default function HeroSection() {
           <motion.button
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleManualSlideChange((safeSlideIndex + 1) % activeSlides.length)}
+            onClick={() => handleManualSlideChange((safeSlideIndex + 1) % activeSlides.length, 1)}
             className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
             title="Next Slide"
           >
