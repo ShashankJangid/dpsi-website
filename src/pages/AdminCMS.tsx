@@ -943,8 +943,8 @@ export default function AdminCMS() {
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, count: null },
     { id: "pages", label: "Manage Pages", icon: <FileText className="w-4 h-4" />, count: pagesList?.length ?? stats?.pages ?? 0 },
     { id: "menus", label: "Manage Menus", icon: <MenuIcon className="w-4 h-4" />, count: menusList?.length ?? 0 },
-    { id: "gallery", label: "Image Gallery", icon: <ImageIcon className="w-4 h-4" />, count: galleryList?.length ?? stats?.galleryImages ?? 0 },
-    { id: "videos", label: "Video Gallery", icon: <Video className="w-4 h-4" />, count: videosList?.length ?? stats?.videos ?? 0 },
+    { id: "gallery", label: "Image Gallery", icon: <ImageIcon className="w-4 h-4" />, count: galleryImages?.length ?? stats?.galleryImages ?? 0 },
+    { id: "videos", label: "Video Gallery", icon: <Video className="w-4 h-4" />, count: videoList?.length ?? stats?.videos ?? 0 },
     { id: "popups", label: "Popups", icon: <BellRing className="w-4 h-4" />, count: popupsList?.length ?? stats?.popups ?? 0 },
     { id: "marquee", label: "Marquee Ticker", icon: <Megaphone className="w-4 h-4" />, count: marqueesList?.length ?? 0 },
     { id: "activities", label: "Activities", icon: <Activity className="w-4 h-4" />, count: activitiesList?.length ?? stats?.activities ?? 0 },
@@ -963,6 +963,7 @@ export default function AdminCMS() {
     { id: "site_settings", label: "Site Settings", icon: <Settings className="w-4 h-4" />, count: siteSettings?.length ?? null },
     { id: "ai_settings", label: "AI Configuration", icon: <Bot className="w-4 h-4" />, count: null },
   ];
+
 
 
   // 🔒 LIGHT LOGIN VIEW
