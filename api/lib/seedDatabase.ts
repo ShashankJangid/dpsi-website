@@ -1,4 +1,4 @@
-import { getMainModels } from "../models/cmsSchemas";
+import { getMainModels, getGalleryModels, getTcModels } from "../models/cmsSchemas";
 
 export async function seedDatabase() {
   try {
@@ -15,7 +15,17 @@ export async function seedDatabase() {
       TimelineItem,
       CoreValue,
       Slider,
+      Page,
+      Menu,
+      Marquee,
+      Popup,
+      Activity,
+      Attachment,
+      FeatureCard,
     } = await getMainModels();
+    const { GalleryImage, VideoGallery } = await getGalleryModels();
+    const { TransferCertificate } = await getTcModels();
+
 
     // 1. SITE SETTINGS
     const defaultSettings = [
@@ -534,7 +544,6 @@ export async function seedDatabase() {
     }
 
     // 13. 3D FEATURE CARDS (Home2)
-    const { FeatureCard } = await getMainModels();
     const featureCardCount = await FeatureCard.countDocuments({ isDeleted: false });
     if (featureCardCount === 0) {
       await FeatureCard.insertMany([
@@ -564,8 +573,283 @@ export async function seedDatabase() {
         },
       ]);
     }
+
+    // 14. PAGES (Manage Pages)
+    const pageCount = await Page.countDocuments({ isDeleted: false });
+    if (pageCount === 0) {
+      await Page.insertMany([
+        {
+          title: "About DPS Indirapuram",
+          slug: "about",
+          category: "About",
+          content: "Delhi Public School Indirapuram is a premier educational institution established in 2003 under the aegis of the DPS Society, New Delhi.",
+          metaTitle: "About Us - DPS Indirapuram",
+          metaDescription: "Learn about the rich legacy, leadership, and vision of DPS Indirapuram.",
+          isPublished: true,
+        },
+        {
+          title: "Academic Curriculum & Pedagogy",
+          slug: "academics",
+          category: "Academics",
+          content: "Comprehensive CBSE curriculum integrated with STEAM, AI, and holistic development modules.",
+          metaTitle: "Academics - DPS Indirapuram",
+          metaDescription: "Explore our academic departments, curriculum, and pedagogy.",
+          isPublished: true,
+        },
+        {
+          title: "Admissions 2026-27 Guidelines",
+          slug: "admissions",
+          category: "Admissions",
+          content: "Admissions open from Pre-Nursery to Class IX & Class XI for the academic session 2026-27.",
+          metaTitle: "Admissions - DPS Indirapuram",
+          metaDescription: "Apply online for admissions at DPS Indirapuram.",
+          isPublished: true,
+        },
+        {
+          title: "World-Class Campus Facilities",
+          slug: "facilities",
+          category: "Facilities",
+          content: "10-acre campus with AI Robotics lab, Olympic swimming pool, smart classrooms, and shooting range.",
+          metaTitle: "Campus Facilities - DPS Indirapuram",
+          metaDescription: "Explore campus infrastructure and sports facilities.",
+          isPublished: true,
+        },
+      ]);
+    }
+
+    // 15. NAVIGATION MENUS
+    const menuCount = await Menu.countDocuments({ isDeleted: false });
+    if (menuCount === 0) {
+      await Menu.insertMany([
+        { title: "Home", url: "/", location: "header", order: 1, isActive: true },
+        { title: "About", url: "/about", location: "header", order: 2, isActive: true },
+        { title: "Vision & Mission", url: "/about#vision", location: "header", parent: "About", order: 1, isActive: true },
+        { title: "Leadership", url: "/about#leadership", location: "header", parent: "About", order: 2, isActive: true },
+        { title: "Academics", url: "/academics", location: "header", order: 3, isActive: true },
+        { title: "Curriculum", url: "/academics#curriculum", location: "header", parent: "Academics", order: 1, isActive: true },
+        { title: "Departments", url: "/academics#departments", location: "header", parent: "Academics", order: 2, isActive: true },
+        { title: "Admissions", url: "/admissions", location: "header", order: 4, isActive: true },
+        { title: "Facilities", url: "/facilities", location: "header", order: 5, isActive: true },
+        { title: "News & Events", url: "/news-events", location: "header", order: 6, isActive: true },
+        { title: "Gallery", url: "/gallery", location: "header", order: 7, isActive: true },
+        { title: "Contact", url: "/contact", location: "header", order: 8, isActive: true },
+
+        // Footer Quick Links
+        { title: "About Us", url: "/about", location: "footer_quick", order: 1, isActive: true },
+        { title: "Academic Streams", url: "/academics", location: "footer_quick", order: 2, isActive: true },
+        { title: "Admissions Criteria", url: "/admissions", location: "footer_quick", order: 3, isActive: true },
+        { title: "Campus Facilities", url: "/facilities", location: "footer_quick", order: 4, isActive: true },
+
+        // Footer Resources
+        { title: "SchoolsOS Portal Login", url: "https://dpsindp.schoolforschools.ai/login", location: "footer_resources", order: 1, isActive: true },
+        { title: "Transfer Certificate (TC)", url: "/tc", location: "footer_resources", order: 2, isActive: true },
+        { title: "Annual Academic Calendar", url: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf", location: "footer_resources", order: 3, isActive: true },
+        { title: "Mandatory Public Disclosure", url: "/attachments", location: "footer_resources", order: 4, isActive: true },
+      ]);
+    }
+
+    // 16. MARQUEE ANNOUNCEMENTS
+    const marqueeCount = await Marquee.countDocuments({ isDeleted: false });
+    if (marqueeCount === 0) {
+      await Marquee.insertMany([
+        {
+          text: "ADMISSIONS OPEN FOR SESSION 2026–27 (PRE-NURSERY TO CLASS IX & XI)",
+          linkUrl: "/admissions",
+          speed: 50,
+          textColor: "#ffffff",
+          bgColor: "#047857",
+          badgeText: "Admissions",
+          isActive: true,
+        },
+        {
+          text: "CBSE CLASS XII & X BOARD RESULTS DECLARED — TOP SCORE 99.4%",
+          linkUrl: "/academics",
+          speed: 50,
+          textColor: "#fef3c7",
+          bgColor: "#b45309",
+          badgeText: "Exam Alert",
+          isActive: true,
+        },
+        {
+          text: "TIMES EDUCATION ICONS 2024 AWARD WINNER — #1 CBSE SCHOOL IN GHAZIABAD",
+          linkUrl: "/about",
+          speed: 50,
+          textColor: "#dbeafe",
+          bgColor: "#1e3a8a",
+          badgeText: "Award",
+          isActive: true,
+        },
+      ]);
+    }
+
+    // 17. POPUPS
+    const popupCount = await Popup.countDocuments({ isDeleted: false });
+    if (popupCount === 0) {
+      await Popup.insertMany([
+        {
+          title: "Admissions Open 2026-27",
+          content: "Online registration is now open for Pre-Nursery through Class IX and XI. Limited seats available.",
+          imageUrl: "/images/dps/slider_3.webp",
+          linkUrl: "/admissions",
+          badgeText: "Admissions 2026-27",
+          buttonText: "Apply Now",
+          showOnLoad: true,
+          isActive: true,
+        },
+      ]);
+    }
+
+    // 18. RECENT ACTIVITIES
+    const activityCount = await Activity.countDocuments({ isDeleted: false });
+    if (activityCount === 0) {
+      await Activity.insertMany([
+        {
+          title: "Annual Science & Innovation Exhibition 2025",
+          category: "Innovation",
+          description: "Students demonstrated 100+ working models in Robotics, AI, Renewable Energy, and Smart Cities.",
+          eventDate: new Date("2025-11-15"),
+          imageUrl: "/images/facilities/ai_robotics_lab.webp",
+          isPublished: true,
+        },
+        {
+          title: "Inter-School Swimming Championship",
+          category: "Sports",
+          description: "DPS Indirapuram aquatic team secured 14 Gold and 8 Silver medals at the CBSE Inter-School Meet.",
+          eventDate: new Date("2025-10-22"),
+          imageUrl: "/images/facilities/swimming_pool.webp",
+          isPublished: true,
+        },
+        {
+          title: "Model United Nations (DPSI-MUN) 2025",
+          category: "Conferences",
+          description: "Over 500 delegates from across the nation debated pressing global geopolitical issues.",
+          eventDate: new Date("2025-09-18"),
+          imageUrl: "/images/facilities/smart_classroom.webp",
+          isPublished: true,
+        },
+        {
+          title: "Silver Jubilee Grand Annual Cultural Fest",
+          category: "Culture",
+          description: "A spectacular evening of theatrical musical performance, classical dance, and student art showcase.",
+          eventDate: new Date("2025-12-20"),
+          imageUrl: "/images/facilities/music_dance.webp",
+          isPublished: true,
+        },
+      ]);
+    }
+
+    // 19. IMAGE GALLERY
+    const imageCount = await GalleryImage.countDocuments({ isDeleted: false });
+    if (imageCount === 0) {
+      await GalleryImage.insertMany([
+        { title: "Main Campus Building", category: "Campus", imageUrl: "/images/dps/slider_1.webp", isFeatured: true, order: 1 },
+        { title: "Futuristic AI & Robotics Lab", category: "Facilities", imageUrl: "/images/facilities/ai_robotics_lab.webp", isFeatured: true, order: 2 },
+        { title: "Olympic Swimming Pool", category: "Sports", imageUrl: "/images/facilities/swimming_pool.webp", isFeatured: true, order: 3 },
+        { title: "Smart Interactive Classroom", category: "Academics", imageUrl: "/images/facilities/smart_classroom.webp", isFeatured: true, order: 4 },
+        { title: "Digital Knowledge Library", category: "Facilities", imageUrl: "/images/facilities/library.webp", isFeatured: true, order: 5 },
+        { title: "Performing Arts & Music Studio", category: "Arts", imageUrl: "/images/facilities/music_dance.webp", isFeatured: true, order: 6 },
+        { title: "GPS Air-Conditioned Buses", category: "Transport", imageUrl: "/images/facilities/transport_bus.webp", isFeatured: true, order: 7 },
+        { title: "Comprehensive Science Labs", category: "Academics", imageUrl: "/images/facilities/science_lab.webp", isFeatured: true, order: 8 },
+        { title: "Art & Pottery Studio", category: "Arts", imageUrl: "/images/facilities/art_craft_studio.webp", isFeatured: true, order: 9 },
+        { title: "Campus Health & Medical Bay", category: "Facilities", imageUrl: "/images/facilities/medical_infirmary.webp", isFeatured: true, order: 10 },
+        { title: "Campus Security & Safety", category: "Facilities", imageUrl: "/images/facilities/campus_security.webp", isFeatured: true, order: 11 },
+      ]);
+    }
+
+    // 20. VIDEO GALLERY
+    const videoCount = await VideoGallery.countDocuments({ isDeleted: false });
+    if (videoCount === 0) {
+      await VideoGallery.insertMany([
+        {
+          title: "DPS Indirapuram Virtual Campus Tour",
+          category: "Campus Tour",
+          youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          thumbnailUrl: "/images/dps/slider_1.webp",
+          order: 1,
+        },
+        {
+          title: "AI & Humanoid Robotics Innovation Lab",
+          category: "Innovation",
+          youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          thumbnailUrl: "/images/facilities/ai_robotics_lab.webp",
+          order: 2,
+        },
+        {
+          title: "Annual Sports Day & Aquatic Championship Highlights",
+          category: "Sports",
+          youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          thumbnailUrl: "/images/facilities/swimming_pool.webp",
+          order: 3,
+        },
+      ]);
+    }
+
+    // 21. ATTACHMENTS & CIRCULARS
+    const attachmentCount = await Attachment.countDocuments({ isDeleted: false });
+    if (attachmentCount === 0) {
+      await Attachment.insertMany([
+        {
+          title: "Annual Academic Calendar 2026-27",
+          category: "Calendar",
+          fileUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
+          fileName: "annual-academic-calendar-2026-27.pdf",
+          fileType: "application/pdf",
+          fileSize: "2.4 MB",
+        },
+        {
+          title: "Mandatory Public Disclosure (CBSE)",
+          category: "CBSE Compliance",
+          fileUrl: "https://www.dpsindirapuram.com/docs/mandatory-disclosure.pdf",
+          fileName: "cbse-mandatory-public-disclosure.pdf",
+          fileType: "application/pdf",
+          fileSize: "1.8 MB",
+        },
+        {
+          title: "Fee Structure & Payment Schedule 2026-27",
+          category: "Admissions",
+          fileUrl: "https://www.dpsindirapuram.com/docs/fee-structure.pdf",
+          fileName: "dpsi-fee-structure-2026-27.pdf",
+          fileType: "application/pdf",
+          fileSize: "950 KB",
+        },
+      ]);
+    }
+
+    // 22. TRANSFER CERTIFICATES (Sample verified records)
+    const tcCount = await TransferCertificate.countDocuments({ isDeleted: false });
+    if (tcCount === 0) {
+      await TransferCertificate.insertMany([
+        {
+          tcNumber: "TC-2025-001",
+          admissionNumber: "ADM-18492",
+          studentName: "Aarav Sharma",
+          fatherName: "Mr. Vikram Sharma",
+          motherName: "Mrs. Pooja Sharma",
+          classLeft: "Class X",
+          dateOfBirth: new Date("2010-05-14"),
+          dateOfIssue: new Date("2025-04-10"),
+          reasonForLeaving: "Parent Transfer",
+          status: "Verified",
+        },
+        {
+          tcNumber: "TC-2025-002",
+          admissionNumber: "ADM-19203",
+          studentName: "Riya Verma",
+          fatherName: "Mr. Alok Verma",
+          motherName: "Mrs. Sneha Verma",
+          classLeft: "Class XII",
+          dateOfBirth: new Date("2008-09-22"),
+          dateOfIssue: new Date("2025-05-18"),
+          reasonForLeaving: "Course Completed",
+          status: "Verified",
+        },
+      ]);
+    }
+
+    console.log("✅ MongoDB Auto-Seeding completed successfully with all models populated!");
   } catch (error) {
     console.warn("MongoDB Auto-Seeding warning:", error);
   }
 }
+
 

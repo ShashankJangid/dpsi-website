@@ -1,13 +1,23 @@
+import dns from "node:dns";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 dotenv.config();
+
+// Ensure resilient DNS resolution for MongoDB Atlas SRV connection strings
+try {
+  dns.setDefaultResultOrder("ipv4first");
+  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+} catch {
+  // Ignore in environments where setting DNS servers is restricted
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   console.warn("⚠️ MONGODB_URI is not set in environment variables.");
 }
+
 
 interface MongoCache {
   connections: {
