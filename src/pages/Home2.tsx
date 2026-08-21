@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import { motion } from "framer-motion";
 import AnnouncementsBar from "@/sections/AnnouncementsBar";
 import QuickStats from "@/sections/QuickStats";
 import NewsHighlights from "@/sections/NewsHighlights";
