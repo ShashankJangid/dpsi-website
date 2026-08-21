@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -81,6 +81,7 @@ type TabType =
 
 export default function AdminCMS() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
+  const [tabSearch, setTabSearch] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return !!localStorage.getItem("dpsi_admin_token") || localStorage.getItem("dpsi_admin_auth") === "true";
   });
@@ -184,6 +185,190 @@ export default function AdminCMS() {
   const { data: statsMetricsList, refetch: refetchStatsMetrics } = trpc.stats.adminList.useQuery(undefined, {
     enabled: isAuthenticated,
   });
+
+  // Global Cross-CMS Universal Search State
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Cmd+K / Ctrl+K keyboard shortcut to focus global search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        setIsSearchOpen(true);
+      }
+      if (e.key === "Escape") {
+        setIsSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Universal Cross-CMS Global Search Indexer
+  const searchResults = useMemo(() => {
+    const q = globalSearch.trim().toLowerCase();
+    if (!q) return [];
+
+    const results: Array<{
+      tab: string;
+      tabLabel: string;
+      title: string;
+      subtitle?: string;
+      type: string;
+      id?: string;
+    }> = [];
+
+    // 1. Pages
+    pagesList?.forEach((p: any) => {
+      if (p.title?.toLowerCase().includes(q) || p.slug?.toLowerCase().includes(q) || p.content?.toLowerCase().includes(q)) {
+        results.push({ tab: "pages", tabLabel: "Manage Pages", title: p.title, subtitle: `Slug: /${p.slug}`, type: "Page", id: p._id });
+      }
+    });
+
+    // 2. Menus
+    menusList?.forEach((m: any) => {
+      if (m.label?.toLowerCase().includes(q) || m.href?.toLowerCase().includes(q)) {
+        results.push({ tab: "menus", tabLabel: "Manage Menus", title: m.label, subtitle: `Link: ${m.href}`, type: "Menu Item", id: m._id });
+      }
+    });
+
+    // 3. Sliders (Images & Videos)
+    slidersList?.forEach((s: any) => {
+      if (s.title?.toLowerCase().includes(q) || s.subtitle?.toLowerCase().includes(q) || s.mediaType?.toLowerCase().includes(q)) {
+        results.push({ tab: "sliders", tabLabel: "Home Sliders", title: s.title, subtitle: s.subtitle || `Media: ${s.mediaType || "image"}`, type: "Hero Slider", id: s._id });
+      }
+    });
+
+    // 4. Attachments & Circulars
+    attachmentsList?.forEach((a: any) => {
+      if (a.title?.toLowerCase().includes(q) || a.category?.toLowerCase().includes(q) || a.fileName?.toLowerCase().includes(q)) {
+        results.push({ tab: "attachments", tabLabel: "Attachments & Circulars", title: a.title, subtitle: `Category: ${a.category || "Circulars"}`, type: "Circular", id: a._id });
+      }
+    });
+
+    // 5. Image Gallery
+    galleryImages?.forEach((g: any) => {
+      if (g.title?.toLowerCase().includes(q) || g.category?.toLowerCase().includes(q)) {
+        results.push({ tab: "gallery", tabLabel: "Image Gallery", title: g.title, subtitle: `Category: ${g.category}`, type: "Photo", id: g._id });
+      }
+    });
+
+    // 6. Video Gallery
+    videoList?.forEach((v: any) => {
+      if (v.title?.toLowerCase().includes(q) || v.category?.toLowerCase().includes(q)) {
+        results.push({ tab: "videos", tabLabel: "Video Gallery", title: v.title, subtitle: `Category: ${v.category}`, type: "Video", id: v._id });
+      }
+    });
+
+    // 7. Popups
+    popupsList?.forEach((p: any) => {
+      if (p.title?.toLowerCase().includes(q) || p.message?.toLowerCase().includes(q)) {
+        results.push({ tab: "popups", tabLabel: "Popups & Alerts", title: p.title, subtitle: p.message, type: "Popup", id: p._id });
+      }
+    });
+
+    // 8. Marquee
+    marqueesList?.forEach((m: any) => {
+      if (m.text?.toLowerCase().includes(q) || m.badgeText?.toLowerCase().includes(q)) {
+        results.push({ tab: "marquee", tabLabel: "Marquee Ticker", title: m.text, subtitle: `Badge: ${m.badgeText || "Notice"}`, type: "Marquee", id: m._id });
+      }
+    });
+
+    // 9. Activities
+    activitiesList?.forEach((a: any) => {
+      if (a.title?.toLowerCase().includes(q) || a.category?.toLowerCase().includes(q) || a.description?.toLowerCase().includes(q)) {
+        results.push({ tab: "activities", tabLabel: "Activities", title: a.title, subtitle: `Category: ${a.category}`, type: "Activity", id: a._id });
+      }
+    });
+
+    // 10. Academic Toppers & Achievements
+    achievementsList?.forEach((ach: any) => {
+      if (ach.studentName?.toLowerCase().includes(q) || ach.title?.toLowerCase().includes(q) || ach.category?.toLowerCase().includes(q)) {
+        results.push({ tab: "achievements", tabLabel: "Academic Toppers", title: ach.studentName || ach.title, subtitle: `${ach.percentage ? ach.percentage + "%" : ""} ${ach.stream || ach.category || ""}`, type: "Achievement", id: ach._id });
+      }
+    });
+
+    // 11. Testimonials
+    testimonialsList?.forEach((t: any) => {
+      if (t.name?.toLowerCase().includes(q) || t.role?.toLowerCase().includes(q) || t.quote?.toLowerCase().includes(q)) {
+        results.push({ tab: "testimonials", tabLabel: "Testimonials", title: t.name, subtitle: `${t.role} - "${t.quote?.slice(0, 45)}..."`, type: "Testimonial", id: t._id });
+      }
+    });
+
+    // 12. Leadership & Faculty
+    leadershipList?.forEach((l: any) => {
+      if (l.name?.toLowerCase().includes(q) || l.role?.toLowerCase().includes(q) || l.designation?.toLowerCase().includes(q)) {
+        results.push({ tab: "leadership", tabLabel: "Leadership & Faculty", title: l.name, subtitle: l.role || l.designation, type: "Faculty", id: l._id });
+      }
+    });
+
+    // 13. Facilities
+    facilitiesList?.forEach((f: any) => {
+      if (f.title?.toLowerCase().includes(q) || f.category?.toLowerCase().includes(q) || f.description?.toLowerCase().includes(q)) {
+        results.push({ tab: "facilities", tabLabel: "Campus Facilities", title: f.title, subtitle: f.category, type: "Facility", id: f._id });
+      }
+    });
+
+    // 14. Departments
+    departmentsList?.forEach((d: any) => {
+      if (d.name?.toLowerCase().includes(q) || d.headOfDepartment?.toLowerCase().includes(q) || d.description?.toLowerCase().includes(q)) {
+        results.push({ tab: "departments", tabLabel: "Departments", title: d.name, subtitle: `Head: ${d.headOfDepartment || "N/A"}`, type: "Department", id: d._id });
+      }
+    });
+
+    // 15. Admission Steps
+    admissionStepsList?.forEach((step: any) => {
+      if (step.title?.toLowerCase().includes(q) || step.description?.toLowerCase().includes(q)) {
+        results.push({ tab: "admission_steps", tabLabel: "Admission Steps", title: step.title, subtitle: `Step ${step.stepNumber || 1}`, type: "Admission Step", id: step._id });
+      }
+    });
+
+    // 16. FAQs
+    faqsList?.forEach((faq: any) => {
+      if (faq.question?.toLowerCase().includes(q) || faq.answer?.toLowerCase().includes(q) || faq.category?.toLowerCase().includes(q)) {
+        results.push({ tab: "faqs", tabLabel: "Admissions FAQs", title: faq.question, subtitle: faq.answer?.slice(0, 50) + "...", type: "FAQ", id: faq._id });
+      }
+    });
+
+    // 17. Transfer Certificates (TC)
+    tcList?.forEach((tc: any) => {
+      if (tc.studentName?.toLowerCase().includes(q) || tc.admissionNumber?.toLowerCase().includes(q) || tc.fatherName?.toLowerCase().includes(q)) {
+        results.push({ tab: "tc", tabLabel: "Transfer Certificates", title: `${tc.studentName} (Adm: ${tc.admissionNumber})`, subtitle: `Father: ${tc.fatherName || "N/A"} • Status: ${tc.status}`, type: "TC", id: tc._id });
+      }
+    });
+
+    // 18. MUN Registrations
+    munList?.forEach((mun: any) => {
+      if (mun.studentName?.toLowerCase().includes(q) || mun.schoolName?.toLowerCase().includes(q) || mun.email?.toLowerCase().includes(q)) {
+        results.push({ tab: "mun", tabLabel: "MUN Registrations", title: mun.studentName, subtitle: `School: ${mun.schoolName} • ${mun.email}`, type: "MUN", id: mun._id });
+      }
+    });
+
+    return results;
+  }, [
+    globalSearch,
+    pagesList,
+    menusList,
+    slidersList,
+    attachmentsList,
+    galleryImages,
+    videoList,
+    popupsList,
+    marqueesList,
+    activitiesList,
+    achievementsList,
+    testimonialsList,
+    leadershipList,
+    facilitiesList,
+    departmentsList,
+    admissionStepsList,
+    faqsList,
+    tcList,
+    munList,
+  ]);
 
   // Mutations
   const adminLoginMutation = trpc.cms.adminLogin.useMutation();
@@ -1081,7 +1266,94 @@ export default function AdminCMS() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* UNIVERSAL OMNISEARCH BAR */}
+        <div className="relative flex-1 max-w-md mx-2 min-w-[260px]">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search across all CMS collections... (⌘K)"
+              value={globalSearch}
+              onChange={(e) => {
+                setGlobalSearch(e.target.value);
+                setIsSearchOpen(true);
+              }}
+              onFocus={() => setIsSearchOpen(true)}
+              className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:bg-white text-slate-900 pl-9 pr-8 py-1.5 rounded-xl text-xs placeholder:text-slate-400 outline-none transition-all shadow-xs"
+            />
+            {globalSearch ? (
+              <button
+                onClick={() => {
+                  setGlobalSearch("");
+                  setIsSearchOpen(false);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
+                title="Clear Search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-slate-200/60 rounded border border-slate-300">
+                ⌘K
+              </kbd>
+            )}
+          </div>
+
+          {/* OMNISEARCH RESULTS DROPDOWN */}
+          {isSearchOpen && globalSearch.trim().length > 0 && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setIsSearchOpen(false)}
+              />
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 max-h-96 overflow-y-auto p-2 space-y-1">
+                <div className="flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-slate-100">
+                  <span>Found {searchResults.length} {searchResults.length === 1 ? "result" : "results"}</span>
+                  <span className="text-[10px] text-slate-400">Click to jump to module</span>
+                </div>
+
+                {searchResults.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-slate-400">
+                    No matching records found for "{globalSearch}"
+                  </div>
+                ) : (
+                  searchResults.slice(0, 25).map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setActiveTab(item.tab);
+                        setIsSearchOpen(false);
+                      }}
+                      className="w-full flex items-start justify-between gap-3 p-2.5 rounded-xl hover:bg-slate-50 text-left transition-colors cursor-pointer border border-transparent hover:border-slate-100 group"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-900 truncate group-hover:text-emerald-700">
+                            {item.title}
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                            {item.type}
+                          </span>
+                        </div>
+                        {item.subtitle && (
+                          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                            {item.subtitle}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg shrink-0 border border-emerald-100 flex items-center gap-1 group-hover:bg-emerald-100">
+                        {item.tabLabel} <ArrowRight className="w-3 h-3" />
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
           <a
             href="/"
             target="_blank"
@@ -1103,7 +1375,7 @@ export default function AdminCMS() {
             }}
             variant="outline"
             size="sm"
-            className="text-xs border-slate-200 text-slate-700 hover:bg-slate-50"
+            className="text-xs border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5 mr-1" /> Sync DB
           </Button>
@@ -1111,7 +1383,7 @@ export default function AdminCMS() {
             onClick={handleLogout}
             variant="outline"
             size="sm"
-            className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+            className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
           </Button>
@@ -1948,35 +2220,62 @@ export default function AdminCMS() {
               {/* 10. HOME SLIDERS */}
               {activeTab === "sliders" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">Hero Banners & Sliders</h2>
                       <p className="text-xs text-slate-500">Live Homepage Slider Images & Direct Videos • Order & Captions</p>
                     </div>
-                    <Button
-                      onClick={() => {
-                        setEditingSlider(null);
-                        setSliderForm({
-                          title: "",
-                          subtitle: "",
-                          imageUrl: "",
-                          videoUrl: "",
-                          mediaType: "image",
-                          buttonText: "Apply Now",
-                          buttonLink: "/admissions",
-                          order: (slidersList?.length || 0) + 1,
-                        });
-                        setSliderModal(true);
-                      }}
-                      size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer"
-                    >
-                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Slider
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <Input
+                          placeholder="Filter sliders..."
+                          value={tabSearch}
+                          onChange={(e) => setTabSearch(e.target.value)}
+                          className="bg-white border-slate-200 text-xs pl-8 pr-7 h-8 w-44 sm:w-56"
+                        />
+                        {tabSearch && (
+                          <button
+                            onClick={() => setTabSearch("")}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setEditingSlider(null);
+                          setSliderForm({
+                            title: "",
+                            subtitle: "",
+                            imageUrl: "",
+                            videoUrl: "",
+                            mediaType: "image",
+                            buttonText: "Apply Now",
+                            buttonLink: "/admissions",
+                            order: (slidersList?.length || 0) + 1,
+                          });
+                          setSliderModal(true);
+                        }}
+                        size="sm"
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer h-8"
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1" /> Add Slider
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {slidersList?.map((s: any) => (
+                    {slidersList
+                      ?.filter((s: any) =>
+                        !tabSearch ||
+                        s.title?.toLowerCase().includes(tabSearch.toLowerCase()) ||
+                        s.subtitle?.toLowerCase().includes(tabSearch.toLowerCase()) ||
+                        s.mediaType?.toLowerCase().includes(tabSearch.toLowerCase()) ||
+                        s.buttonText?.toLowerCase().includes(tabSearch.toLowerCase())
+                      )
+                      .map((s: any) => (
                       <Card key={s._id} className="bg-white border-slate-200 shadow-sm overflow-hidden">
                         <div className="h-44 w-full overflow-hidden bg-slate-900 relative">
                           {s.mediaType === "video" || s.videoUrl ? (
