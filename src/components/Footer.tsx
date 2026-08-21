@@ -59,6 +59,10 @@ export default function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const logoUrl = getSetting("logo_url", "/images/dps/logo.webp");
+  const logoHeight = parseInt(getSetting("logo_height", "52"), 10) || 52;
+  const logoShape = getSetting("logo_shape", "default");
+
   return (
     <footer className="bg-slate-900 text-slate-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -66,9 +70,18 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center">
               <img
-                src="/images/dps/logo.webp"
+                src={logoUrl}
                 alt="DPS Indirapuram Logo"
-                className="h-12 w-auto object-contain"
+                style={{ height: `${Math.min(Math.max(logoHeight, 32), 64)}px` }}
+                className={`w-auto object-contain ${
+                  logoShape === "circle"
+                    ? "rounded-full"
+                    : logoShape === "rounded"
+                    ? "rounded-xl"
+                    : logoShape === "rectangle"
+                    ? "rounded-none"
+                    : ""
+                }`}
               />
             </div>
             <p className="text-sm leading-relaxed">

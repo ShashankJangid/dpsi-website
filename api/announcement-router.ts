@@ -80,7 +80,7 @@ export const announcementRouter = createRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Marquee } = await getMainModels();
-      await Marquee.findByIdAndUpdate(input.id, { isDeleted: true });
+      await Marquee.findByIdAndDelete(input.id);
       return { success: true };
     }),
 });

@@ -89,7 +89,7 @@ export const testimonialRouter = createRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Testimonial } = await getMainModels();
-      await Testimonial.findByIdAndUpdate(input.id, { isDeleted: true });
+      await Testimonial.findByIdAndDelete(input.id);
       return { success: true };
     }),
 });

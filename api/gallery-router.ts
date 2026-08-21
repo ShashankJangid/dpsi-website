@@ -103,7 +103,7 @@ export const galleryRouter = createRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { GalleryImage } = await getGalleryModels();
-      await GalleryImage.findByIdAndUpdate(input.id, { isDeleted: true });
+      await GalleryImage.findByIdAndDelete(input.id);
       return { success: true };
     }),
 });

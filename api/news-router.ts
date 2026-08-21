@@ -149,7 +149,7 @@ export const newsRouter = createRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Activity } = await getMainModels();
-      await Activity.findByIdAndUpdate(input.id, { isDeleted: true });
+      await Activity.findByIdAndDelete(input.id);
       return { success: true };
     }),
 });

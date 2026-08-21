@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import crypto from "crypto";
 import { getDbConnection } from "../lib/mongodb";
 
 // --- 1. MAIN CMS MODELS (dpsi_main) ---
@@ -680,7 +681,78 @@ export async function getMainModels() {
     CoreValue: conn.models.CoreValue || conn.model<ICoreValue>("CoreValue", CoreValueSchema),
     FeatureCard: conn.models.FeatureCard || conn.model<IFeatureCard>("FeatureCard", FeatureCardSchema),
     RateLimit: conn.models.RateLimit || conn.model<IRateLimit>("RateLimit", RateLimitSchema),
+    AuditLog: conn.models.AuditLog || conn.model<IAuditLog>("AuditLog", AuditLogSchema),
   };
+}
+
+export interface IAuditLog extends Document {
+  sequenceNumber: number;
+  action: string;
+  module: string;
+  performedBy: string;
+  documentId?: string;
+  details?: string;
+  ipAddress?: string;
+  previousHash: string;
+  currentHash: string;
+  timestamp: Date;
+}
+
+const AuditLogSchema = new Schema<IAuditLog>(
+  {
+    sequenceNumber: { type: Number, required: true, index: true },
+    action: { type: String, required: true },
+    module: { type: String, required: true },
+    performedBy: { type: String, default: "Admin" },
+    documentId: { type: String },
+    details: { type: String },
+    ipAddress: { type: String },
+    previousHash: { type: String, required: true },
+    currentHash: { type: String, required: true, unique: true },
+    timestamp: { type: Date, default: Date.now },
+  },
+  { timestamps: false }
+);
+
+// IMMUTABLE LEDGER PROTECTION HOOKS
+// Any update or delete action throws a strict security error
+AuditLogSchema.pre(["updateOne", "updateMany", "findOneAndUpdate", "replaceOne", "deleteOne", "deleteMany", "findOneAndDelete", "findOneAndRemove"], function (next: any) {
+  next(new Error("SECURITY VIOLATION: AuditLog ledger is strictly immutable. Modification and deletion are prohibited by database security policy."));
+});
+
+export async function createImmutableAuditLog(data: {
+  action: string;
+  module: string;
+  performedBy?: string;
+  documentId?: string;
+  details?: string;
+  ipAddress?: string;
+}) {
+  try {
+    const { AuditLog } = await getMainModels();
+    const lastLog = await AuditLog.findOne().sort({ sequenceNumber: -1 });
+    const sequenceNumber = (lastLog?.sequenceNumber || 0) + 1;
+    const previousHash = lastLog?.currentHash || "GENESIS_BLOCK_00000000000000000000000000000000000000000000000000000000";
+    const timestamp = new Date();
+    
+    const hashPayload = `${sequenceNumber}:${data.action}:${data.module}:${data.performedBy || "Admin"}:${data.documentId || ""}:${data.details || ""}:${previousHash}:${timestamp.toISOString()}`;
+    const currentHash = crypto.createHash("sha256").update(hashPayload).digest("hex");
+
+    return await AuditLog.create({
+      sequenceNumber,
+      action: data.action,
+      module: data.module,
+      performedBy: data.performedBy || "Admin",
+      documentId: data.documentId,
+      details: data.details,
+      ipAddress: data.ipAddress,
+      previousHash,
+      currentHash,
+      timestamp,
+    });
+  } catch (err) {
+    console.error("Failed to write immutable audit log:", err);
+  }
 }
 
 /**

@@ -1,8 +1,9 @@
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { createRouter, publicQuery, publicMutation, adminMutation } from "./middleware";
-import { getMainModels, getGalleryModels, getTcModels } from "./models/cmsSchemas";
+import { createRouter, publicQuery, publicMutation, adminMutation, adminQuery } from "./middleware";
+import { getMainModels, getGalleryModels, getTcModels, createImmutableAuditLog } from "./models/cmsSchemas";
+import crypto from "crypto";
 import { getAdminUserModel } from "./models/adminUserSchema";
 import { convertImageToWebP } from "./utils/mediaConverter";
 
@@ -315,13 +316,18 @@ export const cmsRouter = createRouter({
       return Page.findByIdAndUpdate(id, data, { new: true });
     }),
   deletePage: adminMutation
-    .input(z.object({ id: z.string(), permanent: z.boolean().default(false) }))
-    .mutation(async ({ input }) => {
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
       const { Page } = await getMainModels();
-      if (input.permanent) {
-        return Page.findByIdAndDelete(input.id);
-      }
-      return Page.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Page.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_PAGE",
+        module: "Pages",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted dynamic page: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 4. MANAGE MENUS ---
@@ -410,9 +416,9 @@ export const cmsRouter = createRouter({
     }),
   deleteMenu: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Menu } = await getMainModels();
-      const deleted = await Menu.findByIdAndUpdate(input.id, { isDeleted: true }, { new: true });
+      const deleted = await Menu.findByIdAndDelete(input.id);
 
       // Re-index remaining siblings
       if (deleted) {
@@ -420,7 +426,6 @@ export const cmsRouter = createRouter({
         const siblings = await Menu.find({
           _id: { $ne: deleted._id },
           location: deleted.location,
-          isDeleted: false,
           ...(targetParent && targetParent !== "None"
             ? { parent: targetParent }
             : { $or: [{ parent: null }, { parent: "" }, { parent: "None" }] }),
@@ -429,6 +434,14 @@ export const cmsRouter = createRouter({
         for (let i = 0; i < siblings.length; i++) {
           await Menu.findByIdAndUpdate(siblings[i]._id, { order: i + 1 });
         }
+
+        await createImmutableAuditLog({
+          action: "DELETE_MENU",
+          module: "Navigation",
+          performedBy: ctx.user?.username || "Admin",
+          documentId: input.id,
+          details: `Deleted menu link: ${deleted.title} (${deleted.url})`,
+        });
       }
 
       return deleted;
@@ -437,7 +450,7 @@ export const cmsRouter = createRouter({
   // --- 5. POPUP MANAGEMENT ---
   listPopups: publicQuery.query(async () => {
     const { Popup } = await getMainModels();
-    return Popup.find({ isDeleted: false }).sort({ createdAt: -1 });
+    return Popup.find({}).sort({ createdAt: -1 });
   }),
   createPopup: adminMutation
     .input(
@@ -452,9 +465,17 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().default(true),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Popup } = await getMainModels();
-      return Popup.create(input);
+      const created = await Popup.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_POPUP",
+        module: "Popups",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created modal banner: ${created.title}`,
+      });
+      return created;
     }),
   togglePopup: adminMutation
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
@@ -464,15 +485,23 @@ export const cmsRouter = createRouter({
     }),
   deletePopup: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Popup } = await getMainModels();
-      return Popup.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Popup.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_POPUP",
+        module: "Popups",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted modal banner: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 6. MARQUEE / FLASH ALERTS ---
   listMarquees: publicQuery.query(async () => {
     const { Marquee } = await getMainModels();
-    return Marquee.find({ isDeleted: false }).sort({ createdAt: -1 });
+    return Marquee.find({}).sort({ createdAt: -1 });
   }),
   createMarquee: adminMutation
     .input(
@@ -489,9 +518,17 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().default(true),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Marquee } = await getMainModels();
-      return Marquee.create(input);
+      const created = await Marquee.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_MARQUEE",
+        module: "Marquee",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created marquee alert: ${created.text} (Shape: ${created.shape}, Transparent: ${created.isTransparent})`,
+      });
+      return created;
     }),
   updateMarquee: adminMutation
     .input(
@@ -509,10 +546,18 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Marquee } = await getMainModels();
       const { id, ...data } = input;
-      return Marquee.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Marquee.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_MARQUEE",
+        module: "Marquee",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated marquee alert: ${updated?.text} (Shape: ${updated?.shape}, Transparent: ${updated?.isTransparent})`,
+      });
+      return updated;
     }),
   toggleMarquee: adminMutation
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
@@ -522,16 +567,24 @@ export const cmsRouter = createRouter({
     }),
   deleteMarquee: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Marquee } = await getMainModels();
-      return Marquee.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Marquee.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_MARQUEE",
+        module: "Marquee",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted marquee alert: ${deleted?.text || input.id}`,
+      });
+      return deleted;
     }),
 
 
   // --- 7. RECENT ACTIVITIES ---
   listActivities: publicQuery.query(async () => {
     const { Activity } = await getMainModels();
-    return Activity.find({ isDeleted: false }).sort({ eventDate: -1 });
+    return Activity.find({}).sort({ eventDate: -1 });
   }),
   createActivity: adminMutation
     .input(
@@ -544,42 +597,66 @@ export const cmsRouter = createRouter({
         isPublished: z.boolean().default(true),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Activity } = await getMainModels();
-      return Activity.create({
+      const created = await Activity.create({
         ...input,
         eventDate: input.eventDate ? new Date(input.eventDate) : new Date(),
       });
+      await createImmutableAuditLog({
+        action: "CREATE_ACTIVITY",
+        module: "Activities",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created activity/news: ${created.title}`,
+      });
+      return created;
     }),
   deleteActivity: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Activity } = await getMainModels();
-      return Activity.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Activity.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_ACTIVITY",
+        module: "Activities",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted activity/news: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
-  // --- 8. SLIDER MANAGEMENT ---
+  // --- 8. HERO SLIDERS ---
   listSliders: publicQuery.query(async () => {
     const { Slider } = await getMainModels();
-    return Slider.find({ isDeleted: false }).sort({ order: 1 });
+    return Slider.find({}).sort({ order: 1, createdAt: -1 });
   }),
   createSlider: adminMutation
     .input(
       z.object({
         title: z.string(),
         subtitle: z.string().optional(),
-        imageUrl: z.string().optional().default(""),
-        videoUrl: z.string().optional().default(""),
+        imageUrl: z.string(),
+        videoUrl: z.string().optional(),
         mediaType: z.enum(["image", "video"]).default("image"),
+        linkUrl: z.string().optional(),
         buttonText: z.string().optional(),
-        buttonLink: z.string().optional(),
         order: z.number().default(0),
         isActive: z.boolean().default(true),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Slider } = await getMainModels();
-      return Slider.create(input);
+      const created = await Slider.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_SLIDER",
+        module: "Sliders",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created hero slider: ${created.title}`,
+      });
+      return created;
     }),
   updateSlider: adminMutation
     .input(
@@ -590,28 +667,44 @@ export const cmsRouter = createRouter({
         imageUrl: z.string().optional(),
         videoUrl: z.string().optional(),
         mediaType: z.enum(["image", "video"]).optional(),
+        linkUrl: z.string().optional(),
         buttonText: z.string().optional(),
-        buttonLink: z.string().optional(),
         order: z.number().optional(),
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Slider } = await getMainModels();
       const { id, ...data } = input;
-      return Slider.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Slider.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_SLIDER",
+        module: "Sliders",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated hero slider: ${updated?.title}`,
+      });
+      return updated;
     }),
   deleteSlider: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Slider } = await getMainModels();
-      return Slider.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Slider.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_SLIDER",
+        module: "Sliders",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted hero slider: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 9. ATTACHMENTS & CIRCULARS ---
   listAttachments: publicQuery.query(async () => {
     const { Attachment } = await getMainModels();
-    return Attachment.find({ isDeleted: false }).sort({ createdAt: -1 });
+    return Attachment.find({}).sort({ createdAt: -1 });
   }),
   createAttachment: adminMutation
     .input(
@@ -624,15 +717,31 @@ export const cmsRouter = createRouter({
         fileSize: z.number().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Attachment } = await getMainModels();
-      return Attachment.create(input);
+      const created = await Attachment.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_ATTACHMENT",
+        module: "Circulars",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Uploaded circular: ${created.title} (${created.fileName})`,
+      });
+      return created;
     }),
   deleteAttachment: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Attachment } = await getMainModels();
-      return Attachment.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Attachment.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_ATTACHMENT",
+        module: "Circulars",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted circular: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 10. IMAGE GALLERY (dpsi_gallery DB) ---
@@ -681,15 +790,23 @@ export const cmsRouter = createRouter({
     }),
   deleteGalleryImage: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { GalleryImage } = await getGalleryModels();
-      return GalleryImage.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await GalleryImage.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_GALLERY_IMAGE",
+        module: "Gallery",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted photo: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 11. VIDEO GALLERY (dpsi_gallery DB) ---
   listVideos: publicQuery.query(async () => {
     const { VideoGallery } = await getGalleryModels();
-    return VideoGallery.find({ isDeleted: false }).sort({ createdAt: -1 });
+    return VideoGallery.find({}).sort({ createdAt: -1 });
   }),
   createVideo: adminMutation
     .input(
@@ -702,15 +819,31 @@ export const cmsRouter = createRouter({
         isPublished: z.boolean().default(true),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { VideoGallery } = await getGalleryModels();
-      return VideoGallery.create(input);
+      const created = await VideoGallery.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_VIDEO",
+        module: "Videos",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Added video showcase: ${created.title}`,
+      });
+      return created;
     }),
   deleteVideo: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { VideoGallery } = await getGalleryModels();
-      return VideoGallery.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await VideoGallery.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_VIDEO",
+        module: "Videos",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted video showcase: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 12. TRANSFER CERTIFICATES (dpsi_tc DB) ---
@@ -987,7 +1120,7 @@ export const cmsRouter = createRouter({
   // --- 26. LEADERSHIP & FACULTY ---
   listLeadership: publicQuery.query(async () => {
     const { Leadership } = await getMainModels();
-    return Leadership.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+    return Leadership.find({ isActive: true }).sort({ order: 1 });
   }),
   createLeadership: adminMutation
     .input(
@@ -1001,9 +1134,17 @@ export const cmsRouter = createRouter({
         category: z.string().default("Management"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Leadership } = await getMainModels();
-      return Leadership.create(input);
+      const created = await Leadership.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_LEADERSHIP",
+        module: "Faculty",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Added leadership/faculty profile: ${created.name} (${created.role})`,
+      });
+      return created;
     }),
   updateLeadership: adminMutation
     .input(
@@ -1019,22 +1160,38 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { Leadership } = await getMainModels();
-      return Leadership.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Leadership.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_LEADERSHIP",
+        module: "Faculty",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated leadership/faculty profile: ${updated?.name}`,
+      });
+      return updated;
     }),
   deleteLeadership: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Leadership } = await getMainModels();
-      return Leadership.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Leadership.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_LEADERSHIP",
+        module: "Faculty",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted leadership profile: ${deleted?.name || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 28. FACILITIES ---
   listFacilities: publicQuery.query(async () => {
     const { Facility } = await getMainModels();
-    return Facility.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+    return Facility.find({ isActive: true }).sort({ order: 1 });
   }),
   createFacility: adminMutation
     .input(
@@ -1050,9 +1207,17 @@ export const cmsRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Facility } = await getMainModels();
-      return Facility.create(input);
+      const created = await Facility.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_FACILITY",
+        module: "Facilities",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created facility: ${created.title}`,
+      });
+      return created;
     }),
   updateFacility: adminMutation
     .input(
@@ -1070,23 +1235,38 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { Facility } = await getMainModels();
-      return Facility.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Facility.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_FACILITY",
+        module: "Facilities",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated facility: ${updated?.title}`,
+      });
+      return updated;
     }),
   deleteFacility: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Facility } = await getMainModels();
-      return Facility.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Facility.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_FACILITY",
+        module: "Facilities",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted facility: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
-
 
   // --- 29. DEPARTMENTS & CURRICULUM ---
   listDepartments: publicQuery.query(async () => {
     const { Department } = await getMainModels();
-    return Department.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+    return Department.find({ isActive: true }).sort({ order: 1 });
   }),
   createDepartment: adminMutation
     .input(
@@ -1098,9 +1278,17 @@ export const cmsRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Department } = await getMainModels();
-      return Department.create(input);
+      const created = await Department.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_DEPARTMENT",
+        module: "Academics",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created academic department: ${created.name}`,
+      });
+      return created;
     }),
   updateDepartment: adminMutation
     .input(
@@ -1114,22 +1302,38 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { Department } = await getMainModels();
-      return Department.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Department.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_DEPARTMENT",
+        module: "Academics",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated academic department: ${updated?.name}`,
+      });
+      return updated;
     }),
   deleteDepartment: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Department } = await getMainModels();
-      return Department.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Department.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_DEPARTMENT",
+        module: "Academics",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted academic department: ${deleted?.name || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 30. ADMISSION STEPS ---
   listAdmissionSteps: publicQuery.query(async () => {
     const { AdmissionStep } = await getMainModels();
-    return AdmissionStep.find({ isDeleted: false, isActive: true }).sort({ stepNumber: 1 });
+    return AdmissionStep.find({ isActive: true }).sort({ stepNumber: 1 });
   }),
   createAdmissionStep: adminMutation
     .input(
@@ -1141,9 +1345,17 @@ export const cmsRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { AdmissionStep } = await getMainModels();
-      return AdmissionStep.create(input);
+      const created = await AdmissionStep.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_ADMISSION_STEP",
+        module: "Admissions",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created admission step #${created.stepNumber}: ${created.title}`,
+      });
+      return created;
     }),
   updateAdmissionStep: adminMutation
     .input(
@@ -1157,16 +1369,32 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { AdmissionStep } = await getMainModels();
-      return AdmissionStep.findByIdAndUpdate(id, data, { new: true });
+      const updated = await AdmissionStep.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_ADMISSION_STEP",
+        module: "Admissions",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated admission step #${updated?.stepNumber}: ${updated?.title}`,
+      });
+      return updated;
     }),
   deleteAdmissionStep: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { AdmissionStep } = await getMainModels();
-      return AdmissionStep.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await AdmissionStep.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_ADMISSION_STEP",
+        module: "Admissions",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted admission step #${deleted?.stepNumber || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 31. FAQS ---
@@ -1174,7 +1402,7 @@ export const cmsRouter = createRouter({
     .input(z.object({ category: z.string().optional() }).optional())
     .query(async ({ input }) => {
       const { Faq } = await getMainModels();
-      const filter: any = { isDeleted: false, isActive: true };
+      const filter: any = { isActive: true };
       if (input?.category) filter.category = input.category;
       return Faq.find(filter).sort({ order: 1 });
     }),
@@ -1187,9 +1415,17 @@ export const cmsRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Faq } = await getMainModels();
-      return Faq.create(input);
+      const created = await Faq.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_FAQ",
+        module: "FAQs",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created FAQ: ${created.question}`,
+      });
+      return created;
     }),
   updateFaq: adminMutation
     .input(
@@ -1202,22 +1438,38 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { Faq } = await getMainModels();
-      return Faq.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Faq.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_FAQ",
+        module: "FAQs",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated FAQ: ${updated?.question}`,
+      });
+      return updated;
     }),
   deleteFaq: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Faq } = await getMainModels();
-      return Faq.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Faq.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_FAQ",
+        module: "FAQs",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted FAQ: ${deleted?.question || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 32. TIMELINE & MILESTONES ---
   listTimeline: publicQuery.query(async () => {
     const { TimelineItem } = await getMainModels();
-    return TimelineItem.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+    return TimelineItem.find({ isActive: true }).sort({ order: 1 });
   }),
   createTimelineItem: adminMutation
     .input(
@@ -1228,9 +1480,17 @@ export const cmsRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { TimelineItem } = await getMainModels();
-      return TimelineItem.create(input);
+      const created = await TimelineItem.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_TIMELINE",
+        module: "About",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created history milestone [${created.year}]: ${created.title}`,
+      });
+      return created;
     }),
   updateTimelineItem: adminMutation
     .input(
@@ -1243,22 +1503,38 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { TimelineItem } = await getMainModels();
-      return TimelineItem.findByIdAndUpdate(id, data, { new: true });
+      const updated = await TimelineItem.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_TIMELINE",
+        module: "About",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated history milestone: ${updated?.title}`,
+      });
+      return updated;
     }),
   deleteTimelineItem: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { TimelineItem } = await getMainModels();
-      return TimelineItem.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await TimelineItem.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_TIMELINE",
+        module: "About",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted history milestone: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
   // --- 33. CORE VALUES ---
   listCoreValues: publicQuery.query(async () => {
     const { CoreValue } = await getMainModels();
-    return CoreValue.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+    return CoreValue.find({ isActive: true }).sort({ order: 1 });
   }),
   createCoreValue: adminMutation
     .input(
@@ -1269,9 +1545,17 @@ export const cmsRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { CoreValue } = await getMainModels();
-      return CoreValue.create(input);
+      const created = await CoreValue.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_CORE_VALUE",
+        module: "About",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created core value pillar: ${created.title}`,
+      });
+      return created;
     }),
   updateCoreValue: adminMutation
     .input(
@@ -1284,22 +1568,38 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { CoreValue } = await getMainModels();
-      return CoreValue.findByIdAndUpdate(id, data, { new: true });
+      const updated = await CoreValue.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_CORE_VALUE",
+        module: "About",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated core value pillar: ${updated?.title}`,
+      });
+      return updated;
     }),
   deleteCoreValue: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { CoreValue } = await getMainModels();
-      return CoreValue.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await CoreValue.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_CORE_VALUE",
+        module: "About",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted core value pillar: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
 
-  // --- 34. 3D FEATURE CARDS (Home2) ---
+  // --- 34. 3D FEATURE CARDS ---
   listFeatureCards: publicQuery.query(async () => {
     const { FeatureCard } = await getMainModels();
-    return FeatureCard.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+    return FeatureCard.find({ isActive: true }).sort({ order: 1 });
   }),
   createFeatureCard: adminMutation
     .input(
@@ -1311,9 +1611,17 @@ export const cmsRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { FeatureCard } = await getMainModels();
-      return FeatureCard.create(input);
+      const created = await FeatureCard.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_FEATURE_CARD",
+        module: "Features",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: created._id.toString(),
+        details: `Created feature card: ${created.title}`,
+      });
+      return created;
     }),
   updateFeatureCard: adminMutation
     .input(
@@ -1327,16 +1635,78 @@ export const cmsRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const { FeatureCard } = await getMainModels();
-      return FeatureCard.findByIdAndUpdate(id, data, { new: true });
+      const updated = await FeatureCard.findByIdAndUpdate(id, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_FEATURE_CARD",
+        module: "Features",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: id,
+        details: `Updated feature card: ${updated?.title}`,
+      });
+      return updated;
     }),
   deleteFeatureCard: adminMutation
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { FeatureCard } = await getMainModels();
-      return FeatureCard.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await FeatureCard.findByIdAndDelete(input.id);
+      await createImmutableAuditLog({
+        action: "DELETE_FEATURE_CARD",
+        module: "Features",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: input.id,
+        details: `Deleted feature card: ${deleted?.title || input.id}`,
+      });
+      return deleted;
     }),
+
+  // --- 35. IMMUTABLE AUDIT LOGS ---
+  listAuditLogs: adminQuery
+    .input(
+      z.object({
+        limit: z.number().min(1).max(200).default(100),
+        module: z.string().optional(),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      const { AuditLog } = await getMainModels();
+      const filter: any = {};
+      if (input?.module && input.module !== "All") {
+        filter.module = input.module;
+      }
+      return AuditLog.find(filter).sort({ sequenceNumber: -1 }).limit(input?.limit || 100);
+    }),
+
+  verifyAuditLedger: adminQuery.query(async () => {
+    const { AuditLog } = await getMainModels();
+    const logs = await AuditLog.find({}).sort({ sequenceNumber: 1 });
+    if (!logs || logs.length === 0) {
+      return { isTamperFree: true, totalLogs: 0, verifiedAt: new Date(), latestHash: "GENESIS" };
+    }
+
+    let expectedPrevHash = "GENESIS_BLOCK_00000000000000000000000000000000000000000000000000000000";
+    for (let i = 0; i < logs.length; i++) {
+      const log = logs[i];
+      if (log.previousHash !== expectedPrevHash) {
+        return {
+          isTamperFree: false,
+          compromisedSequence: log.sequenceNumber,
+          totalLogs: logs.length,
+          verifiedAt: new Date(),
+        };
+      }
+      expectedPrevHash = log.currentHash;
+    }
+
+    return {
+      isTamperFree: true,
+      totalLogs: logs.length,
+      verifiedAt: new Date(),
+      latestHash: logs[logs.length - 1]?.currentHash,
+    };
+  }),
 });
 

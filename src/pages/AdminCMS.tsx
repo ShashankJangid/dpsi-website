@@ -68,7 +68,6 @@ type TabType =
   | "testimonials"
   | "leadership"
   | "facilities"
-  | "feature_cards"
   | "departments"
   | "admission_steps"
   | "faqs"
@@ -77,7 +76,8 @@ type TabType =
   | "tc"
   | "mun"
   | "site_settings"
-  | "ai_settings";
+  | "ai_settings"
+  | "audit_logs";
 
 export default function AdminCMS() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
@@ -159,6 +159,12 @@ export default function AdminCMS() {
     enabled: isAuthenticated,
   });
   const { data: aiConfig, refetch: refetchAiConfig } = trpc.cms.getAiConfig.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: auditLogsList, refetch: refetchAuditLogs } = trpc.cms.listAuditLogs.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: auditVerification, refetch: refetchVerification } = trpc.cms.verifyAuditLedger.useQuery(undefined, {
     enabled: isAuthenticated,
   });
   const { data: achievementsList, refetch: refetchAchievements } = trpc.achievements.list.useQuery(undefined, {
@@ -1146,7 +1152,6 @@ export default function AdminCMS() {
     { id: "testimonials", label: "Testimonials", icon: <Heart className="w-4 h-4" />, count: testimonialsList?.length ?? 0 },
     { id: "leadership", label: "Leadership & Faculty", icon: <UserCheck className="w-4 h-4" />, count: leadershipList?.length ?? 0 },
     { id: "facilities", label: "Campus Facilities", icon: <Building className="w-4 h-4" />, count: facilitiesList?.length ?? 0 },
-    { id: "feature_cards", label: "3D Feature Cards", icon: <Cpu className="w-4 h-4" />, count: featureCardsList?.length ?? 0 },
     { id: "departments", label: "Departments", icon: <BookOpen className="w-4 h-4" />, count: departmentsList?.length ?? 0 },
     { id: "admission_steps", label: "Admission Steps", icon: <FileText className="w-4 h-4" />, count: admissionStepsList?.length ?? 0 },
     { id: "faqs", label: "Admissions FAQs", icon: <HelpCircle className="w-4 h-4" />, count: faqsList?.length ?? 0 },
@@ -1156,6 +1161,7 @@ export default function AdminCMS() {
     { id: "mun", label: "MUN Registration", icon: <Globe2 className="w-4 h-4" />, count: stats?.munRegistrations ?? 0 },
     { id: "site_settings", label: "Site Settings", icon: <Settings className="w-4 h-4" />, count: siteSettings?.length ?? null },
     { id: "ai_settings", label: "AI Configuration", icon: <Bot className="w-4 h-4" />, count: null },
+    { id: "audit_logs", label: "Immutable Audit Logs", icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />, count: auditLogsList?.length ?? null },
   ];
 
 
@@ -1867,9 +1873,12 @@ export default function AdminCMS() {
                           text: "",
                           linkUrl: "",
                           speed: 50,
-                          textColor: "#10b981",
+                          textColor: "#ffffff",
                           bgColor: "#047857",
                           badgeText: "Announcement",
+                          isTransparent: false,
+                          shape: "rectangle",
+                          borderRadius: "none",
                         });
                         setMarqueeModal(true);
                       }}
@@ -1893,13 +1902,24 @@ export default function AdminCMS() {
                           .map((m: any) => (
                             <span
                               key={m._id}
-                              className="inline-flex items-center gap-2 text-xs font-semibold px-2.5 py-1 rounded-md transition-all shrink-0"
+                              className={`inline-flex items-center gap-2 text-xs font-semibold px-2.5 py-1 transition-all shrink-0 ${
+                                m.borderRadius === "full" || m.shape === "pill"
+                                  ? "rounded-full"
+                                  : m.borderRadius === "xl"
+                                  ? "rounded-xl"
+                                  : m.borderRadius === "md"
+                                  ? "rounded-lg"
+                                  : "rounded-none"
+                              }`}
                               style={{
-                                backgroundColor: m.bgColor || "#047857",
-                                color: m.textColor || "#ffffff",
+                                backgroundColor: m.isTransparent ? "transparent" : m.bgColor || "#047857",
+                                color: m.textColor || (m.isTransparent ? "#0f172a" : "#ffffff"),
+                                border: m.isTransparent ? "1px solid rgba(255,255,255,0.25)" : "none",
                               }}
                             >
-                              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-black/25">
+                              <span className={`text-[10px] font-extrabold uppercase px-1.5 py-0.5 bg-black/25 ${
+                                m.borderRadius === "none" ? "rounded-none" : "rounded"
+                              }`}>
                                 {m.badgeText || "Notice"}
                               </span>
                               <span>{m.text}</span>
@@ -1916,12 +1936,20 @@ export default function AdminCMS() {
                           <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                             {/* Color Visual Badge Indicator */}
                             <div
-                              className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center shadow-xs border border-black/10"
+                              className={`w-8 h-8 shrink-0 flex items-center justify-center shadow-xs border border-black/10 ${
+                                m.borderRadius === "full" || m.shape === "pill"
+                                  ? "rounded-full"
+                                  : m.borderRadius === "xl"
+                                  ? "rounded-xl"
+                                  : m.borderRadius === "md"
+                                  ? "rounded-lg"
+                                  : "rounded-none"
+                              }`}
                               style={{
-                                backgroundColor: m.bgColor || "#047857",
-                                color: m.textColor || "#ffffff",
+                                backgroundColor: m.isTransparent ? "transparent" : m.bgColor || "#047857",
+                                color: m.textColor || (m.isTransparent ? "#0f172a" : "#ffffff"),
                               }}
-                              title={`Background: ${m.bgColor || "#047857"} | Text: ${m.textColor || "#ffffff"}`}
+                              title={`Background: ${m.isTransparent ? "Transparent" : m.bgColor || "#047857"} | Text: ${m.textColor || "#ffffff"}`}
                             >
                               <Megaphone className="w-4 h-4" />
                             </div>
@@ -1929,10 +1957,19 @@ export default function AdminCMS() {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span
-                                  className="text-[10px] font-bold uppercase px-2 py-0.5 rounded shadow-2xs"
+                                  className={`text-[10px] font-bold uppercase px-2 py-0.5 shadow-2xs ${
+                                    m.borderRadius === "full" || m.shape === "pill"
+                                      ? "rounded-full"
+                                      : m.borderRadius === "xl"
+                                      ? "rounded-xl"
+                                      : m.borderRadius === "md"
+                                      ? "rounded-lg"
+                                      : "rounded-none"
+                                  }`}
                                   style={{
-                                    backgroundColor: m.bgColor || "#047857",
-                                    color: m.textColor || "#ffffff",
+                                    backgroundColor: m.isTransparent ? "rgba(0,0,0,0.06)" : m.bgColor || "#047857",
+                                    color: m.textColor || (m.isTransparent ? "#0f172a" : "#ffffff"),
+                                    border: m.isTransparent ? "1px solid rgba(0,0,0,0.15)" : "none",
                                   }}
                                 >
                                   {m.badgeText || "Announcement"}
@@ -1945,6 +1982,12 @@ export default function AdminCMS() {
                                   }`}
                                 >
                                   {m.isActive !== false ? "Live Active" : "Disabled"}
+                                </span>
+                                <span className="px-2 py-0.5 text-[9px] rounded font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                  {m.isTransparent ? "Transparent Glass" : "Solid Color"}
+                                </span>
+                                <span className="px-2 py-0.5 text-[9px] rounded font-medium bg-slate-100 text-slate-700 border border-slate-200 uppercase">
+                                  Shape: {m.borderRadius === "full" ? "Pill" : m.borderRadius === "xl" ? "Large Curve" : m.borderRadius === "md" ? "Soft Curve" : "Rectangle"}
                                 </span>
                                 {m.linkUrl && (
                                   <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1 truncate">
@@ -3178,6 +3221,206 @@ export default function AdminCMS() {
                     </Button>
                   </div>
 
+                  {/* LOGO & BRANDING CUSTOMIZATION PANEL */}
+                  <div className="bg-white border-2 border-emerald-500/30 rounded-xl overflow-hidden shadow-md">
+                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-3 border-b border-emerald-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                          <ImageIcon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wide">Logo & Header Branding Customizer</h3>
+                          <p className="text-[10px] text-slate-500">Live adjustments for Navbar & Footer logos across all devices</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        Live Sync
+                      </span>
+                    </div>
+
+                    <div className="p-5 space-y-5">
+                      {/* Live Logo Preview Box */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold text-slate-600">Logo Live Preview</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {/* Light Header Preview */}
+                          <div className="p-4 rounded-xl border border-slate-200 bg-white/95 flex items-center justify-between shadow-xs">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={settingsEdits["logo_url"] || (siteSettings || []).find((s: any) => s.key === "logo_url")?.value || "/images/dps/logo.webp"}
+                                alt="Logo Preview"
+                                style={{ height: `${Math.min(Math.max(parseInt(settingsEdits["logo_height"] || (siteSettings || []).find((s: any) => s.key === "logo_height")?.value || "52", 10), 32), 75)}px` }}
+                                className={`w-auto object-contain transition-all ${
+                                  (settingsEdits["logo_shape"] || (siteSettings || []).find((s: any) => s.key === "logo_shape")?.value || "default") === "circle"
+                                    ? "rounded-full border border-slate-200"
+                                    : (settingsEdits["logo_shape"] || (siteSettings || []).find((s: any) => s.key === "logo_shape")?.value || "default") === "rounded"
+                                    ? "rounded-xl border border-slate-200"
+                                    : (settingsEdits["logo_shape"] || (siteSettings || []).find((s: any) => s.key === "logo_shape")?.value || "default") === "rectangle"
+                                    ? "rounded-none border border-slate-200"
+                                    : ""
+                                }`}
+                              />
+                              {((settingsEdits["logo_show_text"] || (siteSettings || []).find((s: any) => s.key === "logo_show_text")?.value || "false") === "true") && (
+                                <div>
+                                  <p className="text-xs font-extrabold text-slate-900 leading-tight">
+                                    {settingsEdits["school_name"] || (siteSettings || []).find((s: any) => s.key === "school_name")?.value || "Delhi Public School Indirapuram"}
+                                  </p>
+                                  <p className="text-[10px] font-semibold text-emerald-700">
+                                    {settingsEdits["school_tagline"] || (siteSettings || []).find((s: any) => s.key === "school_tagline")?.value || "Excellence in Education"}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Light Header</span>
+                          </div>
+
+                          {/* Dark Header Preview */}
+                          <div className="p-4 rounded-xl border border-slate-800 bg-slate-900 flex items-center justify-between shadow-xs">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={settingsEdits["logo_url"] || (siteSettings || []).find((s: any) => s.key === "logo_url")?.value || "/images/dps/logo.webp"}
+                                alt="Logo Preview Dark"
+                                style={{ height: `${Math.min(Math.max(parseInt(settingsEdits["logo_height"] || (siteSettings || []).find((s: any) => s.key === "logo_height")?.value || "52", 10), 32), 75)}px` }}
+                                className={`w-auto object-contain transition-all ${
+                                  (settingsEdits["logo_shape"] || (siteSettings || []).find((s: any) => s.key === "logo_shape")?.value || "default") === "circle"
+                                    ? "rounded-full border border-slate-700"
+                                    : (settingsEdits["logo_shape"] || (siteSettings || []).find((s: any) => s.key === "logo_shape")?.value || "default") === "rounded"
+                                    ? "rounded-xl border border-slate-700"
+                                    : (settingsEdits["logo_shape"] || (siteSettings || []).find((s: any) => s.key === "logo_shape")?.value || "default") === "rectangle"
+                                    ? "rounded-none border border-slate-700"
+                                    : ""
+                                }`}
+                              />
+                              {((settingsEdits["logo_show_text"] || (siteSettings || []).find((s: any) => s.key === "logo_show_text")?.value || "false") === "true") && (
+                                <div>
+                                  <p className="text-xs font-extrabold text-white leading-tight">
+                                    {settingsEdits["school_name"] || (siteSettings || []).find((s: any) => s.key === "school_name")?.value || "Delhi Public School Indirapuram"}
+                                  </p>
+                                  <p className="text-[10px] font-semibold text-emerald-400">
+                                    {settingsEdits["school_tagline"] || (siteSettings || []).find((s: any) => s.key === "school_tagline")?.value || "Excellence in Education"}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Dark Header</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Logo URL and Upload */}
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-slate-600">Logo Image File / URL</label>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="/images/dps/logo.webp or https://res.cloudinary.com/..."
+                            value={settingsEdits["logo_url"] !== undefined ? settingsEdits["logo_url"] : ((siteSettings || []).find((s: any) => s.key === "logo_url")?.value || "/images/dps/logo.webp")}
+                            onChange={(e) => setSettingsEdits({ ...settingsEdits, logo_url: e.target.value })}
+                            className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono"
+                          />
+                          <label className="cursor-pointer bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shrink-0 shadow-xs transition-colors">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>Upload Logo</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  handleMediaUpload(file, (url) => {
+                                    setSettingsEdits({ ...settingsEdits, logo_url: url });
+                                    toast.success("Logo uploaded and updated!");
+                                  });
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Dimensions and Adjustments */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                        {/* Logo Height Adjustment */}
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-semibold text-slate-600">Logo Height</label>
+                            <span className="text-[11px] font-mono font-bold text-emerald-700">
+                              {settingsEdits["logo_height"] || (siteSettings || []).find((s: any) => s.key === "logo_height")?.value || "52"}px
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min={32}
+                            max={75}
+                            value={parseInt(settingsEdits["logo_height"] || (siteSettings || []).find((s: any) => s.key === "logo_height")?.value || "52", 10)}
+                            onChange={(e) => setSettingsEdits({ ...settingsEdits, logo_height: e.target.value })}
+                            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
+                          />
+                          <div className="flex justify-between text-[9px] text-slate-400 font-mono">
+                            <span>32px (Compact)</span>
+                            <span>52px (Default)</span>
+                            <span>75px (Large)</span>
+                          </div>
+                        </div>
+
+                        {/* Logo Corner Shape */}
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-slate-600 block">Shape & Frame Curve</label>
+                          <div className="grid grid-cols-4 gap-1.5">
+                            {[
+                              { id: "default", label: "Clean" },
+                              { id: "rectangle", label: "Square" },
+                              { id: "rounded", label: "Curve" },
+                              { id: "circle", label: "Circle" },
+                            ].map((shape) => (
+                              <button
+                                key={shape.id}
+                                type="button"
+                                onClick={() => setSettingsEdits({ ...settingsEdits, logo_shape: shape.id })}
+                                className={`py-1.5 px-1 text-center rounded-lg text-[10px] border transition-all cursor-pointer ${
+                                  (settingsEdits["logo_shape"] || (siteSettings || []).find((s: any) => s.key === "logo_shape")?.value || "default") === shape.id
+                                    ? "bg-emerald-50 text-emerald-800 border-emerald-400 font-bold ring-1 ring-emerald-400"
+                                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                                }`}
+                              >
+                                {shape.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Brand Text Beside Logo */}
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-slate-600 block">School Name Beside Logo</label>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setSettingsEdits({ ...settingsEdits, logo_show_text: "false" })}
+                              className={`py-1.5 px-2 text-center rounded-lg text-[10px] border transition-all cursor-pointer ${
+                                (settingsEdits["logo_show_text"] || (siteSettings || []).find((s: any) => s.key === "logo_show_text")?.value || "false") === "false"
+                                  ? "bg-emerald-50 text-emerald-800 border-emerald-400 font-bold ring-1 ring-emerald-400"
+                                  : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                              }`}
+                            >
+                              Logo Only
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setSettingsEdits({ ...settingsEdits, logo_show_text: "true" })}
+                              className={`py-1.5 px-2 text-center rounded-lg text-[10px] border transition-all cursor-pointer ${
+                                (settingsEdits["logo_show_text"] || (siteSettings || []).find((s: any) => s.key === "logo_show_text")?.value || "false") === "true"
+                                  ? "bg-emerald-50 text-emerald-800 border-emerald-400 font-bold ring-1 ring-emerald-400"
+                                  : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                              }`}
+                            >
+                              Logo + Text
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {["general", "contact", "social", "principal", "cta", "admissions"].map((group) => (
                     <div key={group} className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                       <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-200">
@@ -3319,6 +3562,168 @@ export default function AdminCMS() {
                         <Bot className="w-3.5 h-3.5 mr-1.5" />
                         {updateAiConfigMutation.isPending ? "Saving..." : "Save AI Configuration"}
                       </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* IMMUTABLE AUDIT LOGS LEDGER */}
+              {activeTab === "audit_logs" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-sm">
+                          <ShieldCheck className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-slate-900">Immutable Audit Logs Ledger</h2>
+                          <p className="text-xs text-slate-500">Cryptographically Hash-Chained (SHA-256) Immutable Audit Trail</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => {
+                          refetchAuditLogs();
+                          refetchVerification();
+                          toast.success("Cryptographic ledger re-verified against SHA-256 chain!");
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 mr-1" /> Re-Verify Chain
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Verification Status Banner */}
+                  <div className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs ${
+                    auditVerification?.isTamperFree !== false
+                      ? "bg-emerald-50/70 border-emerald-200 text-emerald-950"
+                      : "bg-red-50 border-red-200 text-red-950"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                        auditVerification?.isTamperFree !== false
+                          ? "bg-emerald-600 text-white"
+                          : "bg-red-600 text-white"
+                      }`}>
+                        <ShieldCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold">
+                            {auditVerification?.isTamperFree !== false
+                              ? "Ledger Integrity 100% Cryptographically Verified"
+                              : "⚠️ Ledger Integrity Compromise Detected!"}
+                          </h3>
+                          <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-full bg-emerald-200/80 text-emerald-900 border border-emerald-300">
+                            SHA-256 Chained
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          {auditVerification?.isTamperFree !== false
+                            ? `All ${auditLogsList?.length || 0} audit records form an unbroken, mathematical block sequence in MongoDB. Logs are strictly append-only and cannot be altered or deleted.`
+                            : `Compromised sequence block #${auditVerification?.compromisedSequence}. Check database records immediately.`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Total Recorded Logs</p>
+                      <p className="text-xl font-black text-emerald-800">{auditLogsList?.length || 0}</p>
+                    </div>
+                  </div>
+
+                  {/* Audit Logs Table */}
+                  <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50/50">
+                      <div className="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+                        <span>Event Audit Trail</span>
+                        <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-mono">
+                          {auditLogsList?.length || 0} Records
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="bg-slate-100/75 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
+                            <th className="px-4 py-3">Seq #</th>
+                            <th className="px-4 py-3">Timestamp</th>
+                            <th className="px-4 py-3">Operator</th>
+                            <th className="px-4 py-3">Module</th>
+                            <th className="px-4 py-3">Action</th>
+                            <th className="px-4 py-3">Details</th>
+                            <th className="px-4 py-3 font-mono">Cryptographic Hash</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {(!auditLogsList || auditLogsList.length === 0) ? (
+                            <tr>
+                              <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+                                No audit events logged yet. Every admin action (create, update, hard delete) will be recorded here automatically.
+                              </td>
+                            </tr>
+                          ) : (
+                            auditLogsList.map((log: any) => (
+                              <tr key={log._id || log.sequenceNumber} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="px-4 py-3 font-mono font-bold text-slate-900">
+                                  #{log.sequenceNumber}
+                                </td>
+                                <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                                  {new Date(log.timestamp).toLocaleString("en-IN", {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                  })}
+                                </td>
+                                <td className="px-4 py-3 font-semibold text-slate-800 whitespace-nowrap">
+                                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-[11px]">
+                                    <User className="w-3 h-3 text-slate-500" />
+                                    {log.performedBy}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    {log.module}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 font-mono text-[11px] font-bold whitespace-nowrap">
+                                  <span className={`px-2 py-0.5 rounded-md border ${
+                                    log.action.includes("DELETE")
+                                      ? "bg-red-50 text-red-700 border-red-200"
+                                      : log.action.includes("CREATE")
+                                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                      : "bg-blue-50 text-blue-700 border-blue-200"
+                                  }`}>
+                                    {log.action}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-slate-700 max-w-xs truncate" title={log.details}>
+                                  {log.details}
+                                </td>
+                                <td className="px-4 py-3 font-mono text-[10px] text-slate-500 max-w-[140px] truncate" title={log.currentHash}>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(log.currentHash);
+                                      toast.success("SHA-256 hash copied to clipboard!");
+                                    }}
+                                    className="hover:text-emerald-700 flex items-center gap-1 text-slate-600 transition-colors"
+                                  >
+                                    <Copy className="w-3 h-3 shrink-0" />
+                                    <span>{log.currentHash ? `${log.currentHash.substring(0, 10)}...` : "N/A"}</span>
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </motion.div>

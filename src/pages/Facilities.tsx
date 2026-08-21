@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { FlaskConical, BookOpen, Dumbbell, Microscope, Music, Palette, Wifi, Bus, Shield, HeartPulse, Building } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import Facilities3D from "@/components/3d/Facilities3D";
 import { trpc } from "@/providers/trpc";
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -57,28 +56,6 @@ export default function Facilities() {
               Our infrastructure is designed to inspire learning, foster creativity, and ensure the holistic development of every student.
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* 3D INTERACTIVE FACILITIES PREVIEW */}
-      <section className="py-20 bg-white dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800/60 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="text-center mb-10"
-          >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Interactive Facilities Preview
-            </h2>
-            <div className="w-16 h-1 bg-gradient-to-r from-emerald-500 to-emerald-600 mx-auto mt-3 rounded-full" />
-            <p className="text-slate-600 dark:text-slate-400 mt-3 text-sm sm:text-base font-medium">
-              Click on the cards to explore our key facilities in 3D
-            </p>
-          </motion.div>
-          <Facilities3D />
         </div>
       </section>
 

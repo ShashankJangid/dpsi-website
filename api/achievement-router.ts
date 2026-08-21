@@ -103,7 +103,7 @@ export const achievementRouter = createRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Achievement } = await getMainModels();
-      await Achievement.findByIdAndUpdate(input.id, { isDeleted: true });
+      await Achievement.findByIdAndDelete(input.id);
       return { success: true };
     }),
 });

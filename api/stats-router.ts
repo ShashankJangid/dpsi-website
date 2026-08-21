@@ -88,7 +88,7 @@ export const statsRouter = createRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { QuickStat } = await getMainModels();
-      await QuickStat.findByIdAndUpdate(input.id, { isDeleted: true });
+      await QuickStat.findByIdAndDelete(input.id);
       return { success: true };
     }),
 });

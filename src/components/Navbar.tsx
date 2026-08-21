@@ -13,7 +13,6 @@ import {
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Home - 2", href: "/home-2" },
   {
     label: "About",
     href: "/about",
@@ -50,6 +49,19 @@ export default function Navbar() {
   const { data: dbMenus } = trpc.cms.listMenus.useQuery({ location: "header" }, {
     staleTime: 60000,
   });
+  const { data: siteSettings } = trpc.cms.getSiteSettings.useQuery();
+
+  const getSetting = (key: string, fallback: string) => {
+    const item = siteSettings?.find((s: any) => s.key === key);
+    return item?.value?.trim() || fallback;
+  };
+
+  const logoUrl = getSetting("logo_url", "/images/dps/logo.webp");
+  const logoHeight = parseInt(getSetting("logo_height", "52"), 10) || 52;
+  const logoShape = getSetting("logo_shape", "default");
+  const logoShowText = getSetting("logo_show_text", "false") === "true";
+  const schoolName = getSetting("school_name", "Delhi Public School Indirapuram");
+  const schoolTagline = getSetting("school_tagline", "Excellence in Education");
 
   // Construct dynamic hierarchical nav links from MongoDB
   const dynamicNavLinks = (() => {
@@ -216,17 +228,35 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <Link to="/" className="flex items-center group">
+            <Link to="/" className="flex items-center gap-3 group">
               <motion.img
                 whileHover={{ scale: 1.04 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                src="/images/dps/logo.webp"
-                alt="DPS Indirapuram Logo"
-                className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300"
+                src={logoUrl}
+                alt={schoolName}
+                style={{ height: `${Math.min(Math.max(logoHeight, 32), 75)}px` }}
+                className={`w-auto object-contain transition-transform duration-300 ${
+                  logoShape === "circle"
+                    ? "rounded-full"
+                    : logoShape === "rounded"
+                    ? "rounded-xl"
+                    : logoShape === "rectangle"
+                    ? "rounded-none"
+                    : ""
+                }`}
                 loading="eager"
                 decoding="async"
               />
-
+              {logoShowText && (
+                <div className="hidden md:flex flex-col">
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
+                    {schoolName}
+                  </span>
+                  <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                    {schoolTagline}
+                  </span>
+                </div>
+              )}
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1 xl:gap-2" onMouseLeave={() => setHoveredLink(null)}>
