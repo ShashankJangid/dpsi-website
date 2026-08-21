@@ -1001,13 +1001,13 @@ export const cmsRouter = createRouter({
     .input(
       z.object({
         id: z.string(),
-        name: z.string().min(2),
-        role: z.string().min(2),
+        name: z.string().min(2).optional(),
+        role: z.string().min(2).optional(),
         designation: z.string().optional(),
         bio: z.string().optional(),
         imageUrl: z.string().optional(),
-        order: z.number().default(0),
-        category: z.string().default("Management"),
+        order: z.number().optional(),
+        category: z.string().optional(),
         isActive: z.boolean().optional(),
       })
     )

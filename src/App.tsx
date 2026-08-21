@@ -17,12 +17,23 @@ const Admin = lazy(() => import('./pages/AdminCMS'))
 const Login = lazy(() => import('./pages/Login'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
-// Smooth scroll to top on route change
+// Smooth scroll to top or hash anchor on route change
 function ScrollToTop() {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-  }, [pathname])
+    if (hash) {
+      const timer = setTimeout(() => {
+        const id = hash.replace(/^#/, '')
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 150)
+      return () => clearTimeout(timer)
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }
+  }, [pathname, hash])
   return null
 }
 

@@ -704,6 +704,7 @@ export default function AdminCMS() {
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
 
   const [leadershipModal, setLeadershipModal] = useState(false);
+  const [editingLeadershipId, setEditingLeadershipId] = useState<string | null>(null);
   const [leadershipForm, setLeadershipForm] = useState({
     name: "",
     role: "",
@@ -4499,8 +4500,8 @@ export default function AdminCMS() {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-slate-900">{editingLeadershipId ? "Edit Leader" : "Add Leader"}</h3>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setLeadershipModal(false)}><X className="w-4 h-4" /></Button>
+                <h3 className="text-base font-bold text-slate-900">{editingLeadershipId ? "Edit Leader Profile" : "Add Leader Profile"}</h3>
+                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setLeadershipModal(false); setEditingLeadershipId(null); }}><X className="w-4 h-4" /></Button>
               </div>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
@@ -4511,6 +4512,33 @@ export default function AdminCMS() {
                   <div>
                     <label className="text-xs font-semibold text-slate-700">Role / Title *</label>
                     <Input value={leadershipForm.role} onChange={(e) => setLeadershipForm({ ...leadershipForm, role: e.target.value })} placeholder="Principal, DPS Indirapuram" className="text-xs" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Category</label>
+                    <select
+                      value={leadershipForm.category}
+                      onChange={(e) => setLeadershipForm({ ...leadershipForm, category: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg p-2 text-xs"
+                    >
+                      <option value="Management">Management / Managing Committee</option>
+                      <option value="Principal">Principal</option>
+                      <option value="Vice Principal">Vice Principal</option>
+                      <option value="Headmistress">Headmistress</option>
+                      <option value="Faculty">Faculty & Academic Staff</option>
+                      <option value="Administration">Administration</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Display Order</label>
+                    <Input
+                      type="number"
+                      value={leadershipForm.order}
+                      onChange={(e) => setLeadershipForm({ ...leadershipForm, order: parseInt(e.target.value) || 0 })}
+                      placeholder="1"
+                      className="text-xs"
+                    />
                   </div>
                 </div>
                 <div>
@@ -4539,10 +4567,15 @@ export default function AdminCMS() {
                       />
                     </label>
                   </div>
+                  {leadershipForm.imageUrl && (
+                    <div className="mt-2 rounded-lg overflow-hidden border border-slate-200 h-24 w-24 bg-slate-50 flex items-center justify-center">
+                      <img src={leadershipForm.imageUrl} alt="Preview" className="h-full w-full object-cover object-top" />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" onClick={() => setLeadershipModal(false)}>Cancel</Button>
+                <Button variant="outline" size="sm" onClick={() => { setLeadershipModal(false); setEditingLeadershipId(null); }}>Cancel</Button>
                 <Button
                   size="sm"
                   className="bg-emerald-700 hover:bg-emerald-800 text-white"
