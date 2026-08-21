@@ -1,6 +1,6 @@
 import { createRouter, publicQuery } from "./middleware";
 import { z } from "zod";
-import { getMainModels } from "./models/cmsSchemas";
+import { getMainModels, checkPersistentRateLimit } from "./models/cmsSchemas";
 
 interface GroqApiResponse {
   choices?: {
@@ -117,7 +117,8 @@ export const aiRouter = createRouter({
       // Extract client identifier (IP or fallback)
       const clientIp = ctx?.req?.headers?.get("x-forwarded-for") || ctx?.req?.headers?.get("cf-connecting-ip") || "global-client";
       
-      if (!checkRateLimit(clientIp, 40, 60000)) {
+      const isAllowed = checkRateLimit(clientIp, 40, 60000) && (await checkPersistentRateLimit(`chat:${clientIp}`, 40, 60));
+      if (!isAllowed) {
         return {
           answer: "You are sending messages too quickly. Please wait a moment before asking another question.",
         };
@@ -170,6 +171,7 @@ export const aiRouter = createRouter({
               max_tokens: 500,
               stream: false,
             }),
+            signal: AbortSignal.timeout(10000), // 10s maximum timeout per model attempt
           });
 
           if (!response.ok) {
@@ -231,13 +233,16 @@ export const aiRouter = createRouter({
   synthesizeSpeech: publicQuery
     .input(
       z.object({
-        text: z.string().min(1, "Text cannot be empty").max(1200, "Text too long"),
+        text: z.string().min(1, "Text cannot be empty").max(350, "Text exceeds maximum 350 character limit for voice synthesis"),
         voiceId: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const clientIp = ctx?.req?.headers?.get("x-forwarded-for") || ctx?.req?.headers?.get("cf-connecting-ip") || "global-client";
-      if (!checkRateLimit(clientIp, 40, 60000)) {
+      
+      // Stricter rate limit for metered TTS voice synthesis (Max 10 requests per minute per IP)
+      const isTtsAllowed = checkRateLimit(`tts:${clientIp}`, 10, 60000) && (await checkPersistentRateLimit(`tts:${clientIp}`, 10, 60));
+      if (!isTtsAllowed) {
         return { audioBase64: null };
       }
 
@@ -257,7 +262,7 @@ export const aiRouter = createRouter({
             "xi-api-key": apiKey,
           },
           body: JSON.stringify({
-            text: input.text,
+            text: input.text.slice(0, 350),
             model_id: "eleven_multilingual_v2",
             voice_settings: {
               stability: 0.55,
@@ -266,6 +271,7 @@ export const aiRouter = createRouter({
               use_speaker_boost: true,
             },
           }),
+          signal: AbortSignal.timeout(8000), // 8s maximum timeout for TTS
         });
 
         if (response.ok) {

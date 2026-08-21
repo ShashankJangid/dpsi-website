@@ -22,17 +22,17 @@ export async function createContext(
 
   // Extract JWT from Authorization header
   const authHeader = opts.req.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
+  if (authHeader?.startsWith("Bearer ") && JWT_SECRET) {
     const token = authHeader.slice(7);
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
+      const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ["HS256"] }) as AuthUser;
       user = {
         id: decoded.id,
         username: decoded.username,
         role: decoded.role,
       };
     } catch {
-      // Invalid/expired token — user remains null
+      // Invalid/expired token / wrong algorithm — user remains null
     }
   }
 

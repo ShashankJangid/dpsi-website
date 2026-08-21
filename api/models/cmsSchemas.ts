@@ -628,6 +628,21 @@ const CoreValueSchema = new Schema<ICoreValue>(
   { timestamps: true }
 );
 
+export interface IRateLimit extends Document {
+  key: string;
+  count: number;
+  expiresAt: Date;
+}
+
+const RateLimitSchema = new Schema<IRateLimit>(
+  {
+    key: { type: String, required: true, unique: true, index: true },
+    count: { type: Number, default: 1 },
+    expiresAt: { type: Date, required: true, index: { expires: 0 } },
+  },
+  { timestamps: true }
+);
+
 // --- MODEL GETTERS TIED TO SPECIFIC INTERNAL DATABASES ---
 
 export async function getMainModels() {
@@ -654,7 +669,39 @@ export async function getMainModels() {
     TimelineItem: conn.models.TimelineItem || conn.model<ITimelineItem>("TimelineItem", TimelineItemSchema),
     CoreValue: conn.models.CoreValue || conn.model<ICoreValue>("CoreValue", CoreValueSchema),
     FeatureCard: conn.models.FeatureCard || conn.model<IFeatureCard>("FeatureCard", FeatureCardSchema),
+    RateLimit: conn.models.RateLimit || conn.model<IRateLimit>("RateLimit", RateLimitSchema),
   };
+}
+
+/**
+ * Atomic persistent rate-limiting across distributed serverless function invocations using MongoDB TTL.
+ */
+export async function checkPersistentRateLimit(
+  key: string,
+  limit: number = 40,
+  windowSeconds: number = 60
+): Promise<boolean> {
+  try {
+    const { RateLimit } = await getMainModels();
+    const expiresAt = new Date(Date.now() + windowSeconds * 1000);
+
+    const doc = await RateLimit.findOneAndUpdate(
+      { key },
+      {
+        $inc: { count: 1 },
+        $setOnInsert: { expiresAt },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    if (doc && doc.count > limit) {
+      return false;
+    }
+    return true;
+  } catch {
+    // Graceful fallback to allow request if database is unreachable
+    return true;
+  }
 }
 
 
