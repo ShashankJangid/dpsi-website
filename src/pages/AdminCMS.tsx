@@ -3056,28 +3056,35 @@ export default function AdminCMS() {
                             .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
 
                           const result: any[] = [];
-                          const parentTitlesSet = new Set(parents.map((p: any) => (p.title || "").trim().toLowerCase()));
+                          const addedIds = new Set<string>();
 
                           for (const parent of parents) {
-                            result.push(parent);
+                            if (!addedIds.has(parent._id)) {
+                              result.push(parent);
+                              addedIds.add(parent._id);
+                            }
+
                             const pTitle = (parent.title || "").trim().toLowerCase();
                             const pId = parent._id ? parent._id.toString() : "";
                             const children = filtered
                               .filter((c: any) => {
                                 if (!c.parent || c.parent.trim() === "" || c.parent === "None") return false;
+                                if (c.location !== parent.location) return false;
                                 const cParent = c.parent.trim().toLowerCase();
                                 return cParent === pTitle || cParent === pId;
                               })
                               .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
 
-                            result.push(...children);
+                            for (const child of children) {
+                              if (!addedIds.has(child._id)) {
+                                result.push(child);
+                                addedIds.add(child._id);
+                              }
+                            }
                           }
 
                           const orphans = filtered
-                            .filter((m: any) => {
-                              if (!m.parent || m.parent.trim() === "" || m.parent === "None") return false;
-                              return !parentTitlesSet.has(m.parent.trim().toLowerCase());
-                            })
+                            .filter((m: any) => !addedIds.has(m._id))
                             .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
 
                           result.push(...orphans);

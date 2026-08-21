@@ -348,7 +348,27 @@ export const cmsRouter = createRouter({
     )
     .mutation(async ({ input }) => {
       const { Menu } = await getMainModels();
-      return Menu.create(input);
+      const created = await Menu.create(input);
+
+      // Re-index siblings cleanly
+      const targetParent = (created.parent || "").trim();
+      const siblings = await Menu.find({
+        _id: { $ne: created._id },
+        location: created.location,
+        isDeleted: false,
+        ...(targetParent && targetParent !== "None"
+          ? { parent: targetParent }
+          : { $or: [{ parent: null }, { parent: "" }, { parent: "None" }] }),
+      }).sort({ order: 1, updatedAt: -1 });
+
+      const targetIndex = Math.max(0, Math.min((input.order || 1) - 1, siblings.length));
+      siblings.splice(targetIndex, 0, created);
+
+      for (let i = 0; i < siblings.length; i++) {
+        await Menu.findByIdAndUpdate(siblings[i]._id, { order: i + 1 });
+      }
+
+      return created;
     }),
   updateMenu: adminMutation
     .input(
@@ -365,13 +385,53 @@ export const cmsRouter = createRouter({
     .mutation(async ({ input }) => {
       const { Menu } = await getMainModels();
       const { id, ...data } = input;
-      return Menu.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Menu.findByIdAndUpdate(id, data, { new: true });
+
+      if (updated && data.order !== undefined) {
+        const targetParent = (updated.parent || "").trim();
+        const siblings = await Menu.find({
+          _id: { $ne: updated._id },
+          location: updated.location,
+          isDeleted: false,
+          ...(targetParent && targetParent !== "None"
+            ? { parent: targetParent }
+            : { $or: [{ parent: null }, { parent: "" }, { parent: "None" }] }),
+        }).sort({ order: 1, updatedAt: -1 });
+
+        const targetIndex = Math.max(0, Math.min((data.order || 1) - 1, siblings.length));
+        siblings.splice(targetIndex, 0, updated);
+
+        for (let i = 0; i < siblings.length; i++) {
+          await Menu.findByIdAndUpdate(siblings[i]._id, { order: i + 1 });
+        }
+      }
+
+      return updated;
     }),
   deleteMenu: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Menu } = await getMainModels();
-      return Menu.findByIdAndUpdate(input.id, { isDeleted: true });
+      const deleted = await Menu.findByIdAndUpdate(input.id, { isDeleted: true }, { new: true });
+
+      // Re-index remaining siblings
+      if (deleted) {
+        const targetParent = (deleted.parent || "").trim();
+        const siblings = await Menu.find({
+          _id: { $ne: deleted._id },
+          location: deleted.location,
+          isDeleted: false,
+          ...(targetParent && targetParent !== "None"
+            ? { parent: targetParent }
+            : { $or: [{ parent: null }, { parent: "" }, { parent: "None" }] }),
+        }).sort({ order: 1, updatedAt: -1 });
+
+        for (let i = 0; i < siblings.length; i++) {
+          await Menu.findByIdAndUpdate(siblings[i]._id, { order: i + 1 });
+        }
+      }
+
+      return deleted;
     }),
 
   // --- 5. POPUP MANAGEMENT ---
