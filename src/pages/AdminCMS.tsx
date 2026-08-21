@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -18,8 +18,6 @@ import {
   Edit,
   Upload,
   CheckCircle,
-  XCircle,
-  Eye,
   Search,
   ExternalLink,
   ShieldCheck,
@@ -36,11 +34,8 @@ import {
   Download,
   ToggleLeft,
   ToggleRight,
-  ChevronUp,
-  ChevronDown,
   Copy,
   X,
-  Bell,
   Trophy,
   Heart,
   UserCheck,
@@ -53,12 +48,11 @@ import {
 
 import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from "@/components/RichTextEditor";
 import { toast } from "sonner";
-import Layout from "@/components/Layout";
 
 type TabType =
   | "dashboard"
@@ -122,8 +116,6 @@ export default function AdminCMS() {
     buttonText: "Learn More",
   });
 
-  const utils = trpc.useUtils();
-
   // Queries
   const { data: stats, refetch: refetchStats } = trpc.cms.dashboardStats.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -159,7 +151,7 @@ export default function AdminCMS() {
   const { data: tcList, refetch: refetchTc } = trpc.cms.listTc.useQuery({ search: tcSearch }, {
     enabled: isAuthenticated,
   });
-  const { data: munList, refetch: refetchMun } = trpc.cms.listMunRegistrations.useQuery(undefined, {
+  const { data: munList } = trpc.cms.listMunRegistrations.useQuery(undefined, {
     enabled: isAuthenticated,
   });
   const { data: siteSettings, refetch: refetchSiteSettings } = trpc.cms.getSiteSettings.useQuery(undefined, {
@@ -206,9 +198,10 @@ export default function AdminCMS() {
         password: adminPassword,
       });
 
-      if (res.success) {
+      if (res.success && res.token) {
         toast.success(`Welcome back, ${res.user?.username}!`);
         setIsAuthenticated(true);
+        localStorage.setItem("dpsi_admin_token", res.token);
         localStorage.setItem("dpsi_admin_auth", "true");
         localStorage.setItem("dpsi_admin_user", res.user?.username || "Admin");
       } else {
@@ -223,6 +216,7 @@ export default function AdminCMS() {
   const handleLogout = () => {
     localStorage.removeItem("dpsi_admin_auth");
     localStorage.removeItem("dpsi_admin_user");
+    localStorage.removeItem("dpsi_admin_token");
     setIsAuthenticated(false);
     toast.info("Logged out of Admin Portal");
   };

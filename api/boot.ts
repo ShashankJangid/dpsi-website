@@ -23,17 +23,28 @@ app.use(
 );
 
 // CORS configuration
+const ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://dpsindirapuram.com",
+  "https://www.dpsindirapuram.com",
+  "https://dpsi-website.vercel.app",
+];
+
 app.use(
   "/api/*",
   cors({
-    origin: (origin) => origin || "*",
+    origin: (origin) => {
+      if (!origin) return origin; // allow server-to-server
+      return ALLOWED_ORIGINS.includes(origin) ? origin : null;
+    },
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization", "x-trpc-source"],
     maxAge: 86400,
   })
 );
 
-app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
+app.use(bodyLimit({ maxSize: 15 * 1024 * 1024 }));
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",

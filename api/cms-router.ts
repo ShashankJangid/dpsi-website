@@ -1,12 +1,48 @@
 import { z } from "zod";
-import crypto from "crypto";
-import { createRouter, publicQuery, publicMutation } from "./middleware";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { createRouter, publicQuery, publicMutation, adminMutation } from "./middleware";
 import { getMainModels, getGalleryModels, getTcModels } from "./models/cmsSchemas";
 import { getAdminUserModel } from "./models/adminUserSchema";
 import { convertImageToWebP } from "./utils/mediaConverter";
 
+const JWT_SECRET = process.env.JWT_SECRET || "";
+const MASTER_ADMIN_USER = process.env.ADMIN_USERNAME || "admin";
+const MASTER_ADMIN_PASS = process.env.ADMIN_PASSWORD || "";
+
 export function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Login rate limiter: Max 5 failed attempts per 10 minutes per IP
+const loginAttemptsMap = new Map<string, { failedCount: number; lockedUntil: number }>();
+
+function checkLoginRateLimit(ip: string): { allowed: boolean; remainingWaitMs?: number } {
+  const now = Date.now();
+  const entry = loginAttemptsMap.get(ip);
+  if (!entry) return { allowed: true };
+  if (entry.lockedUntil > now) {
+    return { allowed: false, remainingWaitMs: entry.lockedUntil - now };
+  }
+  if (entry.lockedUntil <= now && entry.failedCount >= 5) {
+    loginAttemptsMap.delete(ip);
+    return { allowed: true };
+  }
+  return { allowed: true };
+}
+
+function recordLoginFailure(ip: string) {
+  const now = Date.now();
+  const entry = loginAttemptsMap.get(ip) || { failedCount: 0, lockedUntil: 0 };
+  entry.failedCount += 1;
+  if (entry.failedCount >= 5) {
+    entry.lockedUntil = now + 10 * 60 * 1000; // Lock for 10 minutes
+  }
+  loginAttemptsMap.set(ip, entry);
+}
+
+function resetLoginAttempts(ip: string) {
+  loginAttemptsMap.delete(ip);
 }
 
 export const cmsRouter = createRouter({
@@ -14,88 +50,127 @@ export const cmsRouter = createRouter({
   adminLogin: publicMutation
     .input(
       z.object({
-        username: z.string(),
-        password: z.string(),
+        username: z.string().min(1).max(100),
+        password: z.string().min(1).max(200),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const clientIp = ctx?.req?.headers?.get("x-forwarded-for") || ctx?.req?.headers?.get("cf-connecting-ip") || "admin-login-ip";
+      const rateCheck = checkLoginRateLimit(clientIp);
+      if (!rateCheck.allowed) {
+        const minsLeft = Math.ceil((rateCheck.remainingWaitMs || 0) / 60000);
+        return {
+          success: false,
+          error: `Too many failed login attempts. Account locked for ${minsLeft} minute(s).`,
+        };
+      }
+
+      const trimmedUser = input.username.trim().toLowerCase();
+      const trimmedPass = input.password.trim();
+
+      // Check master admin from env vars
       const isMasterAdmin =
-        input.username.trim().toLowerCase() === "admin" &&
-        input.password.trim() === "Admin@dps123";
+        MASTER_ADMIN_PASS.length > 0 &&
+        trimmedUser === MASTER_ADMIN_USER.toLowerCase() &&
+        trimmedPass === MASTER_ADMIN_PASS;
 
       try {
         const AdminUser = await getAdminUserModel();
-        const salt = "dpsi_cms_salt_2026";
-        const hash = crypto.createHash("sha256").update(input.password + salt).digest("hex");
 
         const safeUsername = escapeRegex(input.username.trim());
         const user = await AdminUser.findOne({
           username: { $regex: new RegExp(`^${safeUsername}$`, "i") },
-          passwordHash: hash,
         });
 
         if (user) {
-          await AdminUser.findByIdAndUpdate(user._id, { lastLogin: new Date() }).catch(() => {});
-          return {
-            success: true,
-            user: {
-              username: user.username,
-              role: user.role,
-            },
-          };
+          // Verify password with bcrypt
+          const passwordValid = await bcrypt.compare(trimmedPass, user.passwordHash);
+          if (passwordValid) {
+            resetLoginAttempts(clientIp);
+            await AdminUser.findByIdAndUpdate(user._id, { lastLogin: new Date() }).catch(() => {});
+            const token = jwt.sign(
+              { id: user._id.toString(), username: user.username, role: user.role },
+              JWT_SECRET,
+              { expiresIn: "8h" }
+            );
+            return {
+              success: true,
+              token,
+              user: { username: user.username, role: user.role },
+            };
+          }
         }
 
         if (isMasterAdmin) {
+          resetLoginAttempts(clientIp);
+          const token = jwt.sign(
+            { id: "master", username: "Admin", role: "superadmin" as const },
+            JWT_SECRET,
+            { expiresIn: "8h" }
+          );
           return {
             success: true,
-            user: {
-              username: "Admin",
-              role: "superadmin",
-            },
+            token,
+            user: { username: "Admin", role: "superadmin" as const },
           };
         }
 
+        recordLoginFailure(clientIp);
         return { success: false, error: "Invalid username or password" };
-      } catch (dbErr: any) {
-        console.warn("MongoDB connection check during auth:", dbErr.message);
+      } catch (dbErr: unknown) {
+        const errMsg = dbErr instanceof Error ? dbErr.message : "Unknown error";
+        console.warn("MongoDB connection check during auth:", errMsg);
 
-        // Fallback for Master Admin login even if Atlas IP Whitelist is momentarily blocked
         if (isMasterAdmin) {
+          resetLoginAttempts(clientIp);
+          const token = jwt.sign(
+            { id: "master", username: "Admin", role: "superadmin" as const },
+            JWT_SECRET,
+            { expiresIn: "8h" }
+          );
           return {
             success: true,
-            user: {
-              username: "Admin",
-              role: "superadmin",
-            },
+            token,
+            user: { username: "Admin", role: "superadmin" as const },
           };
         }
 
-        return {
-          success: false,
-          error: "Database connection failed. Please ensure IP 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access.",
-        };
+        recordLoginFailure(clientIp);
+        return { success: false, error: "Authentication service unavailable. Please try again." };
       }
     }),
   // --- 1. MEDIA CONVERSION & CLOUDINARY UPLOAD ---
-  uploadAndTranscode: publicMutation
+  uploadAndTranscode: adminMutation
     .input(
       z.object({
-        fileName: z.string(),
-        fileType: z.string(),
-        base64Data: z.string(),
+        fileName: z.string().min(1).max(255),
+        fileType: z.string().min(1).max(100),
+        base64Data: z.string().min(1),
       })
     )
     .mutation(async ({ input }) => {
       try {
+        // Disallow dangerous executable extensions
+        const lowerName = input.fileName.toLowerCase();
+        const forbiddenExtensions = [".exe", ".sh", ".php", ".phtml", ".js", ".mjs", ".cjs", ".bat", ".cmd", ".vbs", ".scr", ".jar"];
+        if (forbiddenExtensions.some((ext) => lowerName.endsWith(ext))) {
+          return { success: false, error: "Executable files are not permitted." };
+        }
+
         const rawBase64 = input.base64Data.includes(",")
           ? input.base64Data.split(",")[1]
           : input.base64Data;
         const buffer = Buffer.from(rawBase64, "base64");
 
+        // Enforce max 15MB file size
+        if (buffer.length > 15 * 1024 * 1024) {
+          return { success: false, error: "File size exceeds 15MB limit." };
+        }
+
         const { uploadToCloudinary } = await import("./lib/cloudinary");
 
         if (input.fileType.startsWith("image/")) {
-          // Pre-transcode through Sharp and upload to Cloudinary CDN
+          // Pre-transcode through Sharp (validates image structure) and upload to Cloudinary CDN
           const webpResult = await convertImageToWebP(buffer, 82);
           const cloudRes = await uploadToCloudinary(webpResult.buffer, "dpsi_gallery", "image");
 
@@ -119,6 +194,14 @@ export const cmsRouter = createRouter({
             size: cloudRes.bytes,
           };
         } else {
+          // Validate PDF magic bytes if declaring application/pdf
+          if (input.fileType === "application/pdf" || lowerName.endsWith(".pdf")) {
+            const isPdf = buffer.slice(0, 5).toString() === "%PDF-";
+            if (!isPdf) {
+              return { success: false, error: "Invalid PDF document format." };
+            }
+          }
+
           // Raw documents / TC PDFs
           const cloudRes = await uploadToCloudinary(buffer, "dpsi_docs", "raw");
           return {
@@ -129,9 +212,10 @@ export const cmsRouter = createRouter({
             size: cloudRes.bytes || buffer.length,
           };
         }
-      } catch (err: any) {
-        console.error("Cloudinary upload error:", err);
-        return { success: false, error: err.message || "Failed to process media" };
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : "Failed to process media";
+        console.error("Cloudinary upload error:", errMsg);
+        return { success: false, error: errMsg };
       }
     }),
 
@@ -195,7 +279,7 @@ export const cmsRouter = createRouter({
       });
       return page || null;
     }),
-  createPage: publicMutation
+  createPage: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -211,7 +295,7 @@ export const cmsRouter = createRouter({
       const { Page } = await getMainModels();
       return Page.create(input);
     }),
-  updatePage: publicMutation
+  updatePage: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -230,7 +314,7 @@ export const cmsRouter = createRouter({
       const { id, ...data } = input;
       return Page.findByIdAndUpdate(id, data, { new: true });
     }),
-  deletePage: publicMutation
+  deletePage: adminMutation
     .input(z.object({ id: z.string(), permanent: z.boolean().default(false) }))
     .mutation(async ({ input }) => {
       const { Page } = await getMainModels();
@@ -251,7 +335,7 @@ export const cmsRouter = createRouter({
       }
       return Menu.find(filter).sort({ order: 1 });
     }),
-  createMenu: publicMutation
+  createMenu: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -266,7 +350,7 @@ export const cmsRouter = createRouter({
       const { Menu } = await getMainModels();
       return Menu.create(input);
     }),
-  updateMenu: publicMutation
+  updateMenu: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -283,7 +367,7 @@ export const cmsRouter = createRouter({
       const { id, ...data } = input;
       return Menu.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteMenu: publicMutation
+  deleteMenu: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Menu } = await getMainModels();
@@ -295,7 +379,7 @@ export const cmsRouter = createRouter({
     const { Popup } = await getMainModels();
     return Popup.find({ isDeleted: false }).sort({ createdAt: -1 });
   }),
-  createPopup: publicMutation
+  createPopup: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -312,13 +396,13 @@ export const cmsRouter = createRouter({
       const { Popup } = await getMainModels();
       return Popup.create(input);
     }),
-  togglePopup: publicMutation
+  togglePopup: adminMutation
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
     .mutation(async ({ input }) => {
       const { Popup } = await getMainModels();
       return Popup.findByIdAndUpdate(input.id, { isActive: input.isActive }, { new: true });
     }),
-  deletePopup: publicMutation
+  deletePopup: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Popup } = await getMainModels();
@@ -330,7 +414,7 @@ export const cmsRouter = createRouter({
     const { Marquee } = await getMainModels();
     return Marquee.find({ isDeleted: false }).sort({ createdAt: -1 });
   }),
-  createMarquee: publicMutation
+  createMarquee: adminMutation
     .input(
       z.object({
         text: z.string(),
@@ -346,7 +430,7 @@ export const cmsRouter = createRouter({
       const { Marquee } = await getMainModels();
       return Marquee.create(input);
     }),
-  updateMarquee: publicMutation
+  updateMarquee: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -364,13 +448,13 @@ export const cmsRouter = createRouter({
       const { id, ...data } = input;
       return Marquee.findByIdAndUpdate(id, data, { new: true });
     }),
-  toggleMarquee: publicMutation
+  toggleMarquee: adminMutation
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
     .mutation(async ({ input }) => {
       const { Marquee } = await getMainModels();
       return Marquee.findByIdAndUpdate(input.id, { isActive: input.isActive }, { new: true });
     }),
-  deleteMarquee: publicMutation
+  deleteMarquee: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Marquee } = await getMainModels();
@@ -383,7 +467,7 @@ export const cmsRouter = createRouter({
     const { Activity } = await getMainModels();
     return Activity.find({ isDeleted: false }).sort({ eventDate: -1 });
   }),
-  createActivity: publicMutation
+  createActivity: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -401,7 +485,7 @@ export const cmsRouter = createRouter({
         eventDate: input.eventDate ? new Date(input.eventDate) : new Date(),
       });
     }),
-  deleteActivity: publicMutation
+  deleteActivity: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Activity } = await getMainModels();
@@ -413,7 +497,7 @@ export const cmsRouter = createRouter({
     const { Slider } = await getMainModels();
     return Slider.find({ isDeleted: false }).sort({ order: 1 });
   }),
-  createSlider: publicMutation
+  createSlider: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -429,7 +513,7 @@ export const cmsRouter = createRouter({
       const { Slider } = await getMainModels();
       return Slider.create(input);
     }),
-  deleteSlider: publicMutation
+  deleteSlider: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Slider } = await getMainModels();
@@ -441,7 +525,7 @@ export const cmsRouter = createRouter({
     const { Attachment } = await getMainModels();
     return Attachment.find({ isDeleted: false }).sort({ createdAt: -1 });
   }),
-  createAttachment: publicMutation
+  createAttachment: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -456,7 +540,7 @@ export const cmsRouter = createRouter({
       const { Attachment } = await getMainModels();
       return Attachment.create(input);
     }),
-  deleteAttachment: publicMutation
+  deleteAttachment: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Attachment } = await getMainModels();
@@ -468,7 +552,7 @@ export const cmsRouter = createRouter({
     const { GalleryCategory } = await getGalleryModels();
     return GalleryCategory.find({ isDeleted: false });
   }),
-  createGalleryCategory: publicMutation
+  createGalleryCategory: adminMutation
     .input(
       z.object({
         name: z.string(),
@@ -491,7 +575,7 @@ export const cmsRouter = createRouter({
       }
       return GalleryImage.find(filter).sort({ createdAt: -1 });
     }),
-  createGalleryImage: publicMutation
+  createGalleryImage: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -507,7 +591,7 @@ export const cmsRouter = createRouter({
       const { GalleryImage } = await getGalleryModels();
       return GalleryImage.create(input);
     }),
-  deleteGalleryImage: publicMutation
+  deleteGalleryImage: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { GalleryImage } = await getGalleryModels();
@@ -519,7 +603,7 @@ export const cmsRouter = createRouter({
     const { VideoGallery } = await getGalleryModels();
     return VideoGallery.find({ isDeleted: false }).sort({ createdAt: -1 });
   }),
-  createVideo: publicMutation
+  createVideo: adminMutation
     .input(
       z.object({
         title: z.string(),
@@ -534,7 +618,7 @@ export const cmsRouter = createRouter({
       const { VideoGallery } = await getGalleryModels();
       return VideoGallery.create(input);
     }),
-  deleteVideo: publicMutation
+  deleteVideo: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { VideoGallery } = await getGalleryModels();
@@ -565,7 +649,7 @@ export const cmsRouter = createRouter({
 
       return TransferCertificate.find(filter).sort({ dateOfIssue: -1 });
     }),
-  createTc: publicMutation
+  createTc: adminMutation
     .input(
       z.object({
         admissionNumber: z.string(),
@@ -586,7 +670,7 @@ export const cmsRouter = createRouter({
         dateOfIssue: new Date(input.dateOfIssue),
       });
     }),
-  deleteTc: publicMutation
+  deleteTc: adminMutation
     .input(z.object({ id: z.string(), permanent: z.boolean().default(false) }))
     .mutation(async ({ input }) => {
       const { TransferCertificate } = await getTcModels();
@@ -601,7 +685,7 @@ export const cmsRouter = createRouter({
     const { MunRegistration } = await getMainModels();
     return MunRegistration.find({ isDeleted: false }).sort({ createdAt: -1 });
   }),
-  updateMunStatus: publicMutation
+  updateMunStatus: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -616,7 +700,7 @@ export const cmsRouter = createRouter({
     }),
 
   // --- 14. UPDATE SLIDER ---
-  updateSlider: publicMutation
+  updateSlider: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -636,7 +720,7 @@ export const cmsRouter = createRouter({
     }),
 
   // --- 16. UPDATE ACTIVITY ---
-  updateActivity: publicMutation
+  updateActivity: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -658,7 +742,7 @@ export const cmsRouter = createRouter({
 
 
   // --- 18. UPDATE ATTACHMENT ---
-  updateAttachment: publicMutation
+  updateAttachment: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -675,7 +759,7 @@ export const cmsRouter = createRouter({
     }),
 
   // --- 19. TOGGLE MENU ACTIVE ---
-  toggleMenu: publicMutation
+  toggleMenu: adminMutation
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
     .mutation(async ({ input }) => {
       const { Menu } = await getMainModels();
@@ -683,7 +767,7 @@ export const cmsRouter = createRouter({
     }),
 
   // --- 20. UPDATE VIDEO ---
-  updateVideo: publicMutation
+  updateVideo: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -702,21 +786,21 @@ export const cmsRouter = createRouter({
     }),
 
   // --- 21. BULK CREATE TC ---
-  bulkCreateTc: publicMutation
+  bulkCreateTc: adminMutation
     .input(
       z.object({
         records: z.array(
           z.object({
-            admissionNumber: z.string(),
-            studentName: z.string(),
-            fatherName: z.string(),
+            admissionNumber: z.string().min(1).max(50),
+            studentName: z.string().min(1).max(100),
+            fatherName: z.string().min(1).max(100),
             motherName: z.string().optional().default(""),
-            classLeaving: z.string(),
+            classLeaving: z.string().min(1).max(50),
             dateOfIssue: z.string(),
             status: z.enum(["Issued", "Pending", "Cancelled"]).default("Issued"),
             remarks: z.string().optional().default(""),
           })
-        ),
+        ).min(1, "At least one record is required").max(500, "Maximum 500 records per batch upload allowed"),
       })
     )
     .mutation(async ({ input }) => {
@@ -752,7 +836,7 @@ export const cmsRouter = createRouter({
     }
     return settings;
   }),
-  updateSiteSettings: publicMutation
+  updateSiteSettings: adminMutation
     .input(
       z.object({
         updates: z.array(z.object({ key: z.string(), value: z.string() })),
@@ -774,7 +858,7 @@ export const cmsRouter = createRouter({
     const config = await AiConfig.findOne({}).sort({ updatedAt: -1 });
     return config || null;
   }),
-  updateAiConfig: publicMutation
+  updateAiConfig: adminMutation
     .input(
       z.object({
         systemPrompt: z.string(),
@@ -795,7 +879,7 @@ export const cmsRouter = createRouter({
     }),
 
   // --- 24. POPUP UPDATE ---
-  updatePopup: publicMutation
+  updatePopup: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -816,7 +900,7 @@ export const cmsRouter = createRouter({
     }),
 
   // --- 25. REORDER MENU ---
-  reorderMenuItems: publicMutation
+  reorderMenuItems: adminMutation
     .input(
       z.object({
         items: z.array(z.object({ id: z.string(), order: z.number() })),
@@ -837,7 +921,7 @@ export const cmsRouter = createRouter({
     const { Leadership } = await getMainModels();
     return Leadership.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
   }),
-  createLeadership: publicMutation
+  createLeadership: adminMutation
     .input(
       z.object({
         name: z.string().min(2),
@@ -853,7 +937,7 @@ export const cmsRouter = createRouter({
       const { Leadership } = await getMainModels();
       return Leadership.create(input);
     }),
-  updateLeadership: publicMutation
+  updateLeadership: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -872,7 +956,7 @@ export const cmsRouter = createRouter({
       const { Leadership } = await getMainModels();
       return Leadership.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteLeadership: publicMutation
+  deleteLeadership: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Leadership } = await getMainModels();
@@ -884,7 +968,7 @@ export const cmsRouter = createRouter({
     const { Facility } = await getMainModels();
     return Facility.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
   }),
-  createFacility: publicMutation
+  createFacility: adminMutation
     .input(
       z.object({
         title: z.string().min(2),
@@ -902,7 +986,7 @@ export const cmsRouter = createRouter({
       const { Facility } = await getMainModels();
       return Facility.create(input);
     }),
-  updateFacility: publicMutation
+  updateFacility: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -923,7 +1007,7 @@ export const cmsRouter = createRouter({
       const { Facility } = await getMainModels();
       return Facility.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteFacility: publicMutation
+  deleteFacility: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Facility } = await getMainModels();
@@ -936,7 +1020,7 @@ export const cmsRouter = createRouter({
     const { Department } = await getMainModels();
     return Department.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
   }),
-  createDepartment: publicMutation
+  createDepartment: adminMutation
     .input(
       z.object({
         name: z.string().min(2),
@@ -950,7 +1034,7 @@ export const cmsRouter = createRouter({
       const { Department } = await getMainModels();
       return Department.create(input);
     }),
-  updateDepartment: publicMutation
+  updateDepartment: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -967,7 +1051,7 @@ export const cmsRouter = createRouter({
       const { Department } = await getMainModels();
       return Department.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteDepartment: publicMutation
+  deleteDepartment: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Department } = await getMainModels();
@@ -979,7 +1063,7 @@ export const cmsRouter = createRouter({
     const { AdmissionStep } = await getMainModels();
     return AdmissionStep.find({ isDeleted: false, isActive: true }).sort({ stepNumber: 1 });
   }),
-  createAdmissionStep: publicMutation
+  createAdmissionStep: adminMutation
     .input(
       z.object({
         stepNumber: z.number(),
@@ -993,7 +1077,7 @@ export const cmsRouter = createRouter({
       const { AdmissionStep } = await getMainModels();
       return AdmissionStep.create(input);
     }),
-  updateAdmissionStep: publicMutation
+  updateAdmissionStep: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -1010,7 +1094,7 @@ export const cmsRouter = createRouter({
       const { AdmissionStep } = await getMainModels();
       return AdmissionStep.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteAdmissionStep: publicMutation
+  deleteAdmissionStep: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { AdmissionStep } = await getMainModels();
@@ -1026,7 +1110,7 @@ export const cmsRouter = createRouter({
       if (input?.category) filter.category = input.category;
       return Faq.find(filter).sort({ order: 1 });
     }),
-  createFaq: publicMutation
+  createFaq: adminMutation
     .input(
       z.object({
         question: z.string().min(3),
@@ -1039,7 +1123,7 @@ export const cmsRouter = createRouter({
       const { Faq } = await getMainModels();
       return Faq.create(input);
     }),
-  updateFaq: publicMutation
+  updateFaq: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -1055,7 +1139,7 @@ export const cmsRouter = createRouter({
       const { Faq } = await getMainModels();
       return Faq.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteFaq: publicMutation
+  deleteFaq: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { Faq } = await getMainModels();
@@ -1067,7 +1151,7 @@ export const cmsRouter = createRouter({
     const { TimelineItem } = await getMainModels();
     return TimelineItem.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
   }),
-  createTimelineItem: publicMutation
+  createTimelineItem: adminMutation
     .input(
       z.object({
         year: z.string().min(2),
@@ -1080,7 +1164,7 @@ export const cmsRouter = createRouter({
       const { TimelineItem } = await getMainModels();
       return TimelineItem.create(input);
     }),
-  updateTimelineItem: publicMutation
+  updateTimelineItem: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -1096,7 +1180,7 @@ export const cmsRouter = createRouter({
       const { TimelineItem } = await getMainModels();
       return TimelineItem.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteTimelineItem: publicMutation
+  deleteTimelineItem: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { TimelineItem } = await getMainModels();
@@ -1108,7 +1192,7 @@ export const cmsRouter = createRouter({
     const { CoreValue } = await getMainModels();
     return CoreValue.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
   }),
-  createCoreValue: publicMutation
+  createCoreValue: adminMutation
     .input(
       z.object({
         title: z.string().min(2),
@@ -1121,7 +1205,7 @@ export const cmsRouter = createRouter({
       const { CoreValue } = await getMainModels();
       return CoreValue.create(input);
     }),
-  updateCoreValue: publicMutation
+  updateCoreValue: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -1137,7 +1221,7 @@ export const cmsRouter = createRouter({
       const { CoreValue } = await getMainModels();
       return CoreValue.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteCoreValue: publicMutation
+  deleteCoreValue: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { CoreValue } = await getMainModels();
@@ -1149,7 +1233,7 @@ export const cmsRouter = createRouter({
     const { FeatureCard } = await getMainModels();
     return FeatureCard.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
   }),
-  createFeatureCard: publicMutation
+  createFeatureCard: adminMutation
     .input(
       z.object({
         title: z.string().min(2),
@@ -1163,7 +1247,7 @@ export const cmsRouter = createRouter({
       const { FeatureCard } = await getMainModels();
       return FeatureCard.create(input);
     }),
-  updateFeatureCard: publicMutation
+  updateFeatureCard: adminMutation
     .input(
       z.object({
         id: z.string(),
@@ -1180,7 +1264,7 @@ export const cmsRouter = createRouter({
       const { FeatureCard } = await getMainModels();
       return FeatureCard.findByIdAndUpdate(id, data, { new: true });
     }),
-  deleteFeatureCard: publicMutation
+  deleteFeatureCard: adminMutation
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const { FeatureCard } = await getMainModels();

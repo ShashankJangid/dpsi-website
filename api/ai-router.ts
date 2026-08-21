@@ -123,7 +123,7 @@ export const aiRouter = createRouter({
         };
       }
 
-      const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || "";
+      const apiKey = process.env.GROQ_API_KEY || "";
 
       // Load admin-configured system prompt from MongoDB if available
       let systemPrompt = DEFAULT_SYSTEM_PROMPT;
@@ -241,7 +241,7 @@ export const aiRouter = createRouter({
         return { audioBase64: null };
       }
 
-      const apiKey = process.env.ELEVENLABS_API_KEY || process.env.VITE_ELEVENLABS_API_KEY || "";
+      const apiKey = process.env.ELEVENLABS_API_KEY || "";
       if (!apiKey) {
         return { audioBase64: null };
       }

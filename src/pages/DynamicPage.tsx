@@ -1,4 +1,5 @@
 import React from "react";
+import DOMPurify from "isomorphic-dompurify";
 import { useParams, Link } from "react-router";
 import { motion } from "framer-motion";
 import { ChevronRight, Calendar, Tag, ArrowLeft, FileText, AlertCircle } from "lucide-react";
@@ -63,7 +64,7 @@ export default function DynamicPage() {
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 sm:p-10 shadow-sm">
                 <div
                   className="prose prose-slate dark:prose-invert max-w-none prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-relaxed prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-img:rounded-lg prose-img:shadow-md"
-                  dangerouslySetInnerHTML={{ __html: page.content || "<p>No content provided for this page.</p>" }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(page.content || "<p>No content provided for this page.</p>") }}
                 />
               </div>
 
