@@ -100,8 +100,6 @@ setInterval(() => {
 
 const GROQ_FALLBACK_MODELS = [
   "openai/gpt-oss-120b",
-  "openai/gpt-oss-20b",
-  "qwen/qwen3.6-27b",
   "groq/compound-mini",
 ];
 
@@ -155,63 +153,69 @@ export const aiRouter = createRouter({
         { role: "user", content: sanitizedMsg || input.message },
       ];
 
-      // Try models in fallback order
-      for (const model of GROQ_FALLBACK_MODELS) {
-        try {
-          const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              messages: messagesPayload,
-              temperature: 0.5,
-              max_tokens: 500,
-              stream: false,
-            }),
-            signal: AbortSignal.timeout(10000), // 10s maximum timeout per model attempt
-          });
+      // Try models in fallback order with ultra-fast timeout (4s per model)
+      if (apiKey) {
+        for (const model of GROQ_FALLBACK_MODELS) {
+          try {
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${apiKey}`,
+              },
+              body: JSON.stringify({
+                model,
+                messages: messagesPayload,
+                temperature: 0.3,
+                max_tokens: 300,
+                stream: false,
+              }),
+              signal: AbortSignal.timeout(4000), // 4s fast timeout per attempt
+            });
 
-          if (!response.ok) {
-            const errText = await response.text();
-            console.warn(`Groq API error with model ${model}:`, errText);
-            continue; // try next model in fallback list
+            if (!response.ok) {
+              const errText = await response.text();
+              console.warn(`Groq API error with model ${model}:`, errText);
+              continue;
+            }
+
+            const data = (await response.json()) as GroqApiResponse;
+            let replyText = data?.choices?.[0]?.message?.content || "";
+
+            if (replyText) {
+              // Strip think tags and markdown formatting for clean voice and text output
+              replyText = replyText
+                .replace(/<think>[\s\S]*?<\/think>/gi, "")
+                .replace(/<thought>[\s\S]*?<\/thought>/gi, "")
+                .replace(/\*\*(.*?)\*\*/g, "$1")
+                .replace(/\*(.*?)\*/g, "$1")
+                .replace(/#{1,6}\s+/g, "")
+                .replace(/`{1,3}/g, "")
+                .replace(/^[-*]\s+/gm, "")
+                .replace(/\*/g, "")
+                .replace(/\s{2,}/g, " ")
+                .trim();
+
+              if (replyText.length > 5) {
+                return { answer: replyText };
+              }
+            }
+          } catch (err) {
+            console.warn(`Error calling Groq API model ${model}:`, err);
           }
-
-          const data = (await response.json()) as GroqApiResponse;
-          let replyText = data?.choices?.[0]?.message?.content || "";
-
-          if (replyText) {
-            // Strip markdown formatting for clean voice/text output
-            replyText = replyText
-              .replace(/\*\*(.*?)\*\*/g, "$1")
-              .replace(/\*(.*?)\*/g, "$1")
-              .replace(/#{1,6}\s+/g, "")
-              .replace(/`{1,3}/g, "")
-              .replace(/^[-*]\s+/gm, "")
-              .replace(/\*/g, "")
-              .replace(/\s{2,}/g, " ")
-              .trim();
-
-            return { answer: replyText };
-          }
-        } catch (err) {
-          console.warn(`Error calling Groq API model ${model}:`, err);
         }
       }
 
-      // Intelligent local keyword-based fallback if external API is unreachable
+      // Intelligent instant local keyword-based fallback if external API is unreachable or slow
       const lower = input.message.toLowerCase();
       if (lower.includes("kaise ho") || lower.includes("how are you") || lower.includes("namaste") || lower.includes("hello") || lower.includes("hi")) {
         return {
-          answer: "Namaste! Main DPS Indirapuram ka official AI assistant DPSI AI hoon. Main bilkul theek hoon. Main aapki DPS Indirapuram admissions, academics, facilities ya events mein kya madad kar sakta hoon?",
+          answer: "Namaste! Main DPS Indirapuram ka official AI assistant DPSI AI hoon. Admissions Session 2026-27, academics, streams, facilities ya kisi bhi query ke liye main aapki kya madad kar sakta hoon?",
         };
       }
-      if (lower.includes("admission") || lower.includes("apply") || lower.includes("form") || lower.includes("dakhila")) {
+      if (lower.includes("admission") || lower.includes("apply") || lower.includes("form") || lower.includes("dakhila") || lower.includes("register")) {
         return {
-          answer: "DPS Indirapuram mein Session 2026-27 ke liye Pre-Nursery se Class IX aur Class XI ke admissions open hain. Aap school ki website par online register kar sakte hain ya admission desk se +91-0120-4660000 par sampark kar sakte hain.",
+          answer: "DPS Indirapuram mein Session 2026-27 ke liye Pre-Nursery se Class IX aur Class XI ke admissions open hain. Aap online apply kar sakte hain ya admission desk se +91-0120-4660000 par sampark kar sakte hain.",
         };
       }
       if (lower.includes("stream") || lower.includes("subject") || lower.includes("class 11") || lower.includes("11th")) {
@@ -219,14 +223,29 @@ export const aiRouter = createRouter({
           answer: "Class XI mein teen streams available hain: Science (PCM/PCB with AI, Biotech, Computer Science), Commerce (Accounts, Economics, Math, Business Studies), aur Humanities (Psychology, Legal Studies, Economics, Political Science).",
         };
       }
-      if (lower.includes("facility") || lower.includes("campus") || lower.includes("lab") || lower.includes("sports") || lower.includes("robotics")) {
+      if (lower.includes("facility") || lower.includes("campus") || lower.includes("lab") || lower.includes("sports") || lower.includes("robotics") || lower.includes("pool") || lower.includes("shooting")) {
         return {
-          answer: "DPS Indirapuram ke 10-acre campus mein AI and Robotics Innovation Lab, Olympic-standard 50m swimming pool, ISSF shooting range, smart classrooms, aur modern science labs uplabdh hain.",
+          answer: "DPS Indirapuram ke 10-acre campus mein AI and Robotics Innovation Lab, Olympic-standard 50m swimming pool, ISSF certified shooting range, 80+ smart classrooms, aur digital library uplabdh hain.",
+        };
+      }
+      if (lower.includes("principal") || lower.includes("head") || lower.includes("leadership") || lower.includes("chairperson")) {
+        return {
+          answer: "DPS Indirapuram ki Principal Ms. Priya Elizabeth John hain, Pro-Vice Chairperson Ms. Santosh Bansal hain, aur Chairman Mr. V.K. Shunglu (IAS Retd.) hain.",
+        };
+      }
+      if (lower.includes("result") || lower.includes("topper") || lower.includes("board") || lower.includes("score")) {
+        return {
+          answer: "DPS Indirapuram ka CBSE Class 10 aur 12 mein 100% pass result raha hai. School toppers mein Siddhant Tiwari (99.4%), Ansh Pathak (99.4%) aur Aayush Jha (99.2%) shamil hain.",
+        };
+      }
+      if (lower.includes("fee") || lower.includes("fees") || lower.includes("cost") || lower.includes("structure")) {
+        return {
+          answer: "Fee structure grade ke according structured hai. Detail fee chart aur online payment ke liye aap school website par check kar sakte hain ya accounts desk par +91-0120-4660000 par call kar sakte hain.",
         };
       }
 
       return {
-        answer: "Main DPS Indirapuram ka AI assistant hoon. Admissions, fees, academics, calendar ya facilities se jude kisi bhi sawal ke liye aap hume +91-0120-4660000 par call ya info@dpsindirapuram.com par email kar sakte hain.",
+        answer: "Main DPS Indirapuram ka official AI assistant hoon. Admissions 2026-27, academic calendar, streams, ya campus facilities se jude kisi bhi sawal ke liye aap hume +91-0120-4660000 par call ya info@dpsindirapuram.com par email kar sakte hain.",
       };
     }),
 
@@ -251,7 +270,8 @@ export const aiRouter = createRouter({
         return { audioBase64: null };
       }
 
-      const voiceId = input.voiceId || "MF4J4IDTRo0AxOO4dpFR";
+      // Default to Sarah (EXAVITQu4vr4xnSDxMaL) - warm, clear, professional female voice
+      const voiceId = input.voiceId || "EXAVITQu4vr4xnSDxMaL";
 
       try {
         const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
@@ -265,13 +285,13 @@ export const aiRouter = createRouter({
             text: input.text.slice(0, 350),
             model_id: "eleven_multilingual_v2",
             voice_settings: {
-              stability: 0.55,
-              similarity_boost: 0.82,
-              style: 0.15,
+              stability: 0.50,
+              similarity_boost: 0.80,
+              style: 0.10,
               use_speaker_boost: true,
             },
           }),
-          signal: AbortSignal.timeout(8000), // 8s maximum timeout for TTS
+          signal: AbortSignal.timeout(7000), // 7s maximum timeout for TTS
         });
 
         if (response.ok) {

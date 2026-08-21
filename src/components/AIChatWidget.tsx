@@ -97,9 +97,23 @@ export default function AIChatWidget() {
   const recognitionRef = useRef<any>(null);
   const transcriptRef = useRef<string>("");
 
-  // Single-speak Voice Response Helper with ElevenLabs (Voice ID: MF4J4IDTRo0AxOO4dpFR) & Neural Browser Fallback
+  // Single-speak Voice Response Helper with ElevenLabs (Voice ID: EXAVITQu4vr4xnSDxMaL) & Neural Browser Fallback
   const spokenResponseRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCacheRef = useRef<Map<string, string>>(new Map());
+
+  // Helper to instantly kill and silence all audio and speech synthesis
+  const stopAllAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.src = "";
+      audioRef.current = null;
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -116,17 +130,13 @@ export default function AIChatWidget() {
 
     spokenResponseRef.current = text;
 
-    // Stop any existing audio or speech synthesis
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    // Stop any existing audio or speech synthesis before new speech
+    stopAllAudio();
 
     // Clean markdown, URLs, and normalize acronyms for ultra-realistic pronunciation
     const cleanText = text
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<thought>[\s\S]*?<\/thought>/gi, "")
       .replace(/https?:\/\/\S+/g, "")
       .replace(/[*_#`~[\]()|]/g, " ")
       .replace(/\bDPSI\b/gi, "D P S I")
@@ -135,14 +145,27 @@ export default function AIChatWidget() {
       .replace(/\b3D\b/gi, "3 D")
       .replace(/\bIX & XI\b/gi, "9 and 11")
       .replace(/\s+/g, " ")
-      .trim();
+      .trim()
+      .slice(0, 350);
 
     if (!cleanText) return;
 
-    // Secure server-side ElevenLabs voice synthesis (API Key NEVER exposed to client)
+    // Check fast client-side audio cache first
+    if (audioCacheRef.current.has(cleanText)) {
+      const cached = audioCacheRef.current.get(cleanText);
+      if (cached) {
+        const audio = new Audio(cached);
+        audioRef.current = audio;
+        await audio.play().catch(() => {});
+        return;
+      }
+    }
+
+    // High-fidelity ElevenLabs voice synthesis (Sarah: EXAVITQu4vr4xnSDxMaL)
     try {
-      const ttsRes = await ttsMutation.mutateAsync({ text: cleanText, voiceId: "Xb7hH8MSUJpSbSDYk0k2" });
+      const ttsRes = await ttsMutation.mutateAsync({ text: cleanText, voiceId: "EXAVITQu4vr4xnSDxMaL" });
       if (ttsRes?.audioBase64) {
+        audioCacheRef.current.set(cleanText, ttsRes.audioBase64);
         const audio = new Audio(ttsRes.audioBase64);
         audioRef.current = audio;
         await audio.play().catch(() => {});
@@ -151,7 +174,6 @@ export default function AIChatWidget() {
     } catch {
       // Fall through to browser neural TTS fallback below
     }
-
 
     // Fallback: Ultra-realistic Sweet Indian Female Browser TTS (Supporting both Hindi & English)
     if (!("speechSynthesis" in window)) return;
@@ -207,9 +229,9 @@ export default function AIChatWidget() {
 
   const startListening = (e?: React.SyntheticEvent) => {
     if (e) e.preventDefault();
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    
+    // CRITICAL: Instantly stop and silence any playing voice before listening
+    stopAllAudio();
 
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -276,6 +298,8 @@ export default function AIChatWidget() {
 
   const toggleMic = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    // Stop any playing audio immediately when mic button is pressed
+    stopAllAudio();
     if (isListening) {
       stopListening(e);
     } else {
@@ -289,13 +313,7 @@ export default function AIChatWidget() {
 
   useEffect(() => {
     if (!isOpen) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
+      stopAllAudio();
       if (isListening || recognitionRef.current) {
         try {
           recognitionRef.current?.stop();
@@ -315,13 +333,8 @@ export default function AIChatWidget() {
   }, [isOpen]);
 
   const handleClose = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    // CRITICAL: Stop everything when cross button is clicked
+    stopAllAudio();
     if (isListening || recognitionRef.current) {
       try {
         recognitionRef.current?.stop();
@@ -340,13 +353,7 @@ export default function AIChatWidget() {
   };
 
   const handleResetChat = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopAllAudio();
     spokenResponseRef.current = null;
     if (typingTimerRef.current) clearInterval(typingTimerRef.current);
     setIsTyping(false);
@@ -458,9 +465,7 @@ export default function AIChatWidget() {
     if (!textToSend || isTyping || isProcessingRef.current) return;
     isProcessingRef.current = true;
 
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopAllAudio();
 
     const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     setInput("");
