@@ -91,6 +91,9 @@ export interface IMarquee extends Document {
   textColor?: string;
   bgColor?: string;
   badgeText?: string;
+  isTransparent?: boolean;
+  shape?: "rectangle" | "rounded" | "pill";
+  borderRadius?: "none" | "md" | "xl" | "full";
   isActive: boolean;
   isDeleted: boolean;
 }
@@ -103,6 +106,9 @@ const MarqueeSchema = new Schema<IMarquee>(
     textColor: { type: String, default: "#10b981" },
     bgColor: { type: String, default: "#047857" },
     badgeText: { type: String, default: "Notice" },
+    isTransparent: { type: Boolean, default: false },
+    shape: { type: String, enum: ["rectangle", "rounded", "pill"], default: "rectangle" },
+    borderRadius: { type: String, enum: ["none", "md", "xl", "full"], default: "none" },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
   },

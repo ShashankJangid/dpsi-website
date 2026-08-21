@@ -483,6 +483,9 @@ export const cmsRouter = createRouter({
         textColor: z.string().default("#10b981"),
         bgColor: z.string().default("#047857"),
         badgeText: z.string().default("Notice"),
+        isTransparent: z.boolean().default(false),
+        shape: z.enum(["rectangle", "rounded", "pill"]).default("rectangle"),
+        borderRadius: z.enum(["none", "md", "xl", "full"]).default("none"),
         isActive: z.boolean().default(true),
       })
     )
@@ -500,6 +503,9 @@ export const cmsRouter = createRouter({
         textColor: z.string().optional(),
         bgColor: z.string().optional(),
         badgeText: z.string().optional(),
+        isTransparent: z.boolean().optional(),
+        shape: z.enum(["rectangle", "rounded", "pill"]).optional(),
+        borderRadius: z.enum(["none", "md", "xl", "full"]).optional(),
         isActive: z.boolean().optional(),
       })
     )

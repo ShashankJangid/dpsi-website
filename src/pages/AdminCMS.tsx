@@ -997,6 +997,9 @@ export default function AdminCMS() {
     textColor: "#10b981",
     bgColor: "#047857",
     badgeText: "Announcement",
+    isTransparent: false,
+    shape: "rectangle" as "rectangle" | "rounded" | "pill",
+    borderRadius: "none" as "none" | "md" | "xl" | "full",
   });
 
 
@@ -1983,6 +1986,9 @@ export default function AdminCMS() {
                                   textColor: m.textColor || "#10b981",
                                   bgColor: m.bgColor || "#047857",
                                   badgeText: m.badgeText || "Notice",
+                                  isTransparent: !!m.isTransparent,
+                                  shape: (m.shape || "rectangle") as "rectangle" | "rounded" | "pill",
+                                  borderRadius: (m.borderRadius || "none") as "none" | "md" | "xl" | "full",
                                 });
                                 setMarqueeModal(true);
                               }}
@@ -4376,14 +4382,24 @@ export default function AdminCMS() {
               <div className="space-y-1">
                 <label className="text-[11px] font-semibold text-slate-600">Live Preview</label>
                 <div
-                  className="p-3 rounded-xl border border-black/10 flex items-center justify-between gap-3 shadow-xs transition-colors"
+                  className={`p-3 border flex items-center justify-between gap-3 shadow-xs transition-all ${
+                    marqueeForm.borderRadius === "full" || marqueeForm.shape === "pill"
+                      ? "rounded-full"
+                      : marqueeForm.borderRadius === "xl"
+                      ? "rounded-2xl"
+                      : marqueeForm.borderRadius === "md"
+                      ? "rounded-lg"
+                      : "rounded-none"
+                  }`}
                   style={{
-                    backgroundColor: marqueeForm.bgColor || "#047857",
-                    color: marqueeForm.textColor || "#ffffff",
+                    backgroundColor: marqueeForm.isTransparent ? "transparent" : marqueeForm.bgColor || "#047857",
+                    color: marqueeForm.textColor || (marqueeForm.isTransparent ? "#0f172a" : "#ffffff"),
+                    borderColor: marqueeForm.isTransparent ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0.1)",
+                    backdropFilter: marqueeForm.isTransparent ? "blur(8px)" : "none",
                   }}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-black/25">
+                    <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 ${marqueeForm.borderRadius === "none" ? "rounded-none" : "rounded"} bg-black/25`}>
                       {marqueeForm.badgeText || "Notice"}
                     </span>
                     <span className="text-xs font-semibold">
@@ -4391,6 +4407,68 @@ export default function AdminCMS() {
                     </span>
                   </div>
                   <Megaphone className="w-4 h-4 shrink-0 opacity-80" />
+                </div>
+              </div>
+
+              {/* Background Style: Solid vs Transparent */}
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1.5">Background Style</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMarqueeForm({ ...marqueeForm, isTransparent: false })}
+                    className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                      !marqueeForm.isTransparent
+                        ? "bg-emerald-50 text-emerald-800 border-emerald-300 ring-1 ring-emerald-300"
+                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    🎨 Solid Theme Color
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMarqueeForm({ ...marqueeForm, isTransparent: true })}
+                    className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                      marqueeForm.isTransparent
+                        ? "bg-sky-50 text-sky-800 border-sky-300 ring-1 ring-sky-300"
+                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    ✨ Transparent Glass
+                  </button>
+                </div>
+              </div>
+
+              {/* Shape Curve / Corner Radius Adjustment */}
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1.5">Box Shape & Corner Curve</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { id: "none", label: "Rectangle", shape: "rectangle" as const, desc: "0px Sharp" },
+                    { id: "md", label: "Soft Curve", shape: "rounded" as const, desc: "8px Round" },
+                    { id: "xl", label: "Large Curve", shape: "rounded" as const, desc: "16px Round" },
+                    { id: "full", label: "Pill Box", shape: "pill" as const, desc: "Full Round" },
+                  ].map((curve) => (
+                    <button
+                      key={curve.id}
+                      type="button"
+                      onClick={() =>
+                        setMarqueeForm({
+                          ...marqueeForm,
+                          borderRadius: curve.id as any,
+                          shape: curve.shape,
+                        })
+                      }
+                      className={`py-2 px-2 text-center rounded-lg border transition-all cursor-pointer ${
+                        (marqueeForm.borderRadius || "none") === curve.id
+                          ? "bg-emerald-50 text-emerald-800 border-emerald-400 ring-1 ring-emerald-400 font-bold"
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      <span className="text-[11px] block">{curve.label}</span>
+                      <span className="text-[9px] text-slate-400 block">{curve.desc}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -4425,71 +4503,75 @@ export default function AdminCMS() {
                 </div>
               </div>
 
-              {/* Color Presets */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-600">Theme Color Presets</label>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {[
-                    { label: "Emerald", bg: "#047857", text: "#ffffff" },
-                    { label: "Amber", bg: "#b45309", text: "#fef3c7" },
-                    { label: "Navy", bg: "#1e3a8a", text: "#dbeafe" },
-                    { label: "Crimson", bg: "#9f1239", text: "#ffe4e6" },
-                    { label: "Purple", bg: "#581c87", text: "#f3e8ff" },
-                    { label: "Slate", bg: "#0f172a", text: "#f8fafc" },
-                  ].map((preset) => (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      onClick={() =>
-                        setMarqueeForm({
-                          ...marqueeForm,
-                          bgColor: preset.bg,
-                          textColor: preset.text,
-                        })
-                      }
-                      className="p-1.5 rounded-lg border text-center transition-all hover:scale-105"
-                      style={{
-                        backgroundColor: preset.bg,
-                        color: preset.text,
-                        borderColor: marqueeForm.bgColor === preset.bg ? "#000000" : "transparent",
-                      }}
-                    >
-                      <span className="text-[10px] font-bold block">{preset.label}</span>
-                    </button>
-                  ))}
+              {/* Color Presets (When Solid Color mode is active) */}
+              {!marqueeForm.isTransparent && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-semibold text-slate-600">Theme Color Presets</label>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {[
+                      { label: "Emerald", bg: "#047857", text: "#ffffff" },
+                      { label: "Amber", bg: "#b45309", text: "#fef3c7" },
+                      { label: "Navy", bg: "#1e3a8a", text: "#dbeafe" },
+                      { label: "Crimson", bg: "#9f1239", text: "#ffe4e6" },
+                      { label: "Purple", bg: "#581c87", text: "#f3e8ff" },
+                      { label: "Slate", bg: "#0f172a", text: "#f8fafc" },
+                    ].map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() =>
+                          setMarqueeForm({
+                            ...marqueeForm,
+                            bgColor: preset.bg,
+                            textColor: preset.text,
+                          })
+                        }
+                        className="p-1.5 rounded-lg border text-center transition-all hover:scale-105 cursor-pointer"
+                        style={{
+                          backgroundColor: preset.bg,
+                          color: preset.text,
+                          borderColor: marqueeForm.bgColor === preset.bg ? "#000000" : "transparent",
+                        }}
+                      >
+                        <span className="text-[10px] font-bold block">{preset.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Custom Color Pickers */}
               <div className="grid grid-cols-2 gap-3 pt-1">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600">Custom Background Color</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={marqueeForm.bgColor || "#047857"}
-                      onChange={(e) => setMarqueeForm({ ...marqueeForm, bgColor: e.target.value })}
-                      className="w-8 h-8 rounded-lg border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0"
-                    />
-                    <Input
-                      value={marqueeForm.bgColor || "#047857"}
-                      onChange={(e) => setMarqueeForm({ ...marqueeForm, bgColor: e.target.value })}
-                      className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono uppercase"
-                    />
+                {!marqueeForm.isTransparent && (
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-600">Custom Background Color</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={marqueeForm.bgColor || "#047857"}
+                        onChange={(e) => setMarqueeForm({ ...marqueeForm, bgColor: e.target.value })}
+                        className="w-8 h-8 rounded-lg border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0"
+                      />
+                      <Input
+                        value={marqueeForm.bgColor || "#047857"}
+                        onChange={(e) => setMarqueeForm({ ...marqueeForm, bgColor: e.target.value })}
+                        className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono uppercase"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="space-y-1">
+                <div className={`space-y-1 ${marqueeForm.isTransparent ? "col-span-2" : ""}`}>
                   <label className="text-[11px] font-semibold text-slate-600">Custom Text / Font Color</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      value={marqueeForm.textColor || "#ffffff"}
+                      value={marqueeForm.textColor || (marqueeForm.isTransparent ? "#0f172a" : "#ffffff")}
                       onChange={(e) => setMarqueeForm({ ...marqueeForm, textColor: e.target.value })}
                       className="w-8 h-8 rounded-lg border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0"
                     />
                     <Input
-                      value={marqueeForm.textColor || "#ffffff"}
+                      value={marqueeForm.textColor || (marqueeForm.isTransparent ? "#0f172a" : "#ffffff")}
                       onChange={(e) => setMarqueeForm({ ...marqueeForm, textColor: e.target.value })}
                       className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono uppercase"
                     />
@@ -4504,7 +4586,7 @@ export default function AdminCMS() {
                     setMarqueeModal(false);
                     setEditingMarquee(null);
                   }}
-                  className="text-slate-600 text-xs"
+                  className="text-slate-600 text-xs cursor-pointer"
                 >
                   Cancel
                 </Button>
@@ -4517,7 +4599,7 @@ export default function AdminCMS() {
                       createMarquee.mutate(marqueeForm);
                     }
                   }}
-                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer"
                 >
                   {editingMarquee ? "Update Marquee" : "Save Marquee"}
                 </Button>
