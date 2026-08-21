@@ -1101,8 +1101,8 @@ export default function AdminCMS() {
 
         <div className="max-w-[1750px] w-full mx-auto px-2 sm:px-4 lg:px-6 pt-5">
           <div className="flex flex-col lg:flex-row gap-5 items-start">
-            {/* Left Nav Bar */}
-            <div className="w-full lg:w-64 bg-white border border-slate-200 rounded-xl p-3 shadow-sm shrink-0">
+            {/* Left Nav Bar - Independent Sticky Scroll */}
+            <div className="w-full lg:w-64 bg-white border border-slate-200 rounded-xl p-3 shadow-sm shrink-0 lg:sticky lg:top-[68px] lg:h-[calc(100vh-88px)] lg:overflow-y-auto custom-scrollbar">
               <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 py-2">
                 Menu Navigation
               </div>
