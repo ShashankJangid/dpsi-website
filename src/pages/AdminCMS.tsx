@@ -635,15 +635,6 @@ export default function AdminCMS() {
     },
   });
 
-  const updateSlider = trpc.cms.updateSlider.useMutation({
-    onSuccess: () => {
-      toast.success("Slider updated!");
-      refetchSliders();
-      setSliderModal(false);
-      setEditingSlider(null);
-    },
-  });
-
   const updateActivity = trpc.cms.updateActivity.useMutation({
     onSuccess: () => {
       toast.success("Activity updated!");
