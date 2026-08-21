@@ -422,6 +422,47 @@ describe("CMS Functionality & Business Logic Test Suite", () => {
       expect(emptyFacilities[safeIndex]).toBeUndefined();
     });
   });
+
+  describe("Slider Banner Video & Image Contract", () => {
+    const SliderContract = z.object({
+      title: z.string(),
+      subtitle: z.string().optional(),
+      imageUrl: z.string().optional().default(""),
+      videoUrl: z.string().optional().default(""),
+      mediaType: z.enum(["image", "video"]).default("image"),
+      buttonText: z.string().optional(),
+      buttonLink: z.string().optional(),
+      order: z.number().default(0),
+      isActive: z.boolean().default(true),
+    });
+
+    it("validates direct video slider banner items", () => {
+      const videoSlide = {
+        title: "Campus Aerial Tour",
+        subtitle: "Experience 10-Acre Lush Green Campus",
+        videoUrl: "https://res.cloudinary.com/dpsi/video/upload/v123456/campus_tour.webm",
+        mediaType: "video" as const,
+        order: 1,
+      };
+
+      const parsed = SliderContract.parse(videoSlide);
+      expect(parsed.mediaType).toBe("video");
+      expect(parsed.videoUrl).toContain("campus_tour.webm");
+      expect(parsed.imageUrl).toBe("");
+    });
+
+    it("validates photo image slider items with defaults", () => {
+      const imageSlide = {
+        title: "Admissions Open 2026-27",
+        imageUrl: "https://res.cloudinary.com/dpsi/image/upload/v123456/banner.webp",
+      };
+
+      const parsed = SliderContract.parse(imageSlide);
+      expect(parsed.mediaType).toBe("image");
+      expect(parsed.imageUrl).toContain("banner.webp");
+      expect(parsed.order).toBe(0);
+    });
+  });
 });
 
 

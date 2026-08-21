@@ -562,7 +562,9 @@ export const cmsRouter = createRouter({
       z.object({
         title: z.string(),
         subtitle: z.string().optional(),
-        imageUrl: z.string(),
+        imageUrl: z.string().optional().default(""),
+        videoUrl: z.string().optional().default(""),
+        mediaType: z.enum(["image", "video"]).default("image"),
         buttonText: z.string().optional(),
         buttonLink: z.string().optional(),
         order: z.number().default(0),
@@ -572,6 +574,26 @@ export const cmsRouter = createRouter({
     .mutation(async ({ input }) => {
       const { Slider } = await getMainModels();
       return Slider.create(input);
+    }),
+  updateSlider: adminMutation
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().optional(),
+        subtitle: z.string().optional(),
+        imageUrl: z.string().optional(),
+        videoUrl: z.string().optional(),
+        mediaType: z.enum(["image", "video"]).optional(),
+        buttonText: z.string().optional(),
+        buttonLink: z.string().optional(),
+        order: z.number().optional(),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { Slider } = await getMainModels();
+      const { id, ...data } = input;
+      return Slider.findByIdAndUpdate(id, data, { new: true });
     }),
   deleteSlider: adminMutation
     .input(z.object({ id: z.string() }))
@@ -757,26 +779,6 @@ export const cmsRouter = createRouter({
       const { MunRegistration } = await getMainModels();
       const { id, ...data } = input;
       return MunRegistration.findByIdAndUpdate(id, data, { new: true });
-    }),
-
-  // --- 14. UPDATE SLIDER ---
-  updateSlider: adminMutation
-    .input(
-      z.object({
-        id: z.string(),
-        title: z.string().optional(),
-        subtitle: z.string().optional(),
-        imageUrl: z.string().optional(),
-        buttonText: z.string().optional(),
-        buttonLink: z.string().optional(),
-        order: z.number().optional(),
-        isActive: z.boolean().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { Slider } = await getMainModels();
-      const { id, ...data } = input;
-      return Slider.findByIdAndUpdate(id, data, { new: true });
     }),
 
   // --- 16. UPDATE ACTIVITY ---

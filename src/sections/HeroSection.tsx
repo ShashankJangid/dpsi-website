@@ -25,14 +25,16 @@ export default function HeroSection() {
     ? cmsSliders
         .filter((s: any) => !s.isDeleted && s.isActive !== false)
         .map((s: any) => ({
-          image: s.imageUrl,
+          image: s.imageUrl || "",
+          videoUrl: s.videoUrl || "",
+          mediaType: (s.mediaType || (s.videoUrl ? "video" : "image")) as "image" | "video",
           title: s.title,
           subtitle: s.subtitle || "",
           badge: s.subtitle ? "Excellence in Education" : "Admissions Open 2026-27",
           buttonText: s.buttonText || "Apply Now",
           buttonLink: s.buttonLink || "/admissions",
         }))
-    : DEFAULT_HERO_SLIDES;
+    : DEFAULT_HERO_SLIDES.map(s => ({ ...s, videoUrl: "", mediaType: "image" as const }));
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [displayText, setDisplayText] = useState("");
@@ -178,22 +180,34 @@ export default function HeroSection() {
         {/* Overlapping Concurrent Crossfade (Zero Black Gaps) */}
         <AnimatePresence initial={false}>
           <motion.div
-            key={slide.image + safeSlideIndex}
+            key={(slide.videoUrl || slide.image) + safeSlideIndex}
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="absolute inset-0 flex items-center justify-center bg-slate-950 overflow-hidden"
           >
-            {/* 100% Unblocked Banner Image displayed in full natural color */}
-            <img
-              src={slide.image}
-              alt={slide.title}
-              className="w-full h-full object-cover object-center z-0 will-change-transform"
-              loading={safeSlideIndex === 0 ? "eager" : "lazy"}
-              decoding="async"
-              {...(safeSlideIndex === 0 ? { fetchPriority: "high" } : {})}
-            />
+            {/* 100% Unblocked Banner Video or Image */}
+            {slide.mediaType === "video" && slide.videoUrl ? (
+              <video
+                src={slide.videoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover object-center z-0 will-change-transform"
+              />
+            ) : (
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="w-full h-full object-cover object-center z-0 will-change-transform"
+                loading={safeSlideIndex === 0 ? "eager" : "lazy"}
+                decoding="async"
+                {...(safeSlideIndex === 0 ? { fetchPriority: "high" } : {})}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
 

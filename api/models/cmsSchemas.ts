@@ -136,7 +136,9 @@ const ActivitySchema = new Schema<IActivity>(
 export interface ISlider extends Document {
   title: string;
   subtitle?: string;
-  imageUrl: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  mediaType: "image" | "video";
   buttonText?: string;
   buttonLink?: string;
   order: number;
@@ -148,7 +150,9 @@ const SliderSchema = new Schema<ISlider>(
   {
     title: { type: String, required: true },
     subtitle: { type: String },
-    imageUrl: { type: String, required: true },
+    imageUrl: { type: String, default: "" },
+    videoUrl: { type: String, default: "" },
+    mediaType: { type: String, enum: ["image", "video"], default: "image" },
     buttonText: { type: String },
     buttonLink: { type: String },
     order: { type: Number, default: 0 },

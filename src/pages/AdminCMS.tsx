@@ -335,6 +335,16 @@ export default function AdminCMS() {
       refetchSliders();
       refetchStats();
       setSliderModal(false);
+      setEditingSlider(null);
+    },
+  });
+  const updateSlider = trpc.cms.updateSlider.useMutation({
+    onSuccess: () => {
+      toast.success("Slider updated!");
+      refetchSliders();
+      refetchStats();
+      setSliderModal(false);
+      setEditingSlider(null);
     },
   });
   const deleteSlider = trpc.cms.deleteSlider.useMutation({
@@ -818,7 +828,16 @@ export default function AdminCMS() {
   const [activityForm, setActivityForm] = useState({ title: "", category: "Academics", description: "", imageUrl: "" });
 
   const [sliderModal, setSliderModal] = useState(false);
-  const [sliderForm, setSliderForm] = useState({ title: "", subtitle: "", imageUrl: "", buttonText: "Learn More", buttonLink: "/" });
+  const [sliderForm, setSliderForm] = useState({
+    title: "",
+    subtitle: "",
+    imageUrl: "",
+    videoUrl: "",
+    mediaType: "image" as "image" | "video",
+    buttonText: "Apply Now",
+    buttonLink: "/admissions",
+    order: 0,
+  });
 
   const [attachmentModal, setAttachmentModal] = useState(false);
   const [attachmentForm, setAttachmentForm] = useState({ title: "", category: "Circulars", fileUrl: "", fileName: "" });
@@ -1932,16 +1951,25 @@ export default function AdminCMS() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">Hero Banners & Sliders</h2>
-                      <p className="text-xs text-slate-500">Live Homepage Slider Images • Order & Captions</p>
+                      <p className="text-xs text-slate-500">Live Homepage Slider Images & Direct Videos • Order & Captions</p>
                     </div>
                     <Button
                       onClick={() => {
                         setEditingSlider(null);
-                        setSliderForm({ title: "", subtitle: "", imageUrl: "", buttonText: "Apply Now", buttonLink: "/admissions", order: 0 });
+                        setSliderForm({
+                          title: "",
+                          subtitle: "",
+                          imageUrl: "",
+                          videoUrl: "",
+                          mediaType: "image",
+                          buttonText: "Apply Now",
+                          buttonLink: "/admissions",
+                          order: (slidersList?.length || 0) + 1,
+                        });
                         setSliderModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Slider
                     </Button>
@@ -1951,9 +1979,18 @@ export default function AdminCMS() {
                     {slidersList?.map((s: any) => (
                       <Card key={s._id} className="bg-white border-slate-200 shadow-sm overflow-hidden">
                         <div className="h-44 w-full overflow-hidden bg-slate-900 relative">
-                          <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" />
-                          <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 rounded text-[10px] text-white font-mono">
-                            Order: {s.order}
+                          {s.mediaType === "video" || s.videoUrl ? (
+                            <video src={s.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                          ) : (
+                            <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" />
+                          )}
+                          <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                            <span className="px-2 py-0.5 bg-black/60 rounded text-[10px] text-white font-mono">
+                              Order: {s.order}
+                            </span>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold text-white ${s.mediaType === "video" || s.videoUrl ? "bg-purple-600" : "bg-sky-600"}`}>
+                              {s.mediaType === "video" || s.videoUrl ? "Video" : "Image"}
+                            </span>
                           </div>
                         </div>
                         <CardContent className="p-4 flex items-start justify-between">
@@ -1970,7 +2007,7 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-slate-600 hover:bg-slate-100 h-8 px-2"
+                              className="text-slate-600 hover:bg-slate-100 h-8 px-2 cursor-pointer"
                               title="Edit Slider"
                               onClick={() => {
                                 setEditingSlider(s._id);
@@ -1978,6 +2015,8 @@ export default function AdminCMS() {
                                   title: s.title || "",
                                   subtitle: s.subtitle || "",
                                   imageUrl: s.imageUrl || "",
+                                  videoUrl: s.videoUrl || "",
+                                  mediaType: (s.mediaType || (s.videoUrl ? "video" : "image")) as "image" | "video",
                                   buttonText: s.buttonText || "Apply Now",
                                   buttonLink: s.buttonLink || "/admissions",
                                   order: s.order || 0,
@@ -1990,7 +2029,7 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-red-600 hover:bg-red-50 h-8 px-2"
+                              className="text-red-600 hover:bg-red-50 h-8 px-2 cursor-pointer"
                               title="Delete Slider"
                               onClick={() => deleteSlider.mutate({ id: s._id })}
                             >
@@ -3355,7 +3394,7 @@ export default function AdminCMS() {
         {/* MODAL: ADD / EDIT SLIDER */}
         {sliderModal && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-base font-bold text-slate-900">
                   {editingSlider ? "Edit Hero Banner" : "Add Hero Slider Banner"}
@@ -3365,10 +3404,39 @@ export default function AdminCMS() {
                     setSliderModal(false);
                     setEditingSlider(null);
                   }}
-                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* Media Type Selector */}
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">Banner Media Type</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSliderForm({ ...sliderForm, mediaType: "image" })}
+                    className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                      sliderForm.mediaType === "image"
+                        ? "bg-sky-50 text-sky-700 border-sky-300 ring-1 ring-sky-300"
+                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    🖼️ Photo Image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSliderForm({ ...sliderForm, mediaType: "video" })}
+                    className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                      sliderForm.mediaType === "video"
+                        ? "bg-purple-50 text-purple-700 border-purple-300 ring-1 ring-purple-300"
+                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    🎬 Direct Video
+                  </button>
+                </div>
               </div>
 
               <Input
@@ -3383,46 +3451,104 @@ export default function AdminCMS() {
                 onChange={(e) => setSliderForm({ ...sliderForm, subtitle: e.target.value })}
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <Input
-                  placeholder="Button Text (e.g. Apply Now)"
+                  placeholder="Button Text"
                   value={sliderForm.buttonText}
                   onChange={(e) => setSliderForm({ ...sliderForm, buttonText: e.target.value })}
                   className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
                 />
                 <Input
-                  placeholder="Button Link (e.g. /admissions)"
+                  placeholder="Button Link"
                   value={sliderForm.buttonLink}
                   onChange={(e) => setSliderForm({ ...sliderForm, buttonLink: e.target.value })}
                   className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
                 />
-              </div>
-
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-emerald-600 transition-colors bg-slate-50">
-                <Upload className="w-8 h-8 text-emerald-700 mx-auto mb-2" />
-                <p className="text-xs font-semibold text-slate-800">Select Banner Image</p>
-                <p className="text-[10px] text-slate-500 mt-1">Uploaded directly to Cloudinary CDN in WebP format</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      handleMediaUpload(file, (webpUrl) => {
-                        setSliderForm({ ...sliderForm, imageUrl: webpUrl });
-                      });
-                    }
-                  }}
-                  className="mt-4 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer"
+                <Input
+                  type="number"
+                  placeholder="Order (e.g. 1)"
+                  value={sliderForm.order || ""}
+                  onChange={(e) => setSliderForm({ ...sliderForm, order: parseInt(e.target.value) || 0 })}
+                  className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
                 />
               </div>
 
-              {sliderForm.imageUrl && (
-                <div className="relative rounded-lg overflow-hidden h-28 bg-slate-100 border border-slate-200">
-                  <img src={sliderForm.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                  <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-emerald-700 text-[9px] text-white font-bold">
-                    WebP Ready
-                  </span>
+              {/* MEDIA UPLOADER */}
+              {sliderForm.mediaType === "video" ? (
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-purple-300 rounded-lg p-5 text-center hover:border-purple-600 transition-colors bg-purple-50/40">
+                    <Upload className="w-8 h-8 text-purple-700 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-slate-800">Upload Video File</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Uploaded directly to Cloudinary CDN with instant streaming</p>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleMediaUpload(file, (videoUrl) => {
+                            setSliderForm({ ...sliderForm, videoUrl, mediaType: "video" });
+                          });
+                        }
+                      }}
+                      className="mt-3 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-purple-700 file:text-white hover:file:bg-purple-800 cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Input
+                      placeholder="Or enter direct video URL (e.g. https://.../video.mp4)"
+                      value={sliderForm.videoUrl}
+                      onChange={(e) => setSliderForm({ ...sliderForm, videoUrl: e.target.value, mediaType: "video" })}
+                      className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                    />
+                  </div>
+
+                  {sliderForm.videoUrl && (
+                    <div className="relative rounded-lg overflow-hidden h-36 bg-slate-900 border border-slate-200">
+                      <video src={sliderForm.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                      <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-purple-700 text-[9px] text-white font-bold">
+                        Video Loaded
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-slate-300 rounded-lg p-5 text-center hover:border-emerald-600 transition-colors bg-slate-50">
+                    <Upload className="w-8 h-8 text-emerald-700 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-slate-800">Select Banner Image</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Uploaded directly to Cloudinary CDN in WebP format</p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleMediaUpload(file, (webpUrl) => {
+                            setSliderForm({ ...sliderForm, imageUrl: webpUrl, mediaType: "image" });
+                          });
+                        }
+                      }}
+                      className="mt-3 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer"
+                    />
+                  </div>
+
+                  <Input
+                    placeholder="Or enter direct image URL (https://...)"
+                    value={sliderForm.imageUrl}
+                    onChange={(e) => setSliderForm({ ...sliderForm, imageUrl: e.target.value, mediaType: "image" })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                  />
+
+                  {sliderForm.imageUrl && (
+                    <div className="relative rounded-lg overflow-hidden h-32 bg-slate-100 border border-slate-200">
+                      <img src={sliderForm.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-emerald-700 text-[9px] text-white font-bold">
+                        WebP Ready
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -3433,12 +3559,16 @@ export default function AdminCMS() {
                     setSliderModal(false);
                     setEditingSlider(null);
                   }}
-                  className="text-slate-600 text-xs"
+                  className="text-slate-600 text-xs cursor-pointer"
                 >
                   Cancel
                 </Button>
                 <Button
-                  disabled={!sliderForm.title || !sliderForm.imageUrl}
+                  disabled={
+                    !sliderForm.title ||
+                    (sliderForm.mediaType === "video" ? !sliderForm.videoUrl : !sliderForm.imageUrl) ||
+                    isUploading
+                  }
                   onClick={() => {
                     if (editingSlider) {
                       updateSlider.mutate({ id: editingSlider, ...sliderForm });
@@ -3446,9 +3576,9 @@ export default function AdminCMS() {
                       createSlider.mutate(sliderForm);
                     }
                   }}
-                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer"
                 >
-                  {editingSlider ? "Update Slider" : "Save Slider"}
+                  {isUploading ? "Uploading..." : editingSlider ? "Update Slider" : "Save Slider"}
                 </Button>
               </div>
             </div>
