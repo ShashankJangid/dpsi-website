@@ -70,8 +70,8 @@ type TabType =
   | "facilities"
   | "feature_cards"
   | "departments"
-  | "admissions_content"
-
+  | "admission_steps"
+  | "faqs"
   | "stats_metrics"
   | "attachments"
   | "tc"
@@ -949,7 +949,8 @@ export default function AdminCMS() {
     { id: "facilities", label: "Campus Facilities", icon: <Building className="w-4 h-4" />, count: facilitiesList?.length ?? 0 },
     { id: "feature_cards", label: "3D Feature Cards", icon: <Cpu className="w-4 h-4" />, count: featureCardsList?.length ?? 0 },
     { id: "departments", label: "Departments", icon: <BookOpen className="w-4 h-4" />, count: departmentsList?.length ?? 0 },
-    { id: "admissions_content", label: "Admissions (Steps & FAQs)", icon: <HelpCircle className="w-4 h-4" />, count: (admissionStepsList?.length || 0) + (faqsList?.length || 0) },
+    { id: "admission_steps", label: "Admission Steps", icon: <FileText className="w-4 h-4" />, count: admissionStepsList?.length ?? 0 },
+    { id: "faqs", label: "Admissions FAQs", icon: <HelpCircle className="w-4 h-4" />, count: faqsList?.length ?? 0 },
     { id: "stats_metrics", label: "Quick Stats & Counters", icon: <BarChart3 className="w-4 h-4" />, count: statsMetricsList?.length ?? 0 },
     { id: "attachments", label: "Attachments", icon: <Paperclip className="w-4 h-4" />, count: attachmentsList?.length ?? stats?.attachments ?? 0 },
     { id: "tc", label: "Transfer Certificate", icon: <Award className="w-4 h-4" />, count: stats?.transferCertificates ?? 0 },
@@ -1098,8 +1099,8 @@ export default function AdminCMS() {
       </div>
 
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-          <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <div className="max-w-[1750px] w-full mx-auto px-2 sm:px-4 lg:px-6 pt-5">
+          <div className="flex flex-col lg:flex-row gap-5 items-start">
             {/* Left Nav Bar */}
             <div className="w-full lg:w-64 bg-white border border-slate-200 rounded-xl p-3 shadow-sm shrink-0">
               <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 py-2">
@@ -2589,144 +2590,143 @@ export default function AdminCMS() {
                 </motion.div>
               )}
 
-              {/* --- 15. ADMISSIONS CONTENT (STEPS & FAQS) --- */}
-              {activeTab === "admissions_content" && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                  {/* Steps section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-xl font-bold text-slate-900">Admission Process Steps</h2>
-                        <p className="text-xs text-slate-500">The 5-step flow on the Admissions page</p>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setEditingAdmissionStepId(null);
-                          setAdmissionStepForm({
-                            stepNumber: (admissionStepsList?.length || 0) + 1,
-                            title: "",
-                            description: "",
-                            icon: "FileText",
-                            order: (admissionStepsList?.length || 0) + 1,
-                          });
-                          setAdmissionStepModal(true);
-                        }}
-                        size="sm"
-                        className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
-                      >
-                        <Plus className="w-3.5 h-3.5 mr-1" /> Add Step
-                      </Button>
+              {/* --- 15. ADMISSION STEPS --- */}
+              {activeTab === "admission_steps" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Admission Process Steps</h2>
+                      <p className="text-xs text-slate-500">The step-by-step guidance flow shown on the Admissions page</p>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {admissionStepsList?.map((s: any) => (
-                        <Card key={s._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">
-                                {s.stepNumber}
-                              </span>
-                              <span className="text-[10px] text-slate-400 font-mono">{s.icon || "FileText"}</span>
-                            </div>
-                            <h3 className="font-bold text-slate-900 text-sm mb-1">{s.title}</h3>
-                            <p className="text-xs text-slate-600">{s.description}</p>
-                          </div>
-                          <div className="pt-3 border-t border-slate-100 flex justify-end gap-1 mt-3">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
-                              onClick={() => {
-                                setEditingAdmissionStepId(s._id);
-                                setAdmissionStepForm({
-                                  stepNumber: s.stepNumber || 1,
-                                  title: s.title,
-                                  description: s.description || "",
-                                  icon: s.icon || "FileText",
-                                  order: s.order || 0,
-                                });
-                                setAdmissionStepModal(true);
-                              }}
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:bg-red-50 h-7 px-2"
-                              onClick={() => deleteAdmissionStep.mutate({ id: s._id })}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditingAdmissionStepId(null);
+                        setAdmissionStepForm({
+                          stepNumber: (admissionStepsList?.length || 0) + 1,
+                          title: "",
+                          description: "",
+                          icon: "FileText",
+                          order: (admissionStepsList?.length || 0) + 1,
+                        });
+                        setAdmissionStepModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Step
+                    </Button>
                   </div>
 
-                  {/* FAQs section */}
-                  <div className="space-y-4 pt-6 border-t border-slate-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-xl font-bold text-slate-900">Frequently Asked Questions</h2>
-                        <p className="text-xs text-slate-500">Q&A items on Admissions and General FAQ sections</p>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setEditingFaqId(null);
-                          setFaqForm({
-                            question: "",
-                            answer: "",
-                            category: "Admissions",
-                            order: 0,
-                          });
-                          setFaqModal(true);
-                        }}
-                        size="sm"
-                        className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
-                      >
-                        <Plus className="w-3.5 h-3.5 mr-1" /> Add FAQ
-                      </Button>
-                    </div>
-
-                    <div className="space-y-2">
-                      {faqsList?.map((faq: any) => (
-                        <div key={faq._id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4">
-                          <div className="space-y-1">
-                            <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">{faq.category || "General"}</span>
-                            <h4 className="text-xs font-bold text-slate-900">{faq.question}</h4>
-                            <p className="text-xs text-slate-600">{faq.answer}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {admissionStepsList?.map((s: any) => (
+                      <Card key={s._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">
+                              {s.stepNumber}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">{s.icon || "FileText"}</span>
                           </div>
-                          <div className="flex gap-1 shrink-0">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
-                              onClick={() => {
-                                setEditingFaqId(faq._id);
-                                setFaqForm({
-                                  question: faq.question,
-                                  answer: faq.answer,
-                                  category: faq.category || "Admissions",
-                                  order: faq.order || 0,
-                                });
-                                setFaqModal(true);
-                              }}
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:bg-red-50 h-7 px-2"
-                              onClick={() => deleteFaq.mutate({ id: faq._id })}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
+                          <h3 className="font-bold text-slate-900 text-sm mb-1">{s.title}</h3>
+                          <p className="text-xs text-slate-600">{s.description}</p>
                         </div>
-                      ))}
+                        <div className="pt-3 border-t border-slate-100 flex justify-end gap-1 mt-3">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingAdmissionStepId(s._id);
+                              setAdmissionStepForm({
+                                stepNumber: s.stepNumber || 1,
+                                title: s.title,
+                                description: s.description || "",
+                                icon: s.icon || "FileText",
+                                order: s.order || 0,
+                              });
+                              setAdmissionStepModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteAdmissionStep.mutate({ id: s._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* --- 16. FREQUENTLY ASKED QUESTIONS (FAQS) --- */}
+              {activeTab === "faqs" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">Frequently Asked Questions</h2>
+                      <p className="text-xs text-slate-500">Manage Q&A items across Admissions and General FAQ sections</p>
                     </div>
+                    <Button
+                      onClick={() => {
+                        setEditingFaqId(null);
+                        setFaqForm({
+                          question: "",
+                          answer: "",
+                          category: "Admissions",
+                          order: 0,
+                        });
+                        setFaqModal(true);
+                      }}
+                      size="sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add FAQ
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {faqsList?.map((faq: any) => (
+                      <div key={faq._id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4 shadow-sm">
+                        <div className="space-y-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">{faq.category || "General"}</span>
+                          <h4 className="text-xs font-bold text-slate-900">{faq.question}</h4>
+                          <p className="text-xs text-slate-600">{faq.answer}</p>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            onClick={() => {
+                              setEditingFaqId(faq._id);
+                              setFaqForm({
+                                question: faq.question,
+                                answer: faq.answer,
+                                category: faq.category || "Admissions",
+                                order: faq.order || 0,
+                              });
+                              setFaqModal(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50 h-7 px-2"
+                            onClick={() => deleteFaq.mutate({ id: faq._id })}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </motion.div>
               )}
