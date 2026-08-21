@@ -120,14 +120,6 @@ export default function Navbar() {
   const { data: dbMarquees } = trpc.cms.listMarquees.useQuery(undefined, {
     staleTime: 60000,
   });
-  const { data: siteSettings } = trpc.cms.getSiteSettings.useQuery(undefined, {
-    staleTime: 60000,
-  });
-
-  const getSetting = (key: string, fallback: string) => {
-    const item = siteSettings?.find((s: any) => s.key === key);
-    return item?.value?.trim() || fallback;
-  };
 
   const phone = getSetting("contact_phone", "+91-0120-4660000, 4670000");
   const email = getSetting("contact_email", "INFO@DPSINDIRAPURAM.COM");
