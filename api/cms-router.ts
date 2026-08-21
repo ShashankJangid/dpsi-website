@@ -658,7 +658,7 @@ export const cmsRouter = createRouter({
         motherName: z.string().optional(),
         classLeaving: z.string(),
         dateOfIssue: z.string(),
-        certificatePdfUrl: z.string(),
+        certificatePdfUrl: z.string().optional().default("https://dpsindirapuram.com/tc/sample.pdf"),
         status: z.enum(["Issued", "Pending", "Cancelled"]).default("Issued"),
         remarks: z.string().optional(),
       })

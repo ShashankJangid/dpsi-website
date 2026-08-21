@@ -1396,6 +1396,7 @@ export default function AdminCMS() {
                           <th className="px-4 py-3">Class Leaving</th>
                           <th className="px-4 py-3">Date of Issue</th>
                           <th className="px-4 py-3">Status</th>
+                          <th className="px-4 py-3">Document</th>
                           <th className="px-4 py-3 text-right">Actions</th>
                         </tr>
                       </thead>
@@ -1411,6 +1412,22 @@ export default function AdminCMS() {
                               <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
                                 {tc.status}
                               </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              {tc.certificatePdfUrl ? (
+                                <a
+                                  href={tc.certificatePdfUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 text-[11px] font-medium transition-colors"
+                                >
+                                  <FileText className="w-3 h-3 text-emerald-600" />
+                                  <span>View TC</span>
+                                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                                </a>
+                              ) : (
+                                <span className="text-slate-400 text-[11px] italic">No file</span>
+                              )}
                             </td>
                             <td className="px-4 py-3 text-right">
                               <Button
@@ -3652,12 +3669,79 @@ export default function AdminCMS() {
                 onChange={(e) => setTcForm({ ...tcForm, dateOfIssue: e.target.value })}
                 className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
               />
-              <Input
-                placeholder="TC Certificate PDF / Scan URL"
-                value={tcForm.certificatePdfUrl}
-                onChange={(e) => setTcForm({ ...tcForm, certificatePdfUrl: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-700">TC Certificate Document (PDF / Scan)</label>
+                
+                {/* Upload from Local Device Dropzone / Button */}
+                <div className="border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl p-4 bg-slate-50/70 hover:bg-emerald-50/30 transition-all text-center">
+                  <input
+                    type="file"
+                    id="tc-file-upload-input"
+                    accept=".pdf,application/pdf,image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleMediaUpload(file, (url) => {
+                          setTcForm({ ...tcForm, certificatePdfUrl: url });
+                        });
+                      }
+                    }}
+                  />
+                  <label
+                    htmlFor="tc-file-upload-input"
+                    className="cursor-pointer flex flex-col items-center justify-center gap-1.5"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-sm">
+                      <Upload className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-800">
+                      {isUploading ? "Uploading to Cloudinary CDN..." : "Upload TC Document from Device"}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Supports PDF documents and scanned images (Max 15MB)</span>
+                  </label>
+                </div>
+
+                {/* Uploaded File Link / Preview */}
+                {tcForm.certificatePdfUrl ? (
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs">
+                    <div className="flex items-center gap-2 truncate">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span className="text-emerald-900 font-medium truncate font-mono text-[11px]">
+                        {tcForm.certificatePdfUrl}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <a
+                        href={tcForm.certificatePdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[10px] flex items-center gap-1 shadow-sm"
+                      >
+                        <span>Preview</span>
+                        <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setTcForm({ ...tcForm, certificatePdfUrl: "" })}
+                        className="p-1 text-slate-400 hover:text-red-600 rounded"
+                        title="Remove file"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Or paste direct TC Certificate PDF / Scan URL"
+                      value={tcForm.certificatePdfUrl}
+                      onChange={(e) => setTcForm({ ...tcForm, certificatePdfUrl: e.target.value })}
+                      className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                    />
+                  </div>
+                )}
+              </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <Button variant="outline" onClick={() => setTcModal(false)} className="text-slate-600 text-xs">Cancel</Button>
