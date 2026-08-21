@@ -3045,15 +3045,48 @@ export default function AdminCMS() {
 
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {menusList
-                          ?.filter((m: any) =>
+                        {(() => {
+                          if (!menusList) return [];
+                          const filtered = menusList.filter((m: any) =>
                             selectedMenuLocation === "all" ? true : m.location === selectedMenuLocation
-                          )
-                          .map((m: any) => (
-                            <tr key={m._id} className="hover:bg-slate-50 transition-colors">
+                          );
+
+                          const parents = filtered
+                            .filter((m: any) => !m.parent || m.parent.trim() === "" || m.parent === "None")
+                            .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+
+                          const result: any[] = [];
+                          const parentTitlesSet = new Set(parents.map((p: any) => (p.title || "").trim().toLowerCase()));
+
+                          for (const parent of parents) {
+                            result.push(parent);
+                            const pTitle = (parent.title || "").trim().toLowerCase();
+                            const pId = parent._id ? parent._id.toString() : "";
+                            const children = filtered
+                              .filter((c: any) => {
+                                if (!c.parent || c.parent.trim() === "" || c.parent === "None") return false;
+                                const cParent = c.parent.trim().toLowerCase();
+                                return cParent === pTitle || cParent === pId;
+                              })
+                              .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+
+                            result.push(...children);
+                          }
+
+                          const orphans = filtered
+                            .filter((m: any) => {
+                              if (!m.parent || m.parent.trim() === "" || m.parent === "None") return false;
+                              return !parentTitlesSet.has(m.parent.trim().toLowerCase());
+                            })
+                            .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+
+                          result.push(...orphans);
+                          return result;
+                        })().map((m: any) => (
+                            <tr key={m._id} className={`transition-colors ${m.parent ? "bg-slate-50/50 hover:bg-slate-100/70" : "hover:bg-slate-50"}`}>
                               <td className="px-4 py-3 font-semibold text-slate-900 flex items-center gap-2">
-                                {m.parent && <span className="text-slate-400 font-mono">└─</span>}
-                                {m.title}
+                                {m.parent && <span className="text-emerald-600 font-mono pl-3 text-xs">└─</span>}
+                                <span>{m.title}</span>
                               </td>
                               <td className="px-4 py-3 font-mono text-emerald-700">{m.url}</td>
                               <td className="px-4 py-3">

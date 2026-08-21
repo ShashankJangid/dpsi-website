@@ -55,17 +55,22 @@ export default function Navbar() {
   const dynamicNavLinks = (() => {
     if (!dbMenus || dbMenus.length === 0) return navLinks;
 
-    const parents = dbMenus.filter((m: any) => (!m.parent || m.parent.trim() === "" || m.parent === "None") && m.isActive !== false);
+    const parents = dbMenus
+      .filter((m: any) => (!m.parent || m.parent.trim() === "" || m.parent === "None") && m.isActive !== false)
+      .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+
     return parents.map((p: any) => {
       const pTitle = (p.title || "").trim().toLowerCase();
       const pId = p._id ? p._id.toString() : "";
       const pUrl = (p.url || "").trim().toLowerCase();
 
-      const children = dbMenus.filter((c: any) => {
-        if (!c.parent || c.parent.trim() === "" || c.parent === "None" || c.isActive === false) return false;
-        const cParent = c.parent.trim().toLowerCase();
-        return cParent === pTitle || cParent === pId || cParent === pUrl;
-      });
+      const children = dbMenus
+        .filter((c: any) => {
+          if (!c.parent || c.parent.trim() === "" || c.parent === "None" || c.isActive === false) return false;
+          const cParent = c.parent.trim().toLowerCase();
+          return cParent === pTitle || cParent === pId || cParent === pUrl;
+        })
+        .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
 
       return {
         label: p.title,
