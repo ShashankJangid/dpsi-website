@@ -1,12 +1,13 @@
 import { z } from "zod";
-import { createRouter, publicQuery, adminQuery } from "./middleware";
-import { getMainModels } from "./models/cmsSchemas";
+import mongoose from "mongoose";
+import { createRouter, publicQuery, adminMutation, adminQuery } from "./middleware";
+import { getMainModels, createImmutableAuditLog } from "./models/cmsSchemas";
 
 export const statsRouter = createRouter({
   list: publicQuery.query(async () => {
     try {
       const { QuickStat } = await getMainModels();
-      const docs = await QuickStat.find({ isDeleted: false, isActive: true }).sort({ order: 1 });
+      const docs = await QuickStat.find({ isDeleted: { $ne: true }, isActive: true }).sort({ order: 1 });
       return docs.map((d: any) => ({
         id: d._id.toString(),
         _id: d._id.toString(),
@@ -24,7 +25,7 @@ export const statsRouter = createRouter({
   adminList: adminQuery.query(async () => {
     try {
       const { QuickStat } = await getMainModels();
-      const docs = await QuickStat.find({ isDeleted: false }).sort({ order: 1 });
+      const docs = await QuickStat.find({ isDeleted: { $ne: true } }).sort({ order: 1 });
       return docs.map((d: any) => ({
         id: d._id.toString(),
         _id: d._id.toString(),
@@ -39,7 +40,7 @@ export const statsRouter = createRouter({
     }
   }),
 
-  create: adminQuery
+  create: adminMutation
     .input(
       z.object({
         label: z.string().min(2).max(255),
@@ -49,7 +50,7 @@ export const statsRouter = createRouter({
         active: z.boolean().default(true),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { QuickStat } = await getMainModels();
       const doc = await QuickStat.create({
         label: input.label,
@@ -58,13 +59,20 @@ export const statsRouter = createRouter({
         order: input.order,
         isActive: input.active,
       });
+      await createImmutableAuditLog({
+        action: "CREATE_STAT",
+        module: "Stats",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: doc._id.toString(),
+        details: `Created quick stat: ${doc.label} = ${doc.value}`,
+      });
       return { success: true, id: doc._id.toString() };
     }),
 
-  update: adminQuery
+  update: adminMutation
     .input(
       z.object({
-        id: z.string(),
+        id: z.union([z.string(), z.any()]),
         label: z.string().min(2).max(255),
         value: z.string().min(1).max(100),
         icon: z.string().max(100).optional(),
@@ -72,23 +80,55 @@ export const statsRouter = createRouter({
         active: z.boolean().default(true),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const { id, ...data } = input;
+      const statId = String(id?._id || id);
       const { QuickStat } = await getMainModels();
-      await QuickStat.findByIdAndUpdate(input.id, {
-        label: input.label,
-        value: input.value,
-        icon: input.icon,
-        order: input.order,
-        isActive: input.active,
+      const updated = await QuickStat.findByIdAndUpdate(
+        statId,
+        {
+          label: data.label,
+          value: data.value,
+          ...(data.icon ? { icon: data.icon } : {}),
+          order: data.order,
+          isActive: data.active,
+        },
+        { new: true }
+      );
+      await createImmutableAuditLog({
+        action: "UPDATE_STAT",
+        module: "Stats",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: statId,
+        details: `Updated quick stat: ${updated?.label || statId}`,
       });
       return { success: true };
     }),
 
-  delete: adminQuery
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+  delete: adminMutation
+    .input(z.object({ id: z.union([z.string(), z.any()]) }))
+    .mutation(async ({ input, ctx }) => {
       const { QuickStat } = await getMainModels();
-      await QuickStat.findByIdAndDelete(input.id);
-      return { success: true };
+      const rawId = input.id?._id || input.id;
+      const statId = String(rawId);
+
+      let deleted: any = null;
+      if (mongoose.Types.ObjectId.isValid(statId)) {
+        deleted = await QuickStat.findByIdAndDelete(statId).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await QuickStat.findOneAndDelete({
+          $or: [{ _id: statId }, { id: statId }, { label: statId }],
+        }).catch(() => null);
+      }
+
+      await createImmutableAuditLog({
+        action: "DELETE_STAT",
+        module: "Stats",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: statId,
+        details: `Deleted quick stat: ${deleted?.label || statId}`,
+      });
+      return { success: true, deleted };
     }),
 });

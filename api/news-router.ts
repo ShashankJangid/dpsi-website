@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { createRouter, publicQuery, adminQuery } from "./middleware";
-import { getMainModels } from "./models/cmsSchemas";
+import mongoose from "mongoose";
+import { createRouter, publicQuery, adminQuery, adminMutation } from "./middleware";
+import { getMainModels, createImmutableAuditLog } from "./models/cmsSchemas";
 
 export const newsRouter = createRouter({
   list: publicQuery.query(async () => {
@@ -94,7 +95,7 @@ export const newsRouter = createRouter({
     }
   }),
 
-  create: adminQuery
+  create: adminMutation
     .input(
       z.object({
         title: z.string().min(3).max(500),
@@ -107,7 +108,7 @@ export const newsRouter = createRouter({
         featured: z.boolean().default(false),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Activity } = await getMainModels();
       const doc = await Activity.create({
         title: input.title,
@@ -116,13 +117,20 @@ export const newsRouter = createRouter({
         category: input.category || "News",
         isPublished: input.published,
       });
+      await createImmutableAuditLog({
+        action: "CREATE_ACTIVITY",
+        module: "News",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: doc._id.toString(),
+        details: `Created news post: ${doc.title}`,
+      });
       return { success: true, id: doc._id.toString() };
     }),
 
-  update: adminQuery
+  update: adminMutation
     .input(
       z.object({
-        id: z.string(),
+        id: z.union([z.string(), z.any()]),
         title: z.string().min(3).max(500),
         slug: z.string().optional(),
         excerpt: z.string().optional(),
@@ -133,23 +141,55 @@ export const newsRouter = createRouter({
         featured: z.boolean().default(false),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const { id, ...data } = input;
+      const newsId = String(id?._id || id);
       const { Activity } = await getMainModels();
-      await Activity.findByIdAndUpdate(input.id, {
-        title: input.title,
-        description: input.content || input.excerpt || "",
-        imageUrl: input.image,
-        category: input.category,
-        isPublished: input.published,
+      const updated = await Activity.findByIdAndUpdate(
+        newsId,
+        {
+          title: data.title,
+          description: data.content || data.excerpt || "",
+          imageUrl: data.image,
+          category: data.category,
+          isPublished: data.published,
+        },
+        { new: true }
+      );
+      await createImmutableAuditLog({
+        action: "UPDATE_ACTIVITY",
+        module: "News",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: newsId,
+        details: `Updated news post: ${updated?.title || newsId}`,
       });
       return { success: true };
     }),
 
-  delete: adminQuery
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+  delete: adminMutation
+    .input(z.object({ id: z.union([z.string(), z.any()]) }))
+    .mutation(async ({ input, ctx }) => {
       const { Activity } = await getMainModels();
-      await Activity.findByIdAndDelete(input.id);
-      return { success: true };
+      const rawId = input.id?._id || input.id;
+      const newsId = String(rawId);
+
+      let deleted: any = null;
+      if (mongoose.Types.ObjectId.isValid(newsId)) {
+        deleted = await Activity.findByIdAndDelete(newsId).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await Activity.findOneAndDelete({
+          $or: [{ _id: newsId }, { id: newsId }, { title: newsId }],
+        }).catch(() => null);
+      }
+
+      await createImmutableAuditLog({
+        action: "DELETE_ACTIVITY",
+        module: "News",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: newsId,
+        details: `Deleted news post: ${deleted?.title || newsId}`,
+      });
+      return { success: true, deleted };
     }),
 });

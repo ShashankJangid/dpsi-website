@@ -47,7 +47,7 @@ export const admissionRouter = createRouter({
       return null;
     }),
 
-  updateStatus: adminQuery
+  updateStatus: adminMutation
     .input(
       z.object({
         id: z.any(),
@@ -58,7 +58,7 @@ export const admissionRouter = createRouter({
       return { success: true };
     }),
 
-  delete: adminQuery
+  delete: adminMutation
     .input(z.object({ id: z.any() }))
     .mutation(async ({ input }) => {
       return { success: true };

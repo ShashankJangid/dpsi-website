@@ -431,6 +431,8 @@ export default function AdminCMS() {
       toast.success("Page published successfully!");
       refetchPages();
       refetchStats();
+      utils.cms.listPages.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setPageModal(false);
     },
     onError: (err: any) => {
@@ -442,6 +444,8 @@ export default function AdminCMS() {
       toast.success("Page deleted");
       refetchPages();
       refetchStats();
+      utils.cms.listPages.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete page");
@@ -452,6 +456,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Menu item created!");
       refetchMenus();
+      utils.cms.listMenus.invalidate();
       setMenuModal(false);
     },
     onError: (err: any) => {
@@ -462,6 +467,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Menu item updated!");
       refetchMenus();
+      utils.cms.listMenus.invalidate();
       setMenuModal(false);
       setEditingMenuId(null);
     },
@@ -473,6 +479,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Menu item deleted");
       refetchMenus();
+      utils.cms.listMenus.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete menu item");
@@ -487,6 +494,8 @@ export default function AdminCMS() {
       toast.success("Popup notice published!");
       refetchPopups();
       refetchStats();
+      utils.cms.listPopups.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setPopupModal(false);
     },
     onError: (err: any) => {
@@ -498,6 +507,8 @@ export default function AdminCMS() {
       toast.success(`Popup ${data?.isActive ? "enabled" : "disabled"} successfully!`);
       refetchPopups();
       refetchStats();
+      utils.cms.listPopups.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to toggle popup");
@@ -508,6 +519,8 @@ export default function AdminCMS() {
       toast.success("Popup deleted");
       refetchPopups();
       refetchStats();
+      utils.cms.listPopups.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete popup");
@@ -518,6 +531,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Marquee alert added!");
       refetchMarquees();
+      utils.cms.listMarquees.invalidate();
       setMarqueeModal(false);
       setEditingMarquee(null);
     },
@@ -529,6 +543,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Marquee alert updated!");
       refetchMarquees();
+      utils.cms.listMarquees.invalidate();
       setMarqueeModal(false);
       setEditingMarquee(null);
     },
@@ -540,6 +555,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Marquee deleted");
       refetchMarquees();
+      utils.cms.listMarquees.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete marquee alert");
@@ -552,6 +568,8 @@ export default function AdminCMS() {
       toast.success("Activity item created!");
       refetchActivities();
       refetchStats();
+      utils.cms.listActivities.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setActivityModal(false);
     },
     onError: (err: any) => {
@@ -563,6 +581,8 @@ export default function AdminCMS() {
       toast.success("Activity deleted");
       refetchActivities();
       refetchStats();
+      utils.cms.listActivities.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete activity");
@@ -574,6 +594,8 @@ export default function AdminCMS() {
       toast.success("Slider item created!");
       refetchSliders();
       refetchStats();
+      utils.cms.listSliders.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setSliderModal(false);
       setEditingSlider(null);
     },
@@ -586,6 +608,8 @@ export default function AdminCMS() {
       toast.success("Slider updated!");
       refetchSliders();
       refetchStats();
+      utils.cms.listSliders.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setSliderModal(false);
       setEditingSlider(null);
     },
@@ -598,6 +622,8 @@ export default function AdminCMS() {
       toast.success("Slider deleted");
       refetchSliders();
       refetchStats();
+      utils.cms.listSliders.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete hero slider");
@@ -609,6 +635,8 @@ export default function AdminCMS() {
       toast.success("Attachment/Circular added!");
       refetchAttachments();
       refetchStats();
+      utils.cms.listAttachments.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setAttachmentModal(false);
     },
     onError: (err: any) => {
@@ -620,6 +648,8 @@ export default function AdminCMS() {
       toast.success("Attachment deleted");
       refetchAttachments();
       refetchStats();
+      utils.cms.listAttachments.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete attachment");
@@ -631,6 +661,8 @@ export default function AdminCMS() {
       toast.success("Image uploaded & transcoded to WebP via Cloudinary!");
       refetchGallery();
       refetchStats();
+      utils.cms.listGalleryImages.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setGalleryModal(false);
     },
     onError: (err: any) => {
@@ -655,6 +687,8 @@ export default function AdminCMS() {
       toast.success("Video added to Gallery!");
       refetchVideos();
       refetchStats();
+      utils.cms.listVideos.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setVideoModal(false);
       setVideoForm({ title: "", category: "Events", youtubeUrl: "", thumbnailUrl: "" });
     },
@@ -666,6 +700,9 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Video updated!");
       refetchVideos();
+      refetchStats();
+      utils.cms.listVideos.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setVideoModal(false);
       setEditingVideoId(null);
     },
@@ -691,6 +728,8 @@ export default function AdminCMS() {
       toast.success("Transfer Certificate record created!");
       refetchTc();
       refetchStats();
+      utils.cms.listTc.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setTcModal(false);
     },
     onError: (err: any) => {
@@ -702,6 +741,8 @@ export default function AdminCMS() {
       toast.success(`Bulk import complete: ${data.inserted} records inserted!`);
       refetchTc();
       refetchStats();
+      utils.cms.listTc.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setBulkTcModal(false);
       setBulkCsvText("");
       setBulkPreviewRows([]);
@@ -715,6 +756,8 @@ export default function AdminCMS() {
       toast.success("TC record deleted");
       refetchTc();
       refetchStats();
+      utils.cms.listTc.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete TC record");
@@ -725,6 +768,9 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Page updated!");
       refetchPages();
+      refetchStats();
+      utils.cms.listPages.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setPageModal(false);
       setEditingPageId(null);
     },
@@ -737,6 +783,9 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Activity updated!");
       refetchActivities();
+      refetchStats();
+      utils.cms.listActivities.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setActivityModal(false);
       setEditingActivity(null);
     },
@@ -749,6 +798,9 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Attachment updated!");
       refetchAttachments();
+      refetchStats();
+      utils.cms.listAttachments.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setAttachmentModal(false);
       setEditingAttachment(null);
     },
@@ -761,6 +813,7 @@ export default function AdminCMS() {
     onSuccess: (data: any) => {
       toast.success(`Menu item ${data?.isActive ? "shown" : "hidden"}`);
       refetchMenus();
+      utils.cms.listMenus.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to toggle menu item");
@@ -771,6 +824,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Site settings saved!");
       refetchSiteSettings();
+      utils.cms.getSiteSettings.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to update site settings");
@@ -781,6 +835,7 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("AI configuration saved and active!");
       refetchAiConfig();
+      utils.cms.getAiConfig.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to update AI configuration");
@@ -791,6 +846,9 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Popup updated!");
       refetchPopups();
+      refetchStats();
+      utils.cms.listPopups.invalidate();
+      utils.cms.dashboardStats.invalidate();
       setPopupModal(false);
       setEditingPopup(null);
     },
@@ -804,6 +862,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Topper / Achievement added!");
       refetchAchievements();
+      refetchStats();
+      utils.achievements.list.invalidate();
       setAchievementModal(false);
     },
     onError: (err: any) => {
@@ -814,6 +874,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Achievement updated!");
       refetchAchievements();
+      refetchStats();
+      utils.achievements.list.invalidate();
       setAchievementModal(false);
       setEditingAchievementId(null);
     },
@@ -825,6 +887,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Achievement deleted");
       refetchAchievements();
+      refetchStats();
+      utils.achievements.list.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete achievement");
@@ -835,6 +899,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Testimonial added!");
       refetchTestimonials();
+      refetchStats();
+      utils.testimonials.list.invalidate();
       setTestimonialModal(false);
     },
     onError: (err: any) => {
@@ -845,6 +911,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Testimonial updated!");
       refetchTestimonials();
+      refetchStats();
+      utils.testimonials.list.invalidate();
       setTestimonialModal(false);
       setEditingTestimonialId(null);
     },
@@ -856,6 +924,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Testimonial deleted");
       refetchTestimonials();
+      refetchStats();
+      utils.testimonials.list.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete testimonial");
@@ -866,6 +936,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Leadership member added!");
       refetchLeadership();
+      refetchStats();
+      utils.cms.listLeadership.invalidate();
       setLeadershipModal(false);
     },
     onError: (err: any) => {
@@ -876,6 +948,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Leadership member updated!");
       refetchLeadership();
+      refetchStats();
+      utils.cms.listLeadership.invalidate();
       setLeadershipModal(false);
       setEditingLeadershipId(null);
     },
@@ -887,6 +961,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Leadership member removed");
       refetchLeadership();
+      refetchStats();
+      utils.cms.listLeadership.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete leadership profile");
@@ -897,6 +973,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Facility added!");
       refetchFacilities();
+      refetchStats();
+      utils.cms.listFacilities.invalidate();
       setFacilityModal(false);
     },
     onError: (err: any) => {
@@ -907,6 +985,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Facility updated!");
       refetchFacilities();
+      refetchStats();
+      utils.cms.listFacilities.invalidate();
       setFacilityModal(false);
       setEditingFacilityId(null);
     },
@@ -918,6 +998,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Facility removed");
       refetchFacilities();
+      refetchStats();
+      utils.cms.listFacilities.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete facility");
@@ -928,6 +1010,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Department added!");
       refetchDepartments();
+      refetchStats();
+      utils.cms.listDepartments.invalidate();
       setDepartmentModal(false);
     },
     onError: (err: any) => {
@@ -938,6 +1022,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Department updated!");
       refetchDepartments();
+      refetchStats();
+      utils.cms.listDepartments.invalidate();
       setDepartmentModal(false);
       setEditingDepartmentId(null);
     },
@@ -949,6 +1035,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Department deleted");
       refetchDepartments();
+      refetchStats();
+      utils.cms.listDepartments.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete department");
@@ -959,6 +1047,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Admission step added!");
       refetchAdmissionSteps();
+      refetchStats();
+      utils.cms.listAdmissionSteps.invalidate();
       setAdmissionStepModal(false);
     },
     onError: (err: any) => {
@@ -969,6 +1059,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Admission step updated!");
       refetchAdmissionSteps();
+      refetchStats();
+      utils.cms.listAdmissionSteps.invalidate();
       setAdmissionStepModal(false);
       setEditingAdmissionStepId(null);
     },
@@ -980,6 +1072,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Admission step deleted");
       refetchAdmissionSteps();
+      refetchStats();
+      utils.cms.listAdmissionSteps.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete admission step");
@@ -990,6 +1084,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("FAQ added!");
       refetchFaqs();
+      refetchStats();
+      utils.cms.listFaqs.invalidate();
       setFaqModal(false);
     },
     onError: (err: any) => {
@@ -1000,6 +1096,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("FAQ updated!");
       refetchFaqs();
+      refetchStats();
+      utils.cms.listFaqs.invalidate();
       setFaqModal(false);
       setEditingFaqId(null);
     },
@@ -1011,6 +1109,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("FAQ deleted");
       refetchFaqs();
+      refetchStats();
+      utils.cms.listFaqs.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete FAQ");
@@ -1021,6 +1121,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Stat metric added!");
       refetchStatsMetrics();
+      refetchStats();
+      utils.stats.list.invalidate();
       setStatMetricModal(false);
     },
     onError: (err: any) => {
@@ -1031,6 +1133,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Stat metric updated!");
       refetchStatsMetrics();
+      refetchStats();
+      utils.stats.list.invalidate();
       setStatMetricModal(false);
       setEditingStatMetricId(null);
     },
@@ -1042,6 +1146,8 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("Stat metric deleted");
       refetchStatsMetrics();
+      refetchStats();
+      utils.stats.list.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete stat metric");
@@ -1094,21 +1200,36 @@ export default function AdminCMS() {
     onSuccess: () => {
       toast.success("3D Feature Card added!");
       refetchFeatureCards();
+      refetchStats();
+      utils.cms.listFeatureCards.invalidate();
       setFeatureCardModal(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add feature card");
     },
   });
   const updateFeatureCard = trpc.cms.updateFeatureCard.useMutation({
     onSuccess: () => {
       toast.success("3D Feature Card updated!");
       refetchFeatureCards();
+      refetchStats();
+      utils.cms.listFeatureCards.invalidate();
       setFeatureCardModal(false);
       setEditingFeatureCardId(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update feature card");
     },
   });
   const deleteFeatureCard = trpc.cms.deleteFeatureCard.useMutation({
     onSuccess: () => {
       toast.success("3D Feature Card removed");
       refetchFeatureCards();
+      refetchStats();
+      utils.cms.listFeatureCards.invalidate();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete feature card");
     },
   });
 

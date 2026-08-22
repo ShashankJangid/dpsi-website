@@ -1,12 +1,13 @@
 import { z } from "zod";
-import { createRouter, publicQuery, adminQuery } from "./middleware";
-import { getMainModels } from "./models/cmsSchemas";
+import mongoose from "mongoose";
+import { createRouter, publicQuery, adminMutation } from "./middleware";
+import { getMainModels, createImmutableAuditLog } from "./models/cmsSchemas";
 
 export const testimonialRouter = createRouter({
   list: publicQuery.query(async () => {
     try {
       const { Testimonial } = await getMainModels();
-      const docs = await Testimonial.find({ isDeleted: false, isActive: true }).sort({ order: 1, createdAt: -1 });
+      const docs = await Testimonial.find({ isDeleted: { $ne: true } }).sort({ order: 1, createdAt: -1 });
       return docs.map((d: any) => ({
         id: d._id.toString(),
         _id: d._id.toString(),
@@ -28,7 +29,7 @@ export const testimonialRouter = createRouter({
   featured: publicQuery.query(async () => {
     try {
       const { Testimonial } = await getMainModels();
-      const docs = await Testimonial.find({ isDeleted: false, isActive: true, featured: true }).sort({ order: 1 });
+      const docs = await Testimonial.find({ isDeleted: { $ne: true }, isActive: true, featured: true }).sort({ order: 1 });
       return docs.map((d: any) => ({
         id: d._id.toString(),
         _id: d._id.toString(),
@@ -46,7 +47,7 @@ export const testimonialRouter = createRouter({
     }
   }),
 
-  create: adminQuery
+  create: adminMutation
     .input(
       z.object({
         name: z.string().min(2).max(255),
@@ -58,16 +59,23 @@ export const testimonialRouter = createRouter({
         order: z.number().default(0),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { Testimonial } = await getMainModels();
       const doc = await Testimonial.create(input);
+      await createImmutableAuditLog({
+        action: "CREATE_TESTIMONIAL",
+        module: "Testimonials",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: doc._id.toString(),
+        details: `Created testimonial: ${doc.name} (${doc.role})`,
+      });
       return { success: true, id: doc._id.toString() };
     }),
 
-  update: adminQuery
+  update: adminMutation
     .input(
       z.object({
-        id: z.string(),
+        id: z.union([z.string(), z.any()]),
         name: z.string().min(2).max(255),
         role: z.string().min(2).max(255),
         content: z.string().min(5),
@@ -78,18 +86,45 @@ export const testimonialRouter = createRouter({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
+      const testId = String(id?._id || id);
       const { Testimonial } = await getMainModels();
-      await Testimonial.findByIdAndUpdate(id, data);
+      const updated = await Testimonial.findByIdAndUpdate(testId, data, { new: true });
+      await createImmutableAuditLog({
+        action: "UPDATE_TESTIMONIAL",
+        module: "Testimonials",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: testId,
+        details: `Updated testimonial: ${updated?.name || testId}`,
+      });
       return { success: true };
     }),
 
-  delete: adminQuery
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+  delete: adminMutation
+    .input(z.object({ id: z.union([z.string(), z.any()]) }))
+    .mutation(async ({ input, ctx }) => {
       const { Testimonial } = await getMainModels();
-      await Testimonial.findByIdAndDelete(input.id);
-      return { success: true };
+      const rawId = input.id?._id || input.id;
+      const testId = String(rawId);
+
+      let deleted: any = null;
+      if (mongoose.Types.ObjectId.isValid(testId)) {
+        deleted = await Testimonial.findByIdAndDelete(testId).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await Testimonial.findOneAndDelete({
+          $or: [{ _id: testId }, { id: testId }, { name: testId }],
+        }).catch(() => null);
+      }
+
+      await createImmutableAuditLog({
+        action: "DELETE_TESTIMONIAL",
+        module: "Testimonials",
+        performedBy: ctx.user?.username || "Admin",
+        documentId: testId,
+        details: `Deleted testimonial: ${deleted?.name || testId}`,
+      });
+      return { success: true, deleted };
     }),
 });
