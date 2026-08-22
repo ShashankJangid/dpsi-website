@@ -2428,8 +2428,13 @@ export default function AdminCMS() {
                             variant="ghost"
                             className="text-slate-600 hover:bg-slate-100 h-7 px-2"
                             onClick={() => {
-                              setEditingVideoId(v._id);
-                              setVideoForm({ title: v.title, category: v.category || "Events", youtubeUrl: v.youtubeUrl || "", thumbnailUrl: v.thumbnailUrl || "" });
+                              setEditingVideoId(v._id ? String(v._id) : v.id);
+                              setVideoForm({
+                                title: v.title || "",
+                                category: v.category || "Events",
+                                youtubeUrl: v.youtubeUrl || v.videoUrl || "",
+                                thumbnailUrl: v.thumbnailUrl || "",
+                              });
                               setVideoModal(true);
                             }}
                           >
@@ -4315,72 +4320,134 @@ export default function AdminCMS() {
                 </button>
               </div>
 
-              <Input
-                placeholder="Video Title (e.g. AI Lab Tour 2026)"
-                value={videoForm.title}
-                onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })}
-                className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
-              />
               <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-slate-600">YouTube URL or Video ID</label>
+                <label className="text-[11px] font-semibold text-slate-600">Video Title *</label>
                 <Input
-                  placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX"
+                  placeholder="Video Title (e.g. Annual Sports Day 2026 / AI Innovation Lab)"
+                  value={videoForm.title}
+                  onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })}
+                  className="bg-slate-50 border-slate-200 text-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600">YouTube URL, Video ID, or Direct MP4 Link *</label>
+                <Input
+                  placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ or shorts/live/youtu.be link"
                   value={videoForm.youtubeUrl}
                   onChange={(e) => {
                     const val = e.target.value;
-                    try {
-                      let thumbUrl = videoForm.thumbnailUrl;
-                      if (val.length >= 10) {
-                        const match = val.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-                        const vid = match?.[1] ?? (val.length === 11 ? val : "");
-                        if (vid) thumbUrl = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
-                      }
-                      setVideoForm({ ...videoForm, youtubeUrl: val, thumbnailUrl: thumbUrl });
-                    } catch {
-                      setVideoForm({ ...videoForm, youtubeUrl: val });
+                    let thumbUrl = videoForm.thumbnailUrl;
+                    const match = val.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|shorts\/|live\/|watch\?(?:.*&)?v=))([\w-]{11})/i);
+                    const vid = match ? match[1] : val.trim().length === 11 && /^[\w-]{11}$/.test(val.trim()) ? val.trim() : "";
+                    if (vid) {
+                      thumbUrl = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
                     }
+                    setVideoForm({ ...videoForm, youtubeUrl: val, thumbnailUrl: thumbUrl });
                   }}
                   className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono"
                 />
-                <p className="text-[10px] text-slate-400">Paste the full YouTube URL or just the 11-character video ID</p>
+                <p className="text-[10px] text-slate-400">Supports regular YouTube URLs, YouTube Shorts, Live streams, youtu.be shortlinks, or 11-char video IDs.</p>
               </div>
-              <select
-                value={videoForm.category}
-                onChange={(e) => setVideoForm({ ...videoForm, category: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg p-2.5 text-xs"
-              >
-                <option value="Events">Events</option>
-                <option value="Campus">Campus</option>
-                <option value="Sports">Sports</option>
-                <option value="Academics">Academics</option>
-                <option value="Robotics">Robotics</option>
-                <option value="MUN">MUN</option>
-                <option value="Cultural">Cultural</option>
-              </select>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600">Category</label>
+                <select
+                  value={videoForm.category}
+                  onChange={(e) => setVideoForm({ ...videoForm, category: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-lg p-2.5 text-xs"
+                >
+                  <option value="Events">Events</option>
+                  <option value="Campus">Campus</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Academics">Academics</option>
+                  <option value="Robotics">Robotics</option>
+                  <option value="MUN">MUN</option>
+                  <option value="Cultural">Cultural</option>
+                </select>
+              </div>
+
+              {/* Custom Thumbnail URL & Upload */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-600">Cover Thumbnail URL (Auto-Generated or Custom)</label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://img.youtube.com/vi/... or custom image URL"
+                    value={videoForm.thumbnailUrl}
+                    onChange={(e) => setVideoForm({ ...videoForm, thumbnailUrl: e.target.value })}
+                    className="bg-slate-50 border-slate-200 text-slate-900 text-xs font-mono"
+                  />
+                  <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-1 shrink-0">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleMediaUpload(file, (url) => {
+                            setVideoForm({ ...videoForm, thumbnailUrl: url });
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
 
               {videoForm.thumbnailUrl && (
-                <div className="relative rounded-lg overflow-hidden h-32 bg-slate-900 border border-slate-200">
-                  <img src={videoForm.thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                <div className="relative rounded-lg overflow-hidden h-36 bg-slate-900 border border-slate-200">
+                  <img
+                    src={videoForm.thumbnailUrl}
+                    alt="Thumbnail preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <Play className="w-6 h-6 fill-white text-white" />
+                    <Play className="w-8 h-8 fill-white text-white drop-shadow-md" />
+                  </div>
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px] font-mono">
+                    Live Video Preview
                   </div>
                 </div>
               )}
 
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <Button variant="outline" onClick={() => { setVideoModal(false); setEditingVideoId(null); setVideoForm({ title: "", category: "Events", youtubeUrl: "", thumbnailUrl: "" }); }} className="text-slate-600 text-xs">Cancel</Button>
                 <Button
-                  disabled={!videoForm.title || !videoForm.youtubeUrl}
+                  variant="outline"
                   onClick={() => {
+                    setVideoModal(false);
+                    setEditingVideoId(null);
+                    setVideoForm({ title: "", category: "Events", youtubeUrl: "", thumbnailUrl: "" });
+                  }}
+                  className="text-slate-600 text-xs cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  disabled={!videoForm.title.trim() || !videoForm.youtubeUrl.trim() || createVideo.isPending || updateVideo.isPending}
+                  onClick={() => {
+                    const payload = {
+                      title: videoForm.title.trim(),
+                      category: videoForm.category || "Events",
+                      youtubeUrl: videoForm.youtubeUrl.trim(),
+                      thumbnailUrl: videoForm.thumbnailUrl.trim(),
+                    };
                     if (editingVideoId) {
-                      updateVideo.mutate({ id: editingVideoId, ...videoForm });
+                      updateVideo.mutate({ id: String(editingVideoId), ...payload });
                     } else {
-                      createVideo.mutate(videoForm);
+                      createVideo.mutate(payload);
                     }
                   }}
-                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                 >
-                  {editingVideoId ? "Update Video" : "Save Video"}
+                  {createVideo.isPending || updateVideo.isPending
+                    ? "Saving..."
+                    : editingVideoId
+                    ? "Update Video"
+                    : "Save Video"}
                 </Button>
               </div>
             </div>

@@ -4,13 +4,21 @@ import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
 function extractYoutubeInfo(url: string) {
-  if (!url) return null;
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-  const id = match ? match[1] : (url.length === 11 ? url : "");
+  if (!url || typeof url !== "string") return null;
+  const cleanUrl = url.trim();
+  if (!cleanUrl) return null;
+
+  // Match YouTube URLs: watch?v=, youtu.be/, embed/, shorts/, live/, v/
+  const match = cleanUrl.match(
+    /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|shorts\/|live\/|watch\?(?:.*&)?v=))([\w-]{11})/i
+  );
+  const id = match ? match[1] : cleanUrl.length === 11 && /^[\w-]{11}$/.test(cleanUrl) ? cleanUrl : "";
+
   if (!id) return null;
+
   return {
     id,
-    embedUrl: `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`,
+    embedUrl: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&enablejsapi=1`,
     thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
   };
 }
@@ -23,10 +31,11 @@ export default function VideoGallerySection() {
   const dynamicVideos = cmsVideos
     ?.filter((v: any) => !v.isDeleted && v.isPublished !== false)
     ?.map((v: any) => {
-      const yt = v.youtubeUrl ? extractYoutubeInfo(v.youtubeUrl) : null;
+      const targetUrl = (v.youtubeUrl || v.videoUrl || "").trim();
+      const yt = targetUrl ? extractYoutubeInfo(targetUrl) : null;
       if (yt) {
         return {
-          id: v._id || yt.id,
+          id: v._id ? String(v._id) : yt.id,
           title: v.title,
           url: yt.embedUrl,
           thumbnail: v.thumbnailUrl || yt.thumbnail,
@@ -34,11 +43,11 @@ export default function VideoGallerySection() {
         };
       }
       return {
-        id: v._id,
+        id: v._id ? String(v._id) : Math.random().toString(),
         title: v.title,
-        url: v.videoUrl || "",
+        url: v.videoUrl || v.youtubeUrl || "",
         thumbnail: v.thumbnailUrl || "",
-        isDirectVideo: !!v.videoUrl,
+        isDirectVideo: !!(v.videoUrl || targetUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i)),
       };
     });
 
