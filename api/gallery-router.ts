@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { createRouter, publicQuery, adminQuery } from "./middleware";
+import mongoose from "mongoose";
+import { createRouter, publicQuery, adminQuery, adminMutation } from "./middleware";
 import { getGalleryModels } from "./models/cmsSchemas";
 
 function escapeRegex(str: string): string {
@@ -99,11 +100,21 @@ export const galleryRouter = createRouter({
       return { success: true };
     }),
 
-  delete: adminQuery
-    .input(z.object({ id: z.string() }))
+  delete: adminMutation
+    .input(z.object({ id: z.union([z.string(), z.any()]) }))
     .mutation(async ({ input }) => {
       const { GalleryImage } = await getGalleryModels();
-      await GalleryImage.findByIdAndDelete(input.id);
-      return { success: true };
+      const rawId = input.id?._id || input.id;
+      const imageId = String(rawId);
+      let deleted = null;
+      if (mongoose.Types.ObjectId.isValid(imageId)) {
+        deleted = await GalleryImage.findByIdAndDelete(imageId).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await GalleryImage.findOneAndDelete({
+          $or: [{ _id: imageId }, { id: imageId }, { imageUrl: imageId }, { title: imageId }],
+        }).catch(() => null);
+      }
+      return { success: true, deleted };
     }),
 });

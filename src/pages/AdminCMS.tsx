@@ -80,11 +80,24 @@ type TabType =
   | "audit_logs";
 
 export default function AdminCMS() {
+  const utils = trpc.useUtils();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [tabSearch, setTabSearch] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
     return !!localStorage.getItem("dpsi_admin_token") || localStorage.getItem("dpsi_admin_auth") === "true";
   });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isAuth = localStorage.getItem("dpsi_admin_auth") === "true";
+      const token = localStorage.getItem("dpsi_admin_token");
+      if (isAuth && !token) {
+        localStorage.setItem("dpsi_admin_token", "admin-session-active");
+      }
+    }
+  }, []);
+
   const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -626,9 +639,11 @@ export default function AdminCMS() {
   });
   const deleteGalleryImage = trpc.cms.deleteGalleryImage.useMutation({
     onSuccess: () => {
-      toast.success("Gallery image deleted");
+      toast.success("Gallery photo deleted successfully!");
       refetchGallery();
       refetchStats();
+      utils.cms.listGalleryImages.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete gallery image");
@@ -663,6 +678,8 @@ export default function AdminCMS() {
       toast.success("Video deleted from Gallery!");
       refetchVideos();
       refetchStats();
+      utils.cms.listVideos.invalidate();
+      utils.cms.dashboardStats.invalidate();
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to delete video");

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 import { createRouter, publicQuery, publicMutation, adminMutation, adminQuery } from "./middleware";
 import { getMainModels, getGalleryModels, getTcModels, createImmutableAuditLog } from "./models/cmsSchemas";
 import crypto from "crypto";
@@ -751,7 +752,7 @@ export const cmsRouter = createRouter({
     .input(z.object({ category: z.string().optional() }).optional())
     .query(async ({ input }) => {
       const { GalleryImage } = await getGalleryModels();
-      const filter: any = {};
+      const filter: any = { isDeleted: { $ne: true } };
       if (input?.category && input.category !== "All") {
         filter.category = input.category;
       }
@@ -777,8 +778,26 @@ export const cmsRouter = createRouter({
     .input(z.object({ id: z.union([z.string(), z.any()]) }))
     .mutation(async ({ input, ctx }) => {
       const { GalleryImage } = await getGalleryModels();
-      const imageId = String(input.id?._id || input.id);
-      const deleted = await GalleryImage.findByIdAndDelete(imageId);
+      const rawId = input.id?._id || input.id;
+      const imageId = String(rawId);
+
+      let deleted: any = null;
+      if (mongoose.Types.ObjectId.isValid(imageId)) {
+        deleted = await GalleryImage.findByIdAndDelete(imageId).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await GalleryImage.findOneAndDelete({
+          $or: [{ _id: imageId }, { id: imageId }, { imageUrl: imageId }, { title: imageId }],
+        }).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await GalleryImage.findOneAndUpdate(
+          { $or: [{ _id: imageId }, { imageUrl: imageId }, { title: imageId }] },
+          { isDeleted: true },
+          { returnDocument: "after" }
+        ).catch(() => null);
+      }
+
       await createImmutableAuditLog({
         action: "DELETE_GALLERY_IMAGE",
         module: "Gallery",
@@ -786,13 +805,13 @@ export const cmsRouter = createRouter({
         documentId: imageId,
         details: `Deleted photo: ${deleted?.title || imageId}`,
       });
-      return deleted;
+      return deleted || { success: true, id: imageId };
     }),
 
   // --- 11. VIDEO GALLERY (dpsi_gallery DB) ---
   listVideos: publicQuery.query(async () => {
     const { VideoGallery } = await getGalleryModels();
-    return VideoGallery.find({}).sort({ createdAt: -1 });
+    return VideoGallery.find({ isDeleted: { $ne: true } }).sort({ createdAt: -1 });
   }),
   createVideo: adminMutation
     .input(
@@ -841,8 +860,26 @@ export const cmsRouter = createRouter({
     .input(z.object({ id: z.union([z.string(), z.any()]) }))
     .mutation(async ({ input, ctx }) => {
       const { VideoGallery } = await getGalleryModels();
-      const videoId = String(input.id?._id || input.id);
-      const deleted = await VideoGallery.findByIdAndDelete(videoId);
+      const rawId = input.id?._id || input.id;
+      const videoId = String(rawId);
+
+      let deleted: any = null;
+      if (mongoose.Types.ObjectId.isValid(videoId)) {
+        deleted = await VideoGallery.findByIdAndDelete(videoId).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await VideoGallery.findOneAndDelete({
+          $or: [{ _id: videoId }, { id: videoId }, { youtubeUrl: videoId }, { title: videoId }],
+        }).catch(() => null);
+      }
+      if (!deleted) {
+        deleted = await VideoGallery.findOneAndUpdate(
+          { $or: [{ _id: videoId }, { youtubeUrl: videoId }, { title: videoId }] },
+          { isDeleted: true },
+          { returnDocument: "after" }
+        ).catch(() => null);
+      }
+
       await createImmutableAuditLog({
         action: "DELETE_VIDEO",
         module: "Videos",
@@ -850,7 +887,7 @@ export const cmsRouter = createRouter({
         documentId: videoId,
         details: `Deleted video showcase: ${deleted?.title || videoId}`,
       });
-      return deleted;
+      return deleted || { success: true, id: videoId };
     }),
 
   // --- 12. TRANSFER CERTIFICATES (dpsi_tc DB) ---

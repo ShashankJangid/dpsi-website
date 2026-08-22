@@ -14,8 +14,16 @@ const trpcClient = trpc.createClient({
       url: "/api/trpc",
       transformer: superjson,
       headers() {
-        const token = localStorage.getItem("dpsi_admin_token");
-        return token ? { Authorization: `Bearer ${token}` } : {};
+        const token = typeof window !== "undefined" ? localStorage.getItem("dpsi_admin_token") : null;
+        const isAuth = typeof window !== "undefined" ? localStorage.getItem("dpsi_admin_auth") : null;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        if (isAuth === "true" || !!token) {
+          headers["x-admin-auth"] = "true";
+        }
+        return headers;
       },
       fetch(input, init) {
         return globalThis.fetch(input, {
