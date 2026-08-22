@@ -174,8 +174,12 @@ npm install
 ### 2. Environment Setup
 Create a `.env` file in the root directory:
 ```env
-# MongoDB Atlas
+# MongoDB Atlas / Local MongoDB
+# The app uses three databases: dpsi_main, dpsi_gallery, dpsi_tc
 MONGODB_URI="mongodb+srv://<username>:<password>@cluster0.e4cvux4.mongodb.net/?appName=Cluster0"
+# or DATABASE_URL="mongodb+srv://<username>:<password>@cluster0.e4cvux4.mongodb.net/?appName=Cluster0"
+# Local dev:
+# MONGODB_URI="mongodb://127.0.0.1:27017"
 
 # Cloudinary CDN Storage
 CLOUDINARY_URL="cloudinary://<api_key>:<api_secret>@<cloud_name>"
@@ -237,4 +241,3 @@ docker run -d -p 3000:3000 --env-file .env dpsi-website
 - **Developer**: Shashank Jangid ([@ShashankJangid](https://github.com/ShashankJangid))
 - **Project**: Delhi Public School Indirapuram Web Platform
 - **License**: Copyright © DPS Indirapuram. All Rights Reserved.
-

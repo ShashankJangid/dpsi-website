@@ -12,10 +12,10 @@ try {
   // Ignore in environments where setting DNS servers is restricted
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.DATABASE_URL;
 
 if (!MONGODB_URI) {
-  console.warn("⚠️ MONGODB_URI is not set in environment variables.");
+  console.warn("⚠️ Neither MONGODB_URI nor DATABASE_URL is set in environment variables.");
 }
 
 
@@ -64,7 +64,7 @@ export async function getDbConnection(dbName: "dpsi_main" | "dpsi_gallery" | "dp
   }
 
   if (!MONGODB_URI) {
-    throw new Error("MONGODB_URI environment variable is missing.");
+    throw new Error("MongoDB connection string is missing. Set MONGODB_URI or DATABASE_URL.");
   }
 
   // 3. Construct database-specific URI
@@ -78,13 +78,15 @@ export async function getDbConnection(dbName: "dpsi_main" | "dpsi_gallery" | "dp
   }
 
   // 4. Initiate single connection promise
+  const isLocalMongo = /^mongodb:\/\/(localhost|127\.0\.0\.1)/i.test(uri);
+
   cached.promises[key] = mongoose.createConnection(uri, {
     serverSelectionTimeoutMS: 8000,
     connectTimeoutMS: 10000,
     socketTimeoutMS: 45000,
     maxPoolSize: 10,
     minPoolSize: 1,
-    tls: true,
+    tls: isLocalMongo ? false : true,
   }).asPromise();
 
   try {

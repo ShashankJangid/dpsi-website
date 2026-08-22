@@ -8,8 +8,14 @@ import { appRouter } from "./router";
 import { createContext } from "./context";
 import { seedDatabase } from "./lib/seedDatabase";
 
-// Safe asynchronous background seeding of MongoDB defaults
-seedDatabase().catch((err) => console.warn("Seed warning:", err));
+// Seed MongoDB defaults at startup so the CMS has content on a fresh database.
+// In development, surface failures loudly so connection/config issues are obvious.
+seedDatabase().catch((err) => {
+  console.error("MongoDB auto-seeding failed:", err);
+  if (process.env.NODE_ENV === "production") {
+    console.warn("Continuing without seed data in production.");
+  }
+});
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
