@@ -1,4 +1,6 @@
+import bcrypt from "bcryptjs";
 import { getMainModels, getGalleryModels, getTcModels } from "../models/cmsSchemas";
+import { getAdminUserModel } from "../models/adminUserSchema";
 
 export async function seedDatabase() {
   try {
@@ -844,6 +846,18 @@ export async function seedDatabase() {
           status: "Verified",
         },
       ]);
+    // 21. ADMIN USER
+    const AdminUser = await getAdminUserModel();
+    const adminUser = await AdminUser.findOne({ username: { $regex: /^admin$/i } });
+    const defaultPassword = process.env.ADMIN_PASSWORD || "Admin@dps123";
+    if (!adminUser) {
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(defaultPassword, salt);
+      await AdminUser.create({
+        username: "Admin",
+        passwordHash,
+        role: "superadmin",
+      });
     }
 
     console.log("✅ MongoDB Auto-Seeding completed successfully with all models populated!");
