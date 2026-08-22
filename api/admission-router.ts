@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { createRouter, publicQuery, adminQuery } from "./middleware";
+import { createRouter, publicQuery, publicMutation, adminQuery, adminMutation } from "./middleware";
 import { getMainModels } from "./models/cmsSchemas";
 
 export const admissionRouter = createRouter({
-  create: publicQuery
+  create: publicMutation
     .input(
       z.object({
         studentName: z.string().min(2).max(255),
