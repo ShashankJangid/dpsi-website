@@ -36,10 +36,10 @@ export async function createContext(
     }
   }
 
-  // Fallback: Support x-admin-auth header or local development mode
-  if (!user) {
+  // Fallback: Support local development mode only
+  if (!user && process.env.NODE_ENV !== "production") {
     const adminHeader = opts.req.headers.get("x-admin-auth");
-    if (adminHeader === "true" || process.env.NODE_ENV !== "production") {
+    if (adminHeader === "true" || process.env.ENABLE_DEV_ADMIN === "true" || !process.env.JWT_SECRET) {
       user = {
         id: "admin-master",
         username: "Admin",
