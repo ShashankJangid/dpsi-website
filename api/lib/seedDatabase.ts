@@ -846,6 +846,8 @@ export async function seedDatabase() {
           status: "Verified",
         },
       ]);
+    }
+
     // 21. ADMIN USER
     const AdminUser = await getAdminUserModel();
     const adminUser = await AdminUser.findOne({ username: { $regex: /^admin$/i } });
