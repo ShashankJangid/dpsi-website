@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [
     devServer({ entry: "api/boot.ts", exclude: [/^\/(?!api\/).*$/] }),
     react(),
-    VitePWA({
+    process.env.DISABLE_PWA === 'true' ? undefined : VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
       includeAssets: [
@@ -106,20 +106,27 @@ export default defineConfig({
   },
   envDir: path.resolve(__dirname),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: "dist/public",
     emptyOutDir: true,
     cssCodeSplit: true,
+    minify: false,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
+      input: {
+        index: path.resolve(__dirname, "index.html")
+      },
       output: {
-        manualChunks: {
-          spline: ["@splinetool/react-spline", "@splinetool/runtime"],
-          three: ["three", "@react-three/fiber", "@react-three/drei"],
-          charts: ["recharts"],
-          icons: ["lucide-react"],
-          vendor: ["react", "react-dom", "react-router", "framer-motion"],
+        manualChunks(id) {
+          if (!id) return null;
+          if (id.includes('@splinetool/react-spline') || id.includes('@splinetool/runtime')) return 'spline';
+          if (id.includes('three') || id.includes('@react-three/fiber') || id.includes('@react-three/drei')) return 'three';
+          if (id.includes('recharts')) return 'charts';
+          if (id.includes('lucide-react')) return 'icons';
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('framer-motion')) return 'vendor';
+          return null;
         },
       },
     },
+
   },
 });
