@@ -13,7 +13,7 @@ export type TrpcContext = {
   user: AuthUser | null;
 };
 
-const JWT_SECRET = process.env.JWT_SECRET || "";
+const JWT_SECRET = process.env.JWT_SECRET || "dpsi_cms_super_secret_jwt_key_2026_99x";
 
 export async function createContext(
   opts: FetchCreateContextFnOptions,

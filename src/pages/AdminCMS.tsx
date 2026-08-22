@@ -420,12 +420,18 @@ export default function AdminCMS() {
       refetchStats();
       setPageModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create page");
+    },
   });
   const deletePage = trpc.cms.deletePage.useMutation({
     onSuccess: () => {
       toast.success("Page deleted");
       refetchPages();
       refetchStats();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete page");
     },
   });
 
@@ -435,6 +441,9 @@ export default function AdminCMS() {
       refetchMenus();
       setMenuModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create menu item");
+    },
   });
   const updateMenu = trpc.cms.updateMenu.useMutation({
     onSuccess: () => {
@@ -443,11 +452,17 @@ export default function AdminCMS() {
       setMenuModal(false);
       setEditingMenuId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update menu item");
+    },
   });
   const deleteMenu = trpc.cms.deleteMenu.useMutation({
     onSuccess: () => {
       toast.success("Menu item deleted");
       refetchMenus();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete menu item");
     },
   });
 
@@ -460,6 +475,9 @@ export default function AdminCMS() {
       refetchPopups();
       refetchStats();
       setPopupModal(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create popup notice");
     },
   });
   const togglePopup = trpc.cms.togglePopup.useMutation({
@@ -478,6 +496,9 @@ export default function AdminCMS() {
       refetchPopups();
       refetchStats();
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete popup");
+    },
   });
 
   const createMarquee = trpc.cms.createMarquee.useMutation({
@@ -487,6 +508,9 @@ export default function AdminCMS() {
       setMarqueeModal(false);
       setEditingMarquee(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add marquee alert");
+    },
   });
   const updateMarquee = trpc.cms.updateMarquee.useMutation({
     onSuccess: () => {
@@ -495,11 +519,17 @@ export default function AdminCMS() {
       setMarqueeModal(false);
       setEditingMarquee(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update marquee alert");
+    },
   });
   const deleteMarquee = trpc.cms.deleteMarquee.useMutation({
     onSuccess: () => {
       toast.success("Marquee deleted");
       refetchMarquees();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete marquee alert");
     },
   });
 
@@ -511,12 +541,18 @@ export default function AdminCMS() {
       refetchStats();
       setActivityModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create activity");
+    },
   });
   const deleteActivity = trpc.cms.deleteActivity.useMutation({
     onSuccess: () => {
       toast.success("Activity deleted");
       refetchActivities();
       refetchStats();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete activity");
     },
   });
 
@@ -528,6 +564,9 @@ export default function AdminCMS() {
       setSliderModal(false);
       setEditingSlider(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create hero slider");
+    },
   });
   const updateSlider = trpc.cms.updateSlider.useMutation({
     onSuccess: () => {
@@ -537,12 +576,18 @@ export default function AdminCMS() {
       setSliderModal(false);
       setEditingSlider(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update hero slider");
+    },
   });
   const deleteSlider = trpc.cms.deleteSlider.useMutation({
     onSuccess: () => {
       toast.success("Slider deleted");
       refetchSliders();
       refetchStats();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete hero slider");
     },
   });
 
@@ -553,12 +598,18 @@ export default function AdminCMS() {
       refetchStats();
       setAttachmentModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add attachment");
+    },
   });
   const deleteAttachment = trpc.cms.deleteAttachment.useMutation({
     onSuccess: () => {
       toast.success("Attachment deleted");
       refetchAttachments();
       refetchStats();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete attachment");
     },
   });
 
@@ -569,12 +620,18 @@ export default function AdminCMS() {
       refetchStats();
       setGalleryModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to save gallery image");
+    },
   });
   const deleteGalleryImage = trpc.cms.deleteGalleryImage.useMutation({
     onSuccess: () => {
       toast.success("Gallery image deleted");
       refetchGallery();
       refetchStats();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete gallery image");
     },
   });
 
@@ -586,6 +643,9 @@ export default function AdminCMS() {
       setVideoModal(false);
       setVideoForm({ title: "", category: "Events", youtubeUrl: "", thumbnailUrl: "" });
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add video showcase");
+    },
   });
   const updateVideo = trpc.cms.updateVideo.useMutation({
     onSuccess: () => {
@@ -593,6 +653,9 @@ export default function AdminCMS() {
       refetchVideos();
       setVideoModal(false);
       setEditingVideoId(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update video showcase");
     },
   });
   const deleteVideo = trpc.cms.deleteVideo.useMutation({
@@ -612,6 +675,9 @@ export default function AdminCMS() {
       refetchTc();
       refetchStats();
       setTcModal(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create TC record");
     },
   });
   const bulkCreateTc = trpc.cms.bulkCreateTc.useMutation({
@@ -633,6 +699,9 @@ export default function AdminCMS() {
       refetchTc();
       refetchStats();
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete TC record");
+    },
   });
 
   const updatePage = trpc.cms.updatePage.useMutation({
@@ -641,6 +710,9 @@ export default function AdminCMS() {
       refetchPages();
       setPageModal(false);
       setEditingPageId(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update page");
     },
   });
 
@@ -651,8 +723,10 @@ export default function AdminCMS() {
       setActivityModal(false);
       setEditingActivity(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update activity");
+    },
   });
-
 
   const updateAttachment = trpc.cms.updateAttachment.useMutation({
     onSuccess: () => {
@@ -661,12 +735,18 @@ export default function AdminCMS() {
       setAttachmentModal(false);
       setEditingAttachment(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update attachment");
+    },
   });
 
   const toggleMenuMutation = trpc.cms.toggleMenu.useMutation({
     onSuccess: (data: any) => {
       toast.success(`Menu item ${data?.isActive ? "shown" : "hidden"}`);
       refetchMenus();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to toggle menu item");
     },
   });
 
@@ -675,12 +755,18 @@ export default function AdminCMS() {
       toast.success("Site settings saved!");
       refetchSiteSettings();
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update site settings");
+    },
   });
 
   const updateAiConfigMutation = trpc.cms.updateAiConfig.useMutation({
     onSuccess: () => {
       toast.success("AI configuration saved and active!");
       refetchAiConfig();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update AI configuration");
     },
   });
 
@@ -691,6 +777,9 @@ export default function AdminCMS() {
       setPopupModal(false);
       setEditingPopup(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update popup");
+    },
   });
 
   // --- NEW CRUD MUTATIONS FOR CMS-DRIVEN ARCHITECTURE ---
@@ -700,6 +789,9 @@ export default function AdminCMS() {
       refetchAchievements();
       setAchievementModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add achievement");
+    },
   });
   const updateAchievement = trpc.achievements.update.useMutation({
     onSuccess: () => {
@@ -708,11 +800,17 @@ export default function AdminCMS() {
       setAchievementModal(false);
       setEditingAchievementId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update achievement");
+    },
   });
   const deleteAchievement = trpc.achievements.delete.useMutation({
     onSuccess: () => {
       toast.success("Achievement deleted");
       refetchAchievements();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete achievement");
     },
   });
 
@@ -722,6 +820,9 @@ export default function AdminCMS() {
       refetchTestimonials();
       setTestimonialModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add testimonial");
+    },
   });
   const updateTestimonial = trpc.testimonials.update.useMutation({
     onSuccess: () => {
@@ -730,11 +831,17 @@ export default function AdminCMS() {
       setTestimonialModal(false);
       setEditingTestimonialId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update testimonial");
+    },
   });
   const deleteTestimonial = trpc.testimonials.delete.useMutation({
     onSuccess: () => {
       toast.success("Testimonial deleted");
       refetchTestimonials();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete testimonial");
     },
   });
 
@@ -744,6 +851,9 @@ export default function AdminCMS() {
       refetchLeadership();
       setLeadershipModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add leadership profile");
+    },
   });
   const updateLeadership = trpc.cms.updateLeadership.useMutation({
     onSuccess: () => {
@@ -752,11 +862,17 @@ export default function AdminCMS() {
       setLeadershipModal(false);
       setEditingLeadershipId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update leadership profile");
+    },
   });
   const deleteLeadership = trpc.cms.deleteLeadership.useMutation({
     onSuccess: () => {
       toast.success("Leadership member removed");
       refetchLeadership();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete leadership profile");
     },
   });
 
@@ -766,6 +882,9 @@ export default function AdminCMS() {
       refetchFacilities();
       setFacilityModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add facility");
+    },
   });
   const updateFacility = trpc.cms.updateFacility.useMutation({
     onSuccess: () => {
@@ -774,11 +893,17 @@ export default function AdminCMS() {
       setFacilityModal(false);
       setEditingFacilityId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update facility");
+    },
   });
   const deleteFacility = trpc.cms.deleteFacility.useMutation({
     onSuccess: () => {
       toast.success("Facility removed");
       refetchFacilities();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete facility");
     },
   });
 
@@ -788,6 +913,9 @@ export default function AdminCMS() {
       refetchDepartments();
       setDepartmentModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add department");
+    },
   });
   const updateDepartment = trpc.cms.updateDepartment.useMutation({
     onSuccess: () => {
@@ -796,11 +924,17 @@ export default function AdminCMS() {
       setDepartmentModal(false);
       setEditingDepartmentId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update department");
+    },
   });
   const deleteDepartment = trpc.cms.deleteDepartment.useMutation({
     onSuccess: () => {
       toast.success("Department deleted");
       refetchDepartments();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete department");
     },
   });
 
@@ -810,6 +944,9 @@ export default function AdminCMS() {
       refetchAdmissionSteps();
       setAdmissionStepModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add admission step");
+    },
   });
   const updateAdmissionStep = trpc.cms.updateAdmissionStep.useMutation({
     onSuccess: () => {
@@ -818,11 +955,17 @@ export default function AdminCMS() {
       setAdmissionStepModal(false);
       setEditingAdmissionStepId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update admission step");
+    },
   });
   const deleteAdmissionStep = trpc.cms.deleteAdmissionStep.useMutation({
     onSuccess: () => {
       toast.success("Admission step deleted");
       refetchAdmissionSteps();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete admission step");
     },
   });
 
@@ -832,6 +975,9 @@ export default function AdminCMS() {
       refetchFaqs();
       setFaqModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add FAQ");
+    },
   });
   const updateFaq = trpc.cms.updateFaq.useMutation({
     onSuccess: () => {
@@ -840,11 +986,17 @@ export default function AdminCMS() {
       setFaqModal(false);
       setEditingFaqId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update FAQ");
+    },
   });
   const deleteFaq = trpc.cms.deleteFaq.useMutation({
     onSuccess: () => {
       toast.success("FAQ deleted");
       refetchFaqs();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete FAQ");
     },
   });
 
@@ -854,6 +1006,9 @@ export default function AdminCMS() {
       refetchStatsMetrics();
       setStatMetricModal(false);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to add stat metric");
+    },
   });
   const updateStatMetric = trpc.stats.update.useMutation({
     onSuccess: () => {
@@ -862,11 +1017,17 @@ export default function AdminCMS() {
       setStatMetricModal(false);
       setEditingStatMetricId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update stat metric");
+    },
   });
   const deleteStatMetric = trpc.stats.delete.useMutation({
     onSuccess: () => {
       toast.success("Stat metric deleted");
       refetchStatsMetrics();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete stat metric");
     },
   });
 
@@ -1584,9 +1745,15 @@ export default function AdminCMS() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-red-600 hover:bg-red-50 h-7 px-2"
+                                className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
                                 title="Delete Page"
-                                onClick={() => deletePage.mutate({ id: p._id })}
+                                disabled={deletePage.isPending}
+                                onClick={() => {
+                                  const pageId = String(p._id || p.id);
+                                  if (confirm(`Are you sure you want to delete "${p.title || 'this page'}"?`)) {
+                                    deletePage.mutate({ id: pageId });
+                                  }
+                                }}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </Button>
@@ -1620,26 +1787,38 @@ export default function AdminCMS() {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
-                    {galleryImages?.map((img: any) => (
-                      <div key={img._id} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white aspect-square shadow-sm">
-                        <img src={img.imageUrl} alt={img.title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2.5 flex flex-col justify-between">
-                          <span className="self-end px-1.5 py-0.5 rounded bg-emerald-500 text-[9px] font-bold text-black uppercase">
-                            WebP
-                          </span>
-                          <div>
-                            <p className="text-white text-xs font-semibold">{img.title}</p>
-                            <p className="text-slate-300 text-[10px]">{img.category}</p>
+                    {galleryImages?.map((img: any) => {
+                      const imageId = String(img._id || img.id);
+                      return (
+                        <div key={imageId} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white aspect-square shadow-sm">
+                          <img src={img.imageUrl} alt={img.title} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2.5 flex flex-col justify-between pointer-events-none">
+                            <span className="self-start px-1.5 py-0.5 rounded bg-emerald-500 text-[9px] font-bold text-black uppercase shadow-xs">
+                              WebP
+                            </span>
+                            <div>
+                              <p className="text-white text-xs font-semibold">{img.title}</p>
+                              <p className="text-slate-300 text-[10px]">{img.category}</p>
+                            </div>
                           </div>
+                          <button
+                            type="button"
+                            title="Delete photo"
+                            disabled={deleteGalleryImage.isPending}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (confirm(`Are you sure you want to delete "${img.title || 'this image'}"?`)) {
+                                deleteGalleryImage.mutate({ id: imageId });
+                              }
+                            }}
+                            className="absolute top-2 right-2 z-20 p-1.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-lg shadow-md cursor-pointer transition-all duration-200 opacity-90 group-hover:opacity-100"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => deleteGalleryImage.mutate({ id: img._id })}
-                          className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {(!galleryImages || galleryImages.length === 0) && (
                       <div className="col-span-full text-center py-10 border border-dashed border-slate-300 rounded-xl text-slate-400 text-xs bg-white">
                         No gallery images yet. Upload any JPEG or PNG to auto-convert to WebP.
@@ -1728,8 +1907,15 @@ export default function AdminCMS() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-red-600 hover:bg-red-50 h-7 px-2"
-                                onClick={() => deleteTc.mutate({ id: tc._id })}
+                                className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                                disabled={deleteTc.isPending}
+                                title="Delete TC"
+                                onClick={() => {
+                                  const tcId = String(tc._id || tc.id);
+                                  if (confirm(`Are you sure you want to delete TC for "${tc.studentName || tc.admissionNumber}"?`)) {
+                                    deleteTc.mutate({ id: tcId });
+                                  }
+                                }}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </Button>
@@ -1771,7 +1957,7 @@ export default function AdminCMS() {
                         setPopupModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Popup
                     </Button>
@@ -1779,7 +1965,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {popupsList?.map((p: any) => (
-                      <Card key={p._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                      <Card key={String(p._id || p.id)} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
                         <div>
                           {p.imageUrl && (
                             <div className="w-full h-36 bg-slate-50 border-b border-slate-100 overflow-hidden flex items-center justify-center">
@@ -1813,8 +1999,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-slate-200 text-[10px] h-7 px-2"
-                            onClick={() => togglePopup.mutate({ id: p._id, isActive: !p.isActive })}
+                            className="border-slate-200 text-[10px] h-7 px-2 cursor-pointer"
+                            disabled={togglePopup.isPending}
+                            onClick={() => togglePopup.mutate({ id: String(p._id || p.id), isActive: !p.isActive })}
                           >
                             {p.isActive ? "Disable" : "Enable"}
                           </Button>
@@ -1822,10 +2009,10 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                              className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                               title="Edit Popup"
                               onClick={() => {
-                                setEditingPopup(p._id);
+                                setEditingPopup(p._id ? String(p._id) : p.id);
                                 setPopupForm({
                                   title: p.title || "",
                                   content: p.content || "",
@@ -1842,9 +2029,15 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                              disabled={deletePopup.isPending}
                               title="Delete Popup"
-                              onClick={() => deletePopup.mutate({ id: p._id })}
+                              onClick={() => {
+                                const popupId = String(p._id || p.id);
+                                if (confirm(`Are you sure you want to delete modal banner "${p.title || 'this popup'}"?`)) {
+                                  deletePopup.mutate({ id: popupId });
+                                }
+                              }}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
@@ -2044,9 +2237,15 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-red-600 hover:bg-red-50 h-8 px-2"
+                              className="text-red-600 hover:bg-red-50 h-8 px-2 cursor-pointer"
                               title="Delete Marquee"
-                              onClick={() => deleteMarquee.mutate({ id: m._id })}
+                              disabled={deleteMarquee.isPending}
+                              onClick={() => {
+                                const mId = String(m._id || m.id);
+                                if (confirm(`Are you sure you want to delete this marquee notice?`)) {
+                                  deleteMarquee.mutate({ id: mId });
+                                }
+                              }}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
@@ -2079,7 +2278,7 @@ export default function AdminCMS() {
                         setActivityModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Activity
                     </Button>
@@ -2087,7 +2286,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {activitiesList?.map((act: any) => (
-                      <Card key={act._id} className="bg-white border-slate-200 shadow-sm overflow-hidden">
+                      <Card key={String(act._id || act.id)} className="bg-white border-slate-200 shadow-sm overflow-hidden">
                         {act.imageUrl && (
                           <div className="h-36 w-full overflow-hidden bg-slate-100">
                             <img src={act.imageUrl} alt={act.title} className="w-full h-full object-cover" />
@@ -2105,10 +2304,10 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                              className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                               title="Edit Activity"
                               onClick={() => {
-                                setEditingActivity(act._id);
+                                setEditingActivity(act._id ? String(act._id) : act.id);
                                 setActivityForm({
                                   title: act.title || "",
                                   category: act.category || "General",
@@ -2124,9 +2323,15 @@ export default function AdminCMS() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-red-600 hover:bg-red-50 h-7 px-2"
+                              className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                              disabled={deleteActivity.isPending}
                               title="Delete Activity"
-                              onClick={() => deleteActivity.mutate({ id: act._id })}
+                              onClick={() => {
+                                const actId = String(act._id || act.id);
+                                if (confirm(`Are you sure you want to delete "${act.title || 'this activity'}"?`)) {
+                                  deleteActivity.mutate({ id: actId });
+                                }
+                              }}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
@@ -2153,7 +2358,7 @@ export default function AdminCMS() {
                         setAttachmentModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs shadow-sm cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Attachment
                     </Button>
@@ -2171,7 +2376,7 @@ export default function AdminCMS() {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {attachmentsList?.map((att: any) => (
-                          <tr key={att._id} className="hover:bg-slate-50 transition-colors">
+                          <tr key={String(att._id || att.id)} className="hover:bg-slate-50 transition-colors">
                             <td className="px-4 py-3 font-medium text-slate-900 flex items-center gap-2">
                               <Paperclip className="w-3.5 h-3.5 text-emerald-700" />
                               {att.title}
@@ -2182,10 +2387,10 @@ export default function AdminCMS() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                                className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                                 title="Edit Attachment"
                                 onClick={() => {
-                                  setEditingAttachment(att._id);
+                                  setEditingAttachment(att._id ? String(att._id) : att.id);
                                   setAttachmentForm({
                                     title: att.title || "",
                                     category: att.category || "Circulars",
@@ -2200,9 +2405,15 @@ export default function AdminCMS() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-red-600 hover:bg-red-50 h-7 px-2"
+                                className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                                disabled={deleteAttachment.isPending}
                                 title="Delete Attachment"
-                                onClick={() => deleteAttachment.mutate({ id: att._id })}
+                                onClick={() => {
+                                  const attId = String(att._id || att.id);
+                                  if (confirm(`Are you sure you want to delete "${att.title || 'this circular'}"?`)) {
+                                    deleteAttachment.mutate({ id: attId });
+                                  }
+                                }}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </Button>
@@ -2473,7 +2684,7 @@ export default function AdminCMS() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">Academic Toppers & Achievements</h2>
-                      <p className="text-xs text-slate-500">Manage Board Examination toppers, ranks, percentages, and student photos</p>
+                      <p className="text-xs text-slate-500">Add Toppers • Manage Board Results • Academic Showcase</p>
                     </div>
                     <Button
                       onClick={() => {
@@ -2481,10 +2692,10 @@ export default function AdminCMS() {
                         setAchievementForm({
                           studentName: "",
                           className: "Class X",
-                          score: "",
+                          score: "99.2%",
                           exam: "CBSE Board Examination",
                           stream: "",
-                          rank: "",
+                          rank: "School Topper",
                           year: "2025-26",
                           imageUrl: "",
                           featured: true,
@@ -2493,7 +2704,7 @@ export default function AdminCMS() {
                         setAchievementModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Topper
                     </Button>
@@ -2501,7 +2712,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {achievementsList?.map((ach: any) => (
-                      <Card key={ach._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                      <Card key={String(ach._id || ach.id)} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
                         <div>
                           <div className="h-44 w-full overflow-hidden bg-slate-900 relative">
                             {ach.imageUrl ? (
@@ -2526,9 +2737,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingAchievementId(ach._id);
+                              setEditingAchievementId(ach._id ? String(ach._id) : ach.id);
                               setAchievementForm({
                                 studentName: ach.studentName,
                                 className: ach.className || "Class X",
@@ -2549,8 +2760,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteAchievement.mutate({ id: ach._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteAchievement.isPending}
+                            title="Delete Topper"
+                            onClick={() => {
+                              const achId = String(ach._id || ach.id);
+                              if (confirm(`Are you sure you want to delete topper record "${ach.studentName || 'this record'}"?`)) {
+                                deleteAchievement.mutate({ id: achId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -2589,7 +2807,7 @@ export default function AdminCMS() {
                         setTestimonialModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Testimonial
                     </Button>
@@ -2597,7 +2815,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {testimonialsList?.map((t: any) => (
-                      <Card key={t._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                      <Card key={String(t._id || t.id)} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
                         <div>
                           <div className="flex items-center gap-3 mb-3">
                             <div className="w-11 h-11 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
@@ -2621,9 +2839,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingTestimonialId(t._id);
+                              setEditingTestimonialId(t._id ? String(t._id) : t.id);
                               setTestimonialForm({
                                 name: t.name,
                                 role: t.role || "",
@@ -2641,8 +2859,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteTestimonial.mutate({ id: t._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteTestimonial.isPending}
+                            title="Delete Testimonial"
+                            onClick={() => {
+                              const tId = String(t._id || t.id);
+                              if (confirm(`Are you sure you want to delete testimonial from "${t.name || 'this user'}"?`)) {
+                                deleteTestimonial.mutate({ id: tId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -2681,7 +2906,7 @@ export default function AdminCMS() {
                         setLeadershipModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Leader
                     </Button>
@@ -2689,7 +2914,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {leadershipList?.map((l: any) => (
-                      <Card key={l._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                      <Card key={String(l._id || l.id)} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
                         <div>
                           <div className="h-48 w-full overflow-hidden bg-slate-900 relative">
                             {l.imageUrl ? (
@@ -2711,9 +2936,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingLeadershipId(l._id);
+                              setEditingLeadershipId(l._id ? String(l._id) : l.id);
                               setLeadershipForm({
                                 name: l.name,
                                 role: l.role || "",
@@ -2731,8 +2956,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteLeadership.mutate({ id: l._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteLeadership.isPending}
+                            title="Delete Leader"
+                            onClick={() => {
+                              const lId = String(l._id || l.id);
+                              if (confirm(`Are you sure you want to delete profile for "${l.name || 'this member'}"?`)) {
+                                deleteLeadership.mutate({ id: lId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -2770,7 +3002,7 @@ export default function AdminCMS() {
                         setFacilityModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Facility
                     </Button>
@@ -2778,7 +3010,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {facilitiesList?.map((f: any) => (
-                      <Card key={f._id} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                      <Card key={String(f._id || f.id)} className="bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
                         <div>
                           <div className="h-44 w-full overflow-hidden bg-slate-900 relative">
                             {f.imageUrl ? (
@@ -2804,9 +3036,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingFacilityId(f._id);
+                              setEditingFacilityId(f._id ? String(f._id) : f.id);
                               setFacilityForm({
                                 title: f.title,
                                 category: f.category || "Campus",
@@ -2826,8 +3058,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteFacility.mutate({ id: f._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteFacility.isPending}
+                            title="Delete Facility"
+                            onClick={() => {
+                              const fId = String(f._id || f.id);
+                              if (confirm(`Are you sure you want to delete facility "${f.title || 'this facility'}"?`)) {
+                                deleteFacility.mutate({ id: fId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -2864,7 +3103,7 @@ export default function AdminCMS() {
                         setFeatureCardModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Feature Card
                     </Button>
@@ -2872,7 +3111,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {featureCardsList?.map((card: any) => (
-                      <Card key={card._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                      <Card key={String(card._id || card.id)} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="px-2 py-0.5 bg-sky-100 text-sky-800 font-bold rounded text-[10px] uppercase">
@@ -2890,9 +3129,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingFeatureCardId(card._id);
+                              setEditingFeatureCardId(card._id ? String(card._id) : card.id);
                               setFeatureCardForm({
                                 title: card.title,
                                 description: card.description || "",
@@ -2908,8 +3147,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteFeatureCard.mutate({ id: card._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteFeatureCard.isPending}
+                            title="Delete Feature Card"
+                            onClick={() => {
+                              const cId = String(card._id || card.id);
+                              if (confirm(`Are you sure you want to delete feature card "${card.title || 'this card'}"?`)) {
+                                deleteFeatureCard.mutate({ id: cId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -2946,7 +3192,7 @@ export default function AdminCMS() {
                         setDepartmentModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Department
                     </Button>
@@ -2954,7 +3200,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {departmentsList?.map((d: any) => (
-                      <Card key={d._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                      <Card key={String(d._id || d.id)} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
                         <div>
                           <div className="flex items-center gap-3 mb-2">
                             <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700 font-bold">
@@ -2971,9 +3217,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingDepartmentId(d._id);
+                              setEditingDepartmentId(d._id ? String(d._id) : d.id);
                               setDepartmentForm({
                                 name: d.name,
                                 subjects: d.subjects || "",
@@ -2989,8 +3235,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteDepartment.mutate({ id: d._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteDepartment.isPending}
+                            title="Delete Department"
+                            onClick={() => {
+                              const dId = String(d._id || d.id);
+                              if (confirm(`Are you sure you want to delete department "${d.name || 'this department'}"?`)) {
+                                deleteDepartment.mutate({ id: dId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -3022,7 +3275,7 @@ export default function AdminCMS() {
                         setAdmissionStepModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Step
                     </Button>
@@ -3030,7 +3283,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {admissionStepsList?.map((s: any) => (
-                      <Card key={s._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
+                      <Card key={String(s._id || s.id)} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between">
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">
@@ -3045,9 +3298,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingAdmissionStepId(s._id);
+                              setEditingAdmissionStepId(s._id ? String(s._id) : s.id);
                               setAdmissionStepForm({
                                 stepNumber: s.stepNumber || 1,
                                 title: s.title,
@@ -3063,8 +3316,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteAdmissionStep.mutate({ id: s._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteAdmissionStep.isPending}
+                            title="Delete Step"
+                            onClick={() => {
+                              const sId = String(s._id || s.id);
+                              if (confirm(`Are you sure you want to delete admission step "${s.title || s.stepNumber}"?`)) {
+                                deleteAdmissionStep.mutate({ id: sId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -3095,7 +3355,7 @@ export default function AdminCMS() {
                         setFaqModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add FAQ
                     </Button>
@@ -3103,7 +3363,7 @@ export default function AdminCMS() {
 
                   <div className="space-y-2">
                     {faqsList?.map((faq: any) => (
-                      <div key={faq._id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4 shadow-sm">
+                      <div key={String(faq._id || faq.id)} className="bg-white border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4 shadow-sm">
                         <div className="space-y-1">
                           <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">{faq.category || "General"}</span>
                           <h4 className="text-xs font-bold text-slate-900">{faq.question}</h4>
@@ -3113,9 +3373,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingFaqId(faq._id);
+                              setEditingFaqId(faq._id ? String(faq._id) : faq.id);
                               setFaqForm({
                                 question: faq.question,
                                 answer: faq.answer,
@@ -3130,8 +3390,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteFaq.mutate({ id: faq._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteFaq.isPending}
+                            title="Delete FAQ"
+                            onClick={() => {
+                              const faqId = String(faq._id || faq.id);
+                              if (confirm(`Are you sure you want to delete FAQ "${faq.question || 'this FAQ'}"?`)) {
+                                deleteFaq.mutate({ id: faqId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -3163,7 +3430,7 @@ export default function AdminCMS() {
                         setStatMetricModal(true);
                       }}
                       size="sm"
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Counter
                     </Button>
@@ -3171,7 +3438,7 @@ export default function AdminCMS() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     {statsMetricsList?.map((s: any) => (
-                      <Card key={s._id} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between text-center">
+                      <Card key={String(s._id || s.id)} className="bg-white border-slate-200 shadow-sm p-4 flex flex-col justify-between text-center">
                         <div>
                           <div className="text-2xl font-black text-emerald-700 mb-1">{s.value}</div>
                           <div className="text-xs font-bold text-slate-800">{s.label}</div>
@@ -3181,9 +3448,9 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                            className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                             onClick={() => {
-                              setEditingStatMetricId(s._id);
+                              setEditingStatMetricId(s._id ? String(s._id) : s.id);
                               setStatMetricForm({
                                 label: s.label,
                                 value: s.value,
@@ -3199,8 +3466,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteStatMetric.mutate({ id: s._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteStatMetric.isPending}
+                            title="Delete Stat"
+                            onClick={() => {
+                              const sId = String(s._id || s.id);
+                              if (confirm(`Are you sure you want to delete stat metric "${s.label || 'this stat'}"?`)) {
+                                deleteStatMetric.mutate({ id: sId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -3872,18 +4146,20 @@ export default function AdminCMS() {
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="text-slate-500 hover:bg-slate-100 h-7 px-2"
+                                  className="text-slate-500 hover:bg-slate-100 h-7 px-2 cursor-pointer"
                                   title={m.isActive !== false ? "Hide from nav" : "Show in nav"}
-                                  onClick={() => toggleMenuMutation.mutate({ id: m._id, isActive: !(m.isActive !== false) })}
+                                  disabled={toggleMenuMutation.isPending}
+                                  onClick={() => toggleMenuMutation.mutate({ id: String(m._id || m.id), isActive: !(m.isActive !== false) })}
                                 >
                                   {m.isActive !== false ? <ToggleRight className="w-3.5 h-3.5 text-emerald-600" /> : <ToggleLeft className="w-3.5 h-3.5" />}
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+                                  className="text-slate-600 hover:bg-slate-100 h-7 px-2 cursor-pointer"
+                                  title="Edit Menu"
                                   onClick={() => {
-                                    setEditingMenuId(m._id);
+                                    setEditingMenuId(m._id ? String(m._id) : m.id);
                                     setMenuForm({
                                       title: m.title,
                                       url: m.url,
@@ -3899,8 +4175,15 @@ export default function AdminCMS() {
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="text-red-600 hover:bg-red-50 h-7 px-2"
-                                  onClick={() => deleteMenu.mutate({ id: m._id })}
+                                  className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                                  disabled={deleteMenu.isPending}
+                                  title="Delete Menu"
+                                  onClick={() => {
+                                    const menuId = String(m._id || m.id);
+                                    if (confirm(`Are you sure you want to delete menu item "${m.title || 'this menu'}"?`)) {
+                                      deleteMenu.mutate({ id: menuId });
+                                    }
+                                  }}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
@@ -4427,8 +4710,11 @@ export default function AdminCMS() {
                   Cancel
                 </Button>
                 <Button
+                  type="button"
                   disabled={!videoForm.title.trim() || !videoForm.youtubeUrl.trim() || createVideo.isPending || updateVideo.isPending}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const payload = {
                       title: videoForm.title.trim(),
                       category: videoForm.category || "Events",
@@ -4441,7 +4727,7 @@ export default function AdminCMS() {
                       createVideo.mutate(payload);
                     }
                   }}
-                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs cursor-pointer shadow-sm font-semibold"
                 >
                   {createVideo.isPending || updateVideo.isPending
                     ? "Saving..."
