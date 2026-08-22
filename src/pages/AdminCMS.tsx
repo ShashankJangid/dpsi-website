@@ -597,9 +597,12 @@ export default function AdminCMS() {
   });
   const deleteVideo = trpc.cms.deleteVideo.useMutation({
     onSuccess: () => {
-      toast.success("Video deleted");
+      toast.success("Video deleted from Gallery!");
       refetchVideos();
       refetchStats();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to delete video");
     },
   });
 
@@ -2435,8 +2438,15 @@ export default function AdminCMS() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:bg-red-50 h-7 px-2"
-                            onClick={() => deleteVideo.mutate({ id: v._id })}
+                            className="text-red-600 hover:bg-red-50 h-7 px-2 cursor-pointer"
+                            disabled={deleteVideo.isPending}
+                            title="Delete Video"
+                            onClick={() => {
+                              const videoId = String(v._id || v.id);
+                              if (confirm(`Are you sure you want to delete "${v.title || 'this video'}"?`)) {
+                                deleteVideo.mutate({ id: videoId });
+                              }
+                            }}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>

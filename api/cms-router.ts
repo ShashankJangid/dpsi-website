@@ -832,16 +832,17 @@ export const cmsRouter = createRouter({
       return created;
     }),
   deleteVideo: adminMutation
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.union([z.string(), z.any()]) }))
     .mutation(async ({ input, ctx }) => {
       const { VideoGallery } = await getGalleryModels();
-      const deleted = await VideoGallery.findByIdAndDelete(input.id);
+      const videoId = String(input.id?._id || input.id);
+      const deleted = await VideoGallery.findByIdAndDelete(videoId);
       await createImmutableAuditLog({
         action: "DELETE_VIDEO",
         module: "Videos",
         performedBy: ctx.user?.username || "Admin",
-        documentId: input.id,
-        details: `Deleted video showcase: ${deleted?.title || input.id}`,
+        documentId: videoId,
+        details: `Deleted video showcase: ${deleted?.title || videoId}`,
       });
       return deleted;
     }),
