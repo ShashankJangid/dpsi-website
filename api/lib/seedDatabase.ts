@@ -1,9 +1,40 @@
 import bcrypt from "bcryptjs";
 import { getMainModels, getGalleryModels, getTcModels } from "../models/cmsSchemas";
 import { getAdminUserModel } from "../models/adminUserSchema";
+import { getTenantModel } from "../models/tenantSchema";
 
-export async function seedDatabase() {
+export async function seedDatabase(
+  tenantId: string = "dpsi",
+  options?: { schoolName?: string; schoolCode?: string; primaryColor?: string }
+) {
   try {
+    // 0. SEED DEFAULT TENANT IN dpsi_admin
+    const Tenant = await getTenantModel();
+    await Tenant.findOneAndUpdate(
+      { tenantId: "dpsi" },
+      {
+        $setOnInsert: {
+          tenantId: "dpsi",
+          schoolName: "Delhi Public School Indirapuram",
+          schoolCode: "DPSI-60297",
+          domain: "dpsindirapuram.com",
+          primaryColor: "#047857",
+          secondaryColor: "#065f46",
+          contactEmail: "info@dpsindirapuram.com",
+          contactPhone: "+91-0120-4660000, 4670000",
+          address: "526/1, Ahinsa Khand-II, Indirapuram, Ghaziabad, U.P. - 201014",
+          status: "active",
+          features: {
+            aiChatbot: true,
+            tcPortal: true,
+            gallery: true,
+            munRegistration: true,
+          },
+        },
+      },
+      { upsert: true }
+    );
+
     const {
       SiteSettings,
       Achievement,
@@ -24,9 +55,9 @@ export async function seedDatabase() {
       Activity,
       Attachment,
       FeatureCard,
-    } = await getMainModels();
-    const { GalleryImage, VideoGallery } = await getGalleryModels();
-    const { TransferCertificate } = await getTcModels();
+    } = await getMainModels(tenantId);
+    const { GalleryImage, VideoGallery } = await getGalleryModels(tenantId);
+    const { TransferCertificate } = await getTcModels(tenantId);
 
 
     // 1. SITE SETTINGS
@@ -796,7 +827,7 @@ export async function seedDatabase() {
           fileUrl: "https://www.dpsindirapuram.com/calendar/annual-academic-calendar.pdf",
           fileName: "annual-academic-calendar-2026-27.pdf",
           fileType: "application/pdf",
-          fileSize: "2.4 MB",
+          fileSize: 2400000,
         },
         {
           title: "Mandatory Public Disclosure (CBSE)",
@@ -804,7 +835,7 @@ export async function seedDatabase() {
           fileUrl: "https://www.dpsindirapuram.com/docs/mandatory-disclosure.pdf",
           fileName: "cbse-mandatory-public-disclosure.pdf",
           fileType: "application/pdf",
-          fileSize: "1.8 MB",
+          fileSize: 1800000,
         },
         {
           title: "Fee Structure & Payment Schedule 2026-27",
@@ -812,7 +843,7 @@ export async function seedDatabase() {
           fileUrl: "https://www.dpsindirapuram.com/docs/fee-structure.pdf",
           fileName: "dpsi-fee-structure-2026-27.pdf",
           fileType: "application/pdf",
-          fileSize: "950 KB",
+          fileSize: 950000,
         },
       ]);
     }

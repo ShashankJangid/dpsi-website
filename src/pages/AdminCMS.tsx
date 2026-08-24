@@ -100,6 +100,10 @@ export default function AdminCMS() {
 
   const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
+  const [schoolCode, setSchoolCode] = useState("");
+  const [activeTenantName, setActiveTenantName] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("dpsi_admin_tenant_name") || "Delhi Public School Indirapuram" : "Delhi Public School Indirapuram"
+  );
   const [loginError, setLoginError] = useState("");
 
   const [pageModal, setPageModal] = useState(false);
@@ -400,14 +404,19 @@ export default function AdminCMS() {
       const res = await adminLoginMutation.mutateAsync({
         username: adminUsername,
         password: adminPassword,
+        schoolCode: schoolCode.trim() || undefined,
       });
 
       if (res.success && res.token) {
-        toast.success(`Welcome back, ${res.user?.username}!`);
+        const clientName = res.tenant?.schoolName || "DPS Indirapuram";
+        toast.success(`Welcome back, ${res.user?.username}! (${clientName})`);
         setIsAuthenticated(true);
         localStorage.setItem("dpsi_admin_token", res.token);
         localStorage.setItem("dpsi_admin_auth", "true");
         localStorage.setItem("dpsi_admin_user", res.user?.username || "Admin");
+        localStorage.setItem("dpsi_admin_tenant", res.tenant?.tenantId || (res.user as any)?.tenantId || "dpsi");
+        localStorage.setItem("dpsi_admin_tenant_name", clientName);
+        setActiveTenantName(clientName);
       } else {
         setLoginError(res.error || "Invalid username or password");
         toast.error(res.error || "Authentication failed");
@@ -421,6 +430,8 @@ export default function AdminCMS() {
     localStorage.removeItem("dpsi_admin_auth");
     localStorage.removeItem("dpsi_admin_user");
     localStorage.removeItem("dpsi_admin_token");
+    localStorage.removeItem("dpsi_admin_tenant");
+    localStorage.removeItem("dpsi_admin_tenant_name");
     setIsAuthenticated(false);
     toast.info("Logged out of Admin Portal");
   };
@@ -1491,6 +1502,23 @@ export default function AdminCMS() {
 
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700">School / Client Code</label>
+                <span className="text-[10px] text-slate-400 font-normal">Optional (e.g. DPSI-60297, GDG-2026)</span>
+              </div>
+              <div className="relative">
+                <Building className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
+                <Input
+                  type="text"
+                  value={schoolCode}
+                  onChange={(e) => setSchoolCode(e.target.value)}
+                  placeholder="DPSI-60297"
+                  className="pl-10 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-emerald-600 focus:bg-white uppercase font-mono text-xs tracking-wider"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-700">Username</label>
               <div className="relative">
                 <User className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
@@ -1556,12 +1584,15 @@ export default function AdminCMS() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-bold text-base text-slate-900">DPS Indirapuram CMS</h1>
+              <h1 className="font-bold text-base text-slate-900">{activeTenantName} CMS</h1>
               <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full">
                 Admin: {localStorage.getItem("dpsi_admin_user") || "Admin"}
               </span>
+              <span className="px-2 py-0.5 text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded-full">
+                Client: {localStorage.getItem("dpsi_admin_tenant") || "dpsi"}
+              </span>
             </div>
-            <p className="text-[11px] text-slate-500">Live Management Portal • Real-time MongoDB Cloud Sync</p>
+            <p className="text-[11px] text-slate-500">Multi-Tenant Management Portal • Isolated MongoDB Database Scoping</p>
           </div>
         </div>
 

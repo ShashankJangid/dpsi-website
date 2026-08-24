@@ -16,12 +16,16 @@ const trpcClient = trpc.createClient({
       headers() {
         const token = typeof window !== "undefined" ? localStorage.getItem("dpsi_admin_token") : null;
         const isAuth = typeof window !== "undefined" ? localStorage.getItem("dpsi_admin_auth") : null;
+        const tenantId = typeof window !== "undefined" ? localStorage.getItem("dpsi_admin_tenant") : null;
         const headers: Record<string, string> = {};
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
         }
         if (isAuth === "true" || !!token) {
           headers["x-admin-auth"] = "true";
+        }
+        if (tenantId) {
+          headers["x-tenant-id"] = tenantId;
         }
         return headers;
       },

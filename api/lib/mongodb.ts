@@ -18,7 +18,21 @@ if (!MONGODB_URI) {
 }
 
 
-export type AllowedDbName = "dpsi_main" | "dpsi_gallery" | "dpsi_tc" | "dpsi_admin";
+export type AllowedDbName = "dpsi_main" | "dpsi_gallery" | "dpsi_tc" | "dpsi_admin" | (string & {});
+
+/**
+ * Resolves the physical database name for a specific tenant and scope.
+ * Default tenant ("dpsi" / "default") maps to dpsi_main, dpsi_gallery, dpsi_tc, dpsi_admin.
+ * Other client tenants map to tenant_<tenantId>_<scope>.
+ */
+export function resolveDbName(tenantId: string, scope: "main" | "gallery" | "tc" | "admin"): string {
+  if (scope === "admin") return "dpsi_admin";
+  const cleanTenant = (tenantId || "dpsi").trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
+  if (cleanTenant === "dpsi" || cleanTenant === "default" || cleanTenant === "dps_indirapuram") {
+    return `dpsi_${scope}`;
+  }
+  return `tenant_${cleanTenant}_${scope}`;
+}
 
 interface MongoCache {
   connections: Record<string, mongoose.Connection | null>;
@@ -38,7 +52,7 @@ if (!global._mongoCache) {
   global._mongoCache = cached;
 }
 
-export async function getDbConnection(dbName: AllowedDbName): Promise<mongoose.Connection> {
+export async function getDbConnection(dbName: string): Promise<mongoose.Connection> {
   const key = dbName;
 
   // 1. Return active cached connection if ready

@@ -654,10 +654,12 @@ const RateLimitSchema = new Schema<IRateLimit>(
   { timestamps: true }
 );
 
-// --- MODEL GETTERS TIED TO SPECIFIC INTERNAL DATABASES ---
+// --- MODEL GETTERS TIED TO SPECIFIC TENANT DATABASES ---
+import { resolveDbName } from "../lib/mongodb";
 
-export async function getMainModels() {
-  const conn = await getDbConnection("dpsi_main");
+export async function getMainModels(tenantId: string = "dpsi") {
+  const dbName = resolveDbName(tenantId, "main");
+  const conn = await getDbConnection(dbName);
   return {
     Page: conn.models.Page || conn.model<IPage>("Page", PageSchema),
     Menu: conn.models.Menu || conn.model<IMenu>("Menu", MenuSchema),
@@ -720,16 +722,19 @@ AuditLogSchema.pre(["updateOne", "updateMany", "findOneAndUpdate", "replaceOne",
   next(new Error("SECURITY VIOLATION: AuditLog ledger is strictly immutable. Modification and deletion are prohibited by database security policy."));
 });
 
-export async function createImmutableAuditLog(data: {
-  action: string;
-  module: string;
-  performedBy?: string;
-  documentId?: string;
-  details?: string;
-  ipAddress?: string;
-}) {
+export async function createImmutableAuditLog(
+  data: {
+    action: string;
+    module: string;
+    performedBy?: string;
+    documentId?: string;
+    details?: string;
+    ipAddress?: string;
+  },
+  tenantId: string = "dpsi"
+) {
   try {
-    const { AuditLog } = await getMainModels();
+    const { AuditLog } = await getMainModels(tenantId);
     const lastLog = await AuditLog.findOne().sort({ sequenceNumber: -1 });
     const sequenceNumber = (lastLog?.sequenceNumber || 0) + 1;
     const previousHash = lastLog?.currentHash || "GENESIS_BLOCK_00000000000000000000000000000000000000000000000000000000";
@@ -761,10 +766,11 @@ export async function createImmutableAuditLog(data: {
 export async function checkPersistentRateLimit(
   key: string,
   limit: number = 40,
-  windowSeconds: number = 60
+  windowSeconds: number = 60,
+  tenantId: string = "dpsi"
 ): Promise<boolean> {
   try {
-    const { RateLimit } = await getMainModels();
+    const { RateLimit } = await getMainModels(tenantId);
     const expiresAt = new Date(Date.now() + windowSeconds * 1000);
 
     const doc = await RateLimit.findOneAndUpdate(
@@ -786,9 +792,9 @@ export async function checkPersistentRateLimit(
   }
 }
 
-
-export async function getGalleryModels() {
-  const conn = await getDbConnection("dpsi_gallery");
+export async function getGalleryModels(tenantId: string = "dpsi") {
+  const dbName = resolveDbName(tenantId, "gallery");
+  const conn = await getDbConnection(dbName);
   return {
     GalleryCategory: conn.models.GalleryCategory || conn.model<IGalleryCategory>("GalleryCategory", GalleryCategorySchema),
     GalleryImage: conn.models.GalleryImage || conn.model<IGalleryImage>("GalleryImage", GalleryImageSchema),
@@ -796,8 +802,9 @@ export async function getGalleryModels() {
   };
 }
 
-export async function getTcModels() {
-  const conn = await getDbConnection("dpsi_tc");
+export async function getTcModels(tenantId: string = "dpsi") {
+  const dbName = resolveDbName(tenantId, "tc");
+  const conn = await getDbConnection(dbName);
   return {
     TransferCertificate: conn.models.TransferCertificate || conn.model<ITransferCertificate>("TransferCertificate", TransferCertificateSchema),
   };

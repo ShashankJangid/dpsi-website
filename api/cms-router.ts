@@ -6,6 +6,8 @@ import { createRouter, publicQuery, publicMutation, adminMutation, adminQuery } 
 import { getMainModels, getGalleryModels, getTcModels, createImmutableAuditLog } from "./models/cmsSchemas";
 import crypto from "crypto";
 import { getAdminUserModel } from "./models/adminUserSchema";
+import { getTenantModel } from "./models/tenantSchema";
+import { seedDatabase } from "./lib/seedDatabase";
 import { convertImageToWebP } from "./utils/mediaConverter";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dpsi_cms_super_secret_jwt_key_2026_99x";
@@ -54,6 +56,7 @@ export const cmsRouter = createRouter({
       z.object({
         username: z.string().min(1).max(100),
         password: z.string().min(1).max(200),
+        schoolCode: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -74,6 +77,7 @@ export const cmsRouter = createRouter({
 
       const trimmedUser = input.username.trim().toLowerCase();
       const trimmedPass = input.password.trim();
+      const schoolCodeInput = input.schoolCode?.trim().toUpperCase();
 
       const envPass = process.env.ADMIN_PASSWORD || "Admin@dps123";
       const envUser = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
@@ -85,6 +89,20 @@ export const cmsRouter = createRouter({
 
       try {
         const AdminUser = await getAdminUserModel();
+        const Tenant = await getTenantModel();
+
+        let targetTenantId = "dpsi";
+        if (schoolCodeInput) {
+          const matchedTenant = await Tenant.findOne({
+            $or: [
+              { schoolCode: { $regex: new RegExp(`^${escapeRegex(schoolCodeInput)}$`, "i") } },
+              { tenantId: { $regex: new RegExp(`^${escapeRegex(schoolCodeInput)}$`, "i") } },
+            ],
+          });
+          if (matchedTenant) {
+            targetTenantId = matchedTenant.tenantId;
+          }
+        }
 
         const safeUsername = escapeRegex(input.username.trim());
         const user = await AdminUser.findOne({
@@ -114,41 +132,61 @@ export const cmsRouter = createRouter({
           if (passwordValid) {
             resetLoginAttempts(clientIp);
             await AdminUser.findByIdAndUpdate(user._id, { lastLogin: new Date() }).catch(() => {});
+            const assignedTenantId = user.tenantId || targetTenantId || "dpsi";
             const token = jwt.sign(
-              { id: user._id.toString(), username: user.username, role: user.role || "superadmin" },
+              { id: user._id.toString(), username: user.username, role: user.role || "superadmin", tenantId: assignedTenantId },
               JWT_SECRET,
               { expiresIn: "8h" }
             );
+
+            const activeTenant = await Tenant.findOne({ tenantId: assignedTenantId }).catch(() => null);
+
             return {
               success: true,
               token,
-              user: { username: user.username, role: user.role || "superadmin" },
+              user: { username: user.username, role: user.role || "superadmin", tenantId: assignedTenantId },
+              tenant: activeTenant ? {
+                tenantId: activeTenant.tenantId,
+                schoolName: activeTenant.schoolName,
+                schoolCode: activeTenant.schoolCode,
+                logoUrl: activeTenant.logoUrl,
+                primaryColor: activeTenant.primaryColor,
+              } : null,
             };
           }
         }
 
         if (isMasterAdmin) {
           resetLoginAttempts(clientIp);
-          // If no admin user exists in DB, auto-create one
           try {
             const salt = await bcrypt.genSalt(10);
             const passwordHash = await bcrypt.hash(trimmedPass, salt);
             await AdminUser.findOneAndUpdate(
               { username: { $regex: /^admin$/i } },
-              { $setOnInsert: { username: "Admin", passwordHash, role: "superadmin" } },
+              { $setOnInsert: { username: "Admin", passwordHash, role: "superadmin", tenantId: "all" } },
               { upsert: true }
             );
           } catch {}
 
           const token = jwt.sign(
-            { id: "master", username: "Admin", role: "superadmin" as const },
+            { id: "master", username: "Admin", role: "superadmin" as const, tenantId: "all" },
             JWT_SECRET,
             { expiresIn: "8h" }
           );
+
+          const defaultTenant = await Tenant.findOne({ tenantId: targetTenantId }).catch(() => null);
+
           return {
             success: true,
             token,
-            user: { username: "Admin", role: "superadmin" as const },
+            user: { username: "Admin", role: "superadmin" as const, tenantId: "all" },
+            tenant: defaultTenant ? {
+              tenantId: defaultTenant.tenantId,
+              schoolName: defaultTenant.schoolName,
+              schoolCode: defaultTenant.schoolCode,
+              logoUrl: defaultTenant.logoUrl,
+              primaryColor: defaultTenant.primaryColor,
+            } : null,
           };
         }
 
@@ -161,20 +199,142 @@ export const cmsRouter = createRouter({
         if (isMasterAdmin) {
           resetLoginAttempts(clientIp);
           const token = jwt.sign(
-            { id: "master", username: "Admin", role: "superadmin" as const },
+            { id: "master", username: "Admin", role: "superadmin" as const, tenantId: "all" },
             JWT_SECRET,
             { expiresIn: "8h" }
           );
           return {
             success: true,
             token,
-            user: { username: "Admin", role: "superadmin" as const },
+            user: { username: "Admin", role: "superadmin" as const, tenantId: "all" },
           };
         }
 
         recordLoginFailure(clientIp);
         return { success: false, error: "Authentication service temporarily unavailable. Please try again." };
       }
+    }),
+
+  // --- MULTI-TENANT MANAGEMENT (SUPERADMIN & CLIENT TENANTS) ---
+  getTenantConfig: publicQuery
+    .input(z.object({ tenantId: z.string().optional(), schoolCode: z.string().optional() }).optional())
+    .query(async ({ input, ctx }) => {
+      const Tenant = await getTenantModel();
+      const queryTenantId = input?.tenantId || ctx?.tenantId || "dpsi";
+      const querySchoolCode = input?.schoolCode;
+
+      let tenant = null;
+      if (querySchoolCode) {
+        tenant = await Tenant.findOne({ schoolCode: { $regex: new RegExp(`^${escapeRegex(querySchoolCode)}$`, "i") }, status: "active" });
+      }
+      if (!tenant) {
+        tenant = await Tenant.findOne({ tenantId: queryTenantId, status: "active" });
+      }
+      if (!tenant) {
+        tenant = await Tenant.findOne({ tenantId: "dpsi" });
+      }
+
+      return tenant || {
+        tenantId: "dpsi",
+        schoolName: "Delhi Public School Indirapuram",
+        schoolCode: "DPSI-60297",
+        primaryColor: "#047857",
+        secondaryColor: "#065f46",
+        logoUrl: "/logo.webp",
+        status: "active",
+      };
+    }),
+
+  listTenants: adminQuery.query(async ({ ctx }) => {
+    const Tenant = await getTenantModel();
+    if (ctx.user?.tenantId && ctx.user.tenantId !== "all" && ctx.user.tenantId !== "dpsi") {
+      return Tenant.find({ tenantId: ctx.user.tenantId });
+    }
+    return Tenant.find({}).sort({ createdAt: -1 });
+  }),
+
+  createTenant: adminMutation
+    .input(
+      z.object({
+        tenantId: z.string().min(2).max(50).regex(/^[a-z0-9_-]+$/, "Only lowercase letters, numbers, and underscores allowed"),
+        schoolName: z.string().min(2).max(200),
+        schoolCode: z.string().min(2).max(50),
+        domain: z.string().optional(),
+        primaryColor: z.string().default("#047857"),
+        secondaryColor: z.string().default("#065f46"),
+        logoUrl: z.string().optional(),
+        contactEmail: z.string().email().optional(),
+        contactPhone: z.string().optional(),
+        address: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const Tenant = await getTenantModel();
+      const existing = await Tenant.findOne({
+        $or: [{ tenantId: input.tenantId }, { schoolCode: input.schoolCode }],
+      });
+      if (existing) {
+        throw new Error(`A client with Tenant ID "${input.tenantId}" or School Code "${input.schoolCode}" already exists.`);
+      }
+
+      const newTenant = await Tenant.create({
+        ...input,
+        status: "active",
+        features: {
+          aiChatbot: true,
+          tcPortal: true,
+          gallery: true,
+          munRegistration: true,
+        },
+      });
+
+      // Auto-seed default database structure for new client tenant
+      try {
+        await seedDatabase(input.tenantId, {
+          schoolName: input.schoolName,
+          schoolCode: input.schoolCode,
+          primaryColor: input.primaryColor,
+        });
+      } catch (seedErr) {
+        console.warn(`Initial seed warning for tenant [${input.tenantId}]:`, seedErr);
+      }
+
+      await createImmutableAuditLog(
+        {
+          action: "CREATE",
+          module: "MultiTenant",
+          performedBy: ctx.user?.username || "SuperAdmin",
+          documentId: newTenant._id.toString(),
+          details: `Created new client tenant: ${input.schoolName} (${input.tenantId})`,
+          ipAddress: ctx.req?.headers?.get("x-forwarded-for") || "internal",
+        },
+        "dpsi"
+      );
+
+      return newTenant;
+    }),
+
+  updateTenant: adminMutation
+    .input(
+      z.object({
+        id: z.string(),
+        schoolName: z.string().optional(),
+        schoolCode: z.string().optional(),
+        domain: z.string().optional(),
+        primaryColor: z.string().optional(),
+        secondaryColor: z.string().optional(),
+        logoUrl: z.string().optional(),
+        contactEmail: z.string().optional(),
+        contactPhone: z.string().optional(),
+        address: z.string().optional(),
+        status: z.enum(["active", "suspended"]).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const Tenant = await getTenantModel();
+      const updated = await Tenant.findByIdAndUpdate(input.id, input, { new: true });
+      if (!updated) throw new Error("Tenant not found.");
+      return updated;
     }),
   // --- 1. MEDIA CONVERSION & CLOUDINARY UPLOAD ---
   uploadAndTranscode: adminMutation
