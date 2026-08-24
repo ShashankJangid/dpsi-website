@@ -7,9 +7,8 @@ dotenv.config();
 // Ensure resilient DNS resolution for MongoDB Atlas SRV connection strings
 try {
   dns.setDefaultResultOrder("ipv4first");
-  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
 } catch {
-  // Ignore in environments where setting DNS servers is restricted
+  // Ignore in environments where setting DNS order is restricted
 }
 
 const MONGODB_URI = process.env.MONGODB_URI;
