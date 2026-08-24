@@ -20,6 +20,6 @@ const AdminUserSchema = new Schema<IAdminUser>(
 );
 
 export async function getAdminUserModel() {
-  const conn = await getDbConnection("dpsi_main");
+  const conn = await getDbConnection("dpsi_admin");
   return conn.models.AdminUser || conn.model<IAdminUser>("AdminUser", AdminUserSchema);
 }

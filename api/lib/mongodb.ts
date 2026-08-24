@@ -18,17 +18,11 @@ if (!MONGODB_URI) {
 }
 
 
+export type AllowedDbName = "dpsi_main" | "dpsi_gallery" | "dpsi_tc" | "dpsi_admin";
+
 interface MongoCache {
-  connections: {
-    main: mongoose.Connection | null;
-    gallery: mongoose.Connection | null;
-    tc: mongoose.Connection | null;
-  };
-  promises: {
-    main: Promise<mongoose.Connection> | null;
-    gallery: Promise<mongoose.Connection> | null;
-    tc: Promise<mongoose.Connection> | null;
-  };
+  connections: Record<string, mongoose.Connection | null>;
+  promises: Record<string, Promise<mongoose.Connection> | null>;
 }
 
 declare global {
@@ -36,16 +30,16 @@ declare global {
 }
 
 const cached: MongoCache = global._mongoCache || {
-  connections: { main: null, gallery: null, tc: null },
-  promises: { main: null, gallery: null, tc: null },
+  connections: {},
+  promises: {},
 };
 
 if (!global._mongoCache) {
   global._mongoCache = cached;
 }
 
-export async function getDbConnection(dbName: "dpsi_main" | "dpsi_gallery" | "dpsi_tc"): Promise<mongoose.Connection> {
-  const key = dbName === "dpsi_main" ? "main" : dbName === "dpsi_gallery" ? "gallery" : "tc";
+export async function getDbConnection(dbName: AllowedDbName): Promise<mongoose.Connection> {
+  const key = dbName;
 
   // 1. Return active cached connection if ready
   if (cached.connections[key] && cached.connections[key]!.readyState === 1) {
