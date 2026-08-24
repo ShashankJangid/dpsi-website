@@ -7,6 +7,10 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./router";
 import { createContext } from "./context";
 import { seedDatabase } from "./lib/seedDatabase";
+import { initSentryBackend } from "./lib/sentry";
+
+// Initialize Sentry backend error monitoring (no-op if SENTRY_DSN not set)
+initSentryBackend();
 
 // Safe asynchronous background seeding of MongoDB defaults
 seedDatabase().catch((err) => console.warn("Seed warning:", err));
@@ -39,7 +43,7 @@ app.use(
       return ALLOWED_ORIGINS.includes(origin) ? origin : null;
     },
     allowMethods: ["GET", "POST", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "x-trpc-source"],
+    allowHeaders: ["Content-Type", "Authorization", "x-trpc-source", "x-admin-auth", "x-tenant-id"],
     maxAge: 86400,
   })
 );
