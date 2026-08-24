@@ -11,8 +11,8 @@ import { convertImageToWebP } from "./utils/mediaConverter";
 const JWT_SECRET = process.env.JWT_SECRET || "dpsi_cms_super_secret_jwt_key_2026_99x";
 const MASTER_ADMIN_USER = process.env.ADMIN_USERNAME || "admin";
 const MASTER_ADMIN_PASS = process.env.ADMIN_PASSWORD || "";
-const FALLBACK_ADMIN_USER = "admin";
-const FALLBACK_ADMIN_PASS = "12345678";
+const FALLBACK_ADMIN_USER = process.env.FALLBACK_ADMIN_USERNAME || "";
+const FALLBACK_ADMIN_PASS = process.env.FALLBACK_ADMIN_PASSWORD || "";
 
 export function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
