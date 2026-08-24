@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { ArrowRight, GraduationCap, CalendarDays, MapPin, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/providers/trpc";
+import { formatISTDate } from "@/lib/dateUtils";
 
 export default function PrincipalMessage() {
   const { data: events } = trpc.events.list.useQuery();
@@ -136,7 +137,7 @@ export default function PrincipalMessage() {
                     </h4>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1.5 font-medium">
                       <CalendarDays className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                      {new Date(event.eventDate).toLocaleDateString()}
+                      {formatISTDate(event.eventDate)}
                       <MapPin className="w-3.5 h-3.5 ml-1 text-emerald-600 dark:text-emerald-400" />
                       {event.location}
                     </div>

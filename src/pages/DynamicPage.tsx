@@ -6,6 +6,7 @@ import { ChevronRight, Calendar, Tag, ArrowLeft, FileText, AlertCircle } from "l
 import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
 import { Button } from "@/components/ui/button";
+import { formatISTDate } from "@/lib/dateUtils";
 
 export default function DynamicPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -50,7 +51,7 @@ export default function DynamicPage() {
                   {page.updatedAt && (
                     <span className="flex items-center gap-1 text-[11px] text-slate-500">
                       <Calendar className="w-3.5 h-3.5" />
-                      Updated {new Date(page.updatedAt).toLocaleDateString()}
+                      Updated {formatISTDate(page.updatedAt)}
                     </span>
                   )}
                 </div>

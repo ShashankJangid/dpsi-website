@@ -51,8 +51,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import RichTextEditor from "@/components/RichTextEditor";
 import { toast } from "sonner";
+import { formatISTDate, formatISTDateTime } from "@/lib/dateUtils";
 
 type TabType =
   | "dashboard"
@@ -1381,14 +1381,11 @@ export default function AdminCMS() {
   };
 
   const safeFormatDate = (val: any) => {
-    if (!val) return "N/A";
-    try {
-      const d = new Date(val);
-      if (isNaN(d.getTime())) return "N/A";
-      return d.toLocaleDateString();
-    } catch {
-      return "N/A";
-    }
+    return formatISTDate(val);
+  };
+
+  const safeFormatDateTime = (val: any) => {
+    return formatISTDateTime(val);
   };
 
   const parseBulkCsv = (text: string) => {

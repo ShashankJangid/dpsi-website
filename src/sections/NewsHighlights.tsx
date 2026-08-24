@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { ArrowRight, Clock, User, Newspaper } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/providers/trpc";
+import { formatISTDate } from "@/lib/dateUtils";
 
 export default function NewsHighlights() {
   const { data: cmsActivities, isLoading } = trpc.cms.listActivities.useQuery();
@@ -108,7 +109,7 @@ export default function NewsHighlights() {
                     <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3 font-medium">
                       <span className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        {new Date(item.createdAt).toLocaleDateString()}
+                        {formatISTDate(item.createdAt)}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />

@@ -18,6 +18,7 @@ import { trpc } from "@/providers/trpc";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatISTDate } from "@/lib/dateUtils";
 
 export default function TransferCertificate() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -121,7 +122,7 @@ export default function TransferCertificate() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
                           <p><strong>Father:</strong> {tc.fatherName}</p>
                           <p><strong>Class Leaving:</strong> {tc.classLeaving}</p>
-                          <p><strong>Date of Issue:</strong> {new Date(tc.dateOfIssue).toLocaleDateString()}</p>
+                          <p><strong>Date of Issue:</strong> {formatISTDate(tc.dateOfIssue)}</p>
                         </div>
                       </div>
 

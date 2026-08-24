@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
+import { formatISTDate } from "@/lib/dateUtils";
 
 export default function NewsEvents() {
   const { data: cmsActivities, isLoading: isCmsLoading } = trpc.cms.listActivities.useQuery();
@@ -143,7 +144,7 @@ export default function NewsEvents() {
                           <CardContent className="p-5">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 font-medium">
                               <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                              {new Date(item.createdAt).toLocaleDateString()}
+                              {formatISTDate(item.createdAt)}
                             </div>
                             <h3 className="font-bold text-slate-900 dark:text-white mb-2 line-clamp-2">{item.title}</h3>
                             <p className="text-sm text-muted-foreground line-clamp-3 mb-4 leading-relaxed">{item.excerpt || item.description}</p>
@@ -203,7 +204,7 @@ export default function NewsEvents() {
                             <h3 className="font-bold text-slate-900 dark:text-white mb-2">{event.title}</h3>
                             <p className="text-sm text-muted-foreground mb-3 line-clamp-3 leading-relaxed">{event.description}</p>
                             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-2 border-t border-slate-100 dark:border-slate-800">
-                              <span className="flex items-center gap-1 font-medium"><CalendarDays className="w-3.5 h-3.5 text-emerald-600" /> {evtDate.toLocaleDateString()}</span>
+                              <span className="flex items-center gap-1 font-medium"><CalendarDays className="w-3.5 h-3.5 text-emerald-600" /> {formatISTDate(evtDate)}</span>
                               <span className="flex items-center gap-1 font-medium"><MapPin className="w-3.5 h-3.5 text-emerald-600" /> {event.location || "DPS Indirapuram"}</span>
                             </div>
                           </CardContent>
