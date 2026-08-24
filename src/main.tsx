@@ -1,17 +1,23 @@
+import "./instrument"; // ← MUST be first import — initializes Sentry before any other code
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import './index.css'
 import { TRPCProvider } from "@/providers/trpc"
 import { setupCleanConsole } from "@/lib/utils"
-import { initSentry } from "@/lib/sentry"
+import { reactErrorHandler } from "@sentry/react"
 import App from './App.tsx'
 
-// Initialize Sentry error monitoring (no-op if VITE_SENTRY_DSN not set)
-initSentry()
 setupCleanConsole()
 
-createRoot(document.getElementById('root')!).render(
+// React 19: pass reactErrorHandler to all three createRoot options
+// This ensures Sentry captures errors from all React error boundaries
+createRoot(document.getElementById('root')!, {
+  onUncaughtError: reactErrorHandler(),
+  onCaughtError: reactErrorHandler(),
+  onRecoverableError: reactErrorHandler(),
+}).render(
   <StrictMode>
     <BrowserRouter>
       <TRPCProvider>

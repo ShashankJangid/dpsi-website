@@ -4,6 +4,7 @@ const __dirname = import.meta.dirname
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
+import { sentryVitePlugin } from "@sentry/vite-plugin"
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -91,7 +92,18 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    // Sentry source maps — uploads to Sentry at build time for readable stack traces
+    // Only active when SENTRY_AUTH_TOKEN is set (skip in dev)
+    ...(process.env.SENTRY_AUTH_TOKEN
+      ? [
+          sentryVitePlugin({
+            org: "orangefuturetech",
+            project: "javascript-react-router",
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+          }),
+        ]
+      : []),
   ],
   server: {
     port: 3000,
@@ -110,6 +122,7 @@ export default defineConfig({
     emptyOutDir: true,
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
+    sourcemap: "hidden", // Hidden sourcemaps: uploaded to Sentry, not served publicly
     rollupOptions: {
       output: {
         manualChunks: {

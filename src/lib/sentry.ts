@@ -1,27 +1,22 @@
 /**
  * Sentry Frontend Error Monitoring
- * GitHub Student Developer Pack: sentry.io — 50,000 errors/month free
- * 
- * SETUP: Add VITE_SENTRY_DSN to your Doppler / .env:
- *   VITE_SENTRY_DSN=https://xxxxx@o0.ingest.sentry.io/xxxxxxx
+ * Organisation: orangefuturetech
+ * Project:      javascript-react-router
+ * DSN:          https://08fc42b0aa8123348987d264d2c88b99@o4511965668179968.ingest.us.sentry.io/4511965673029632
  */
 import * as Sentry from "@sentry/react";
 
+// Your Sentry DSN — safe to be public (it only accepts errors FROM your site)
+const SENTRY_DSN =
+  import.meta.env.VITE_SENTRY_DSN ||
+  "https://08fc42b0aa8123348987d264d2c88b99@o4511965668179968.ingest.us.sentry.io/4511965673029632";
+
 export function initSentry() {
-  const dsn = import.meta.env.VITE_SENTRY_DSN;
-
-  // Skip in development if DSN not set
-  if (!dsn) {
-    console.info("ℹ️  Sentry DSN not set — error monitoring disabled in dev mode.");
-    return;
-  }
-
   Sentry.init({
-    dsn,
+    dsn: SENTRY_DSN,
     environment: import.meta.env.MODE || "production",
     release: "dpsi-website@1.0.0",
 
-    // Session Replay: record 10% of sessions, 100% of sessions with errors
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
@@ -30,20 +25,31 @@ export function initSentry() {
       }),
     ],
 
-    // Performance tracing: 10% of transactions sampled
-    tracesSampleRate: 0.1,
+    // Capture 10% of all page transactions for performance monitoring
+    tracesSampleRate: import.meta.env.DEV ? 0 : 0.1,
 
-    // Session Replay
+    // Record 10% of user sessions, 100% of sessions with errors
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
 
-    // Custom tag to identify the school tenant
+    // Filter out noisy, non-actionable browser errors
+    ignoreErrors: [
+      "ResizeObserver loop limit exceeded",
+      "Non-Error promise rejection captured",
+      /^Network Error$/,
+      /^Failed to fetch$/,
+      /^Load failed$/,
+    ],
+
+    // Tag every error with the active school/client tenant
     initialScope: {
       tags: {
         platform: "dpsi-website",
-        tenant: typeof window !== "undefined"
-          ? (localStorage.getItem("dpsi_admin_tenant") || "dpsi")
-          : "dpsi",
+        org: "orangefuturetech",
+        tenant:
+          typeof window !== "undefined"
+            ? localStorage.getItem("dpsi_admin_tenant") || "dpsi"
+            : "dpsi",
       },
     },
   });
@@ -54,9 +60,6 @@ export function initSentry() {
  * Use this for non-fatal errors you want to track (e.g. failed API calls).
  */
 export function captureError(error: unknown, context?: Record<string, string>) {
-  const dsn = import.meta.env.VITE_SENTRY_DSN;
-  if (!dsn) return;
-
   Sentry.withScope((scope) => {
     if (context) {
       Object.entries(context).forEach(([key, val]) => scope.setTag(key, val));

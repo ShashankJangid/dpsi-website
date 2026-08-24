@@ -1,3 +1,5 @@
+import "./instrument"; // ← MUST be first — initializes Sentry before any other module
+
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
@@ -7,10 +9,6 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./router";
 import { createContext } from "./context";
 import { seedDatabase } from "./lib/seedDatabase";
-import { initSentryBackend } from "./lib/sentry";
-
-// Initialize Sentry backend error monitoring (no-op if SENTRY_DSN not set)
-initSentryBackend();
 
 // Safe asynchronous background seeding of MongoDB defaults
 seedDatabase().catch((err) => console.warn("Seed warning:", err));
